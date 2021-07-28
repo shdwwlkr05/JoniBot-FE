@@ -25,8 +25,9 @@ export class BidFormComponent implements OnInit, OnDestroy {
   vacEnd: Date
 
 
-
   private dateSubscription: Subscription;
+  private bidSubscription: Subscription;
+  private bids: any = {}
 
   constructor(private bidService: BidService,
               private data: DataStorageService) {
@@ -40,6 +41,12 @@ export class BidFormComponent implements OnInit, OnDestroy {
         this.vacEnd = dateInfo.date;
       }
     })
+    this.bidSubscription = this.bidService.bidsChanged.subscribe(bids => {
+      this.bids = bids
+    })
+    // console.log('ngOnInit')
+    // this.data.fetchBids().subscribe()
+    // this.bids = this.bidService.getBids()
   }
 
   ngOnDestroy() {
@@ -51,6 +58,12 @@ export class BidFormComponent implements OnInit, OnDestroy {
   }
 
   onFetchBids() {
-    console.log(this.data.fetchBids().subscribe())
+    // this.bids = this.data.fetchBids().subscribe(bids => {
+    //   console.log(bids);
+    // })
+    // console.log(this.bids)
+    // this.bids = this.bidService.getBids()
+    console.log('FetchBids', this.bids)
+
   }
 }

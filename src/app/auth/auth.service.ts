@@ -71,6 +71,7 @@ export class AuthService {
     const user = new User(username, token);
     this.user.next(user);
     localStorage.setItem('userData', JSON.stringify(user));
+    this.router.navigate([''])
   }
 
   private handleError(errorRes: HttpErrorResponse) {
