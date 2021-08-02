@@ -4,8 +4,10 @@ import { HttpClient } from '@angular/common/http'
 import { Bid } from './bid.model'
 import { map, tap } from 'rxjs/operators'
 import { BidService } from './bid.service'
+import { CalendarService } from '../calendar/calendar.service'
 
 const baseUrl = 'http://127.0.0.1:8000/api/bid/bids/'
+const workdayUrl = 'http://127.0.0.1:8000/api/bid/workdays'
 
 @Injectable({
   providedIn: 'root'
@@ -13,7 +15,8 @@ const baseUrl = 'http://127.0.0.1:8000/api/bid/bids/'
 export class DataStorageService {
 
   constructor(private http: HttpClient,
-              private bidService: BidService) {
+              private bidService: BidService,
+              private calendarService: CalendarService) {
   }
 
   fetchBids() {
@@ -60,5 +63,11 @@ export class DataStorageService {
         this.bidService.setBids(bids);
       })
     )
+  }
+
+  fetchWorkdays() {
+    return this.http.get(workdayUrl).pipe(tap(workdays => {
+      this.calendarService.setWorkdays(workdays)
+    }))
   }
 }

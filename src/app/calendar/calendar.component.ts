@@ -9,6 +9,10 @@ import {
   collapseAnimation
 } from 'angular-calendar';
 import { BidService } from '../bid-form/bid.service'
+import { DataStorageService } from '../bid-form/data-storage.service'
+import { CalendarService } from './calendar.service'
+import { HttpClient } from '@angular/common/http'
+import { formatDate } from '@angular/common'
 
 const colors: any = {
   red: {
@@ -24,6 +28,7 @@ const colors: any = {
     secondary: '#FDF1BA',
   },
 };
+
 
 @Component({
   selector: 'app-calendar',
@@ -41,9 +46,6 @@ export class CalendarComponent {
   CalendarView = CalendarView;
 
   viewDate: Date = new Date();
-
-  constructor(private bidService: BidService) {}
-
   refresh: Subject<any> = new Subject();
   actions: CalendarEventAction[] = [
     {
@@ -63,33 +65,16 @@ export class CalendarComponent {
       cssClass: 'my-custom-action',
     },
   ];
-  events: CalendarEvent[] = [
-    {
-      start: startOfDay(new Date('6/21/21')),
-      title: 'Jun 21',
-      color: colors.blue,
-      actions: this.actions,
-    },
-    {
-      start: startOfDay(new Date('6/22/21')),
-      title: 'Jun 22',
-      color: colors.blue,
-      actions: this.actions,
-    },
-    {
-      start: startOfDay(new Date('6/23/21')),
-      title: 'Jun 23',
-      color: colors.blue,
-      actions: this.actions,
-    },
-    {
-      start: startOfDay(new Date('6/24/21')),
-      title: 'Jun 24',
-      color: colors.blue,
-      actions: this.actions,
-    }
-  ];
+  events: CalendarEvent[] = this.getCalendarEvents(this.calService.getWorkdays());
   activeDayIsOpen: boolean = false;
+
+
+  constructor(private bidService: BidService,
+              private data: DataStorageService,
+              private calService: CalendarService,
+              private http: HttpClient) {
+  }
+
 
   dayClicked({date, events}: { date: Date; events: CalendarEvent[] }): void {
     if (isSameMonth(date, this.viewDate)) {
@@ -119,12 +104,12 @@ export class CalendarComponent {
 
 
   onStartClick(event: CalendarEvent): void {
-    this.bidService.dateEmitter.next({date:event.start, location:'start'});
+    this.bidService.dateEmitter.next({date: event.start, location: 'start'});
     console.log('Start Event: ', event.start)
   }
 
   onEndClick(event: CalendarEvent): void {
-    this.bidService.dateEmitter.next({date:event.start, location:'end'});
+    this.bidService.dateEmitter.next({date: event.start, location: 'end'});
     console.log('End Event: ', event.start)
   }
 
@@ -132,4 +117,22 @@ export class CalendarComponent {
   closeOpenMonthViewDay() {
     this.activeDayIsOpen = false;
   }
+
+  getCalendarEvents(workdays) {
+    // console.log('getCalendarEvents', workdays)
+    const workdayList = []
+    for (let workday of workdays) {
+      workdayList.push({
+        start: startOfDay(new Date(workday + 'T00:00:00')),
+        title: formatDate(workday, 'MMM d', 'en-us'),
+        color: colors.blue,
+        actions: this.actions,
+      })
+    }
+    console.log('getCalendarEvents', workdayList)
+    return workdayList
+
+  }
+
+
 }

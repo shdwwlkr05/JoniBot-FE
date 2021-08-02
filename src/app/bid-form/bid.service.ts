@@ -13,10 +13,13 @@ export class BidService {
   dateEmitter = new Subject<dateInfo>();
   bidsChanged = new Subject<any>();
 
+
   private bids = {}
+
 
   constructor() {
   }
+
 
   setBids(bids) {
     this.bids = bids

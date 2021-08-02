@@ -5,11 +5,12 @@ import { AuthComponent } from './auth/auth.component'
 import { HomeComponent } from './home/home.component'
 import { BidListComponent } from './bid-list/bid-list.component'
 import { AuthGuard } from './auth/auth.guard'
+import { WorkdayResolverService } from './calendar/workday-resolver.service'
 
 const appRoutes: Routes = [
-  { path: '', component: HomeComponent, pathMatch: 'full'},
-  { path: 'myBids', component: BidListComponent, canActivate: [AuthGuard]},
-  { path: 'auth', component: AuthComponent },
+  {path: '', component: HomeComponent, pathMatch: 'full', resolve: [WorkdayResolverService]},
+  {path: 'myBids', component: BidListComponent, canActivate: [AuthGuard]},
+  {path: 'auth', component: AuthComponent},
 ]
 
 @NgModule({
@@ -20,4 +21,5 @@ const appRoutes: Routes = [
   ],
   exports: [RouterModule]
 })
-export class AppRoutingModule { }
+export class AppRoutingModule {
+}
