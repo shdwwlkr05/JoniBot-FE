@@ -2,17 +2,26 @@
   <div class="row">
     <div class="col-xs-12 col-sm-10 col-md-8 col-sm-offset-1 col-md-offset-2">
       <h4>Bid Sheet</h4>
-      <form (ngSubmit)="onSubmit()" #form="ngForm">
+      <form [formGroup]="bidForm" (ngSubmit)="onSubmit()">
         <div class="form-group">
           <label for="bid-round">Round</label>
-          <select name="bid-round" id="bid-round" class="form-select" [ngModel]="defaultRound" required>
+          <select
+            name="bid-round"
+            id="bid-round"
+            class="form-select"
+            formControlName="bid-round">
             <option *ngFor="let round of rounds" value="{{round}}">{{round}}</option>
           </select>
         </div>
         <div class="form-group">
           <label for="bid-choice">Bid Choice</label>
-          <input type="number" id="bid-choice" name="bid-choice" class="form-control" [ngModel]="defaultRound" required
-                 pattern="^[1-9]+[0-9]*$">
+          <input
+            type="number"
+            id="bid-choice"
+            name="bid-choice"
+            class="form-control"
+            formControlName="bid-choice"
+            pattern="^[1-9]+[0-9]*$">
         </div>
         <div class="form-group">
           <label for="start-vac">Start of Vacation</label>
@@ -20,9 +29,7 @@
                  id="start-vac"
                  name="start-vac"
                  class="form-control"
-                 [value] = "vacStart ? (vacStart | date:'yyyy-MM-dd') : ''"
-                 ngModel
-                 required>
+                 formControlName="start-vac">
         </div>
         <div class="form-group">
           <label for="end-vac">End of Vacation</label>
@@ -30,27 +37,39 @@
                  id="end-vac"
                  name="end-vac"
                  class="form-control"
-                 [value] = "vacEnd ? (vacEnd | date:'yyyy-MM-dd') : ''"
-                 ngModel>
+                 formControlName="end-vac">
         </div>
         <div class="form-group">
           <label for="vac-type">Vacation Type</label>
-          <select name="vac-type" id="vac-type" class="form-select" [ngModel]="defaultVacType">
+          <select
+            name="vac-type"
+            id="vac-type"
+            class="form-select"
+            formControlName="vac-type">
             <option value="vac">Vacation</option>
             <option value="ppt">PPT</option>
           </select>
         </div>
         <div class="form-group">
           <label for="award-option">Award if...</label>
-          <select name="award-option" id="award-option" class="form-select" [ngModel]="defaultAwardOption">
+          <select
+            name="award-option"
+            id="award-option"
+            class="form-select"
+            formControlName="award-option">
             <option value="all">all of my days are available.</option>
             <option value="50p">50% or more of my days are available.</option>
             <option value="any">any of my days are available.</option>
           </select>
         </div>
         <br>
-        <div class="form-group" *ngIf="useHolidayOption">
-          <input type="checkbox" id="use-holiday" name="use-holiday" class="form-check-input" ngModel>
+        <div class="form-group">
+          <input
+            type="checkbox"
+            id="use-holiday"
+            name="use-holiday"
+            class="form-check-input"
+            formControlName="use-holiday">
           <label for="use-holiday" style="margin-left: 10px; margin-bottom: 20px">Use holiday</label>
         </div>
         <button class="btn btn-primary" type="submit">Submit</button>

@@ -5,13 +5,13 @@ import {
   CalendarEvent,
   CalendarEventAction,
   CalendarEventTimesChangedEvent,
+  CalendarMonthViewDay,
   CalendarView,
   collapseAnimation
 } from 'angular-calendar';
 import { BidService } from '../bid-form/bid.service'
 import { DataStorageService } from '../bid-form/data-storage.service'
 import { CalendarService } from './calendar.service'
-import { HttpClient } from '@angular/common/http'
 import { formatDate } from '@angular/common'
 
 const colors: any = {
@@ -65,16 +65,22 @@ export class CalendarComponent {
       cssClass: 'my-custom-action',
     },
   ];
-  events: CalendarEvent[] = this.getCalendarEvents(this.calService.getWorkdays());
+  events: CalendarEvent<{ incrementsBadgeTotal: boolean }>[] =
+    this.getCalendarEvents(this.calService.getWorkdays());
   activeDayIsOpen: boolean = false;
-
 
   constructor(private bidService: BidService,
               private data: DataStorageService,
-              private calService: CalendarService,
-              private http: HttpClient) {
+              private calService: CalendarService) {
   }
 
+  beforeMonthViewRender({body}: { body: CalendarMonthViewDay[] }): void {
+    body.forEach((day) => {
+      day.badgeTotal = day.events.filter(
+        (event) => event.meta.incrementsBadgeTotal
+      ).length;
+    });
+  }
 
   dayClicked({date, events}: { date: Date; events: CalendarEvent[] }): void {
     if (isSameMonth(date, this.viewDate)) {
@@ -105,14 +111,11 @@ export class CalendarComponent {
 
   onStartClick(event: CalendarEvent): void {
     this.bidService.dateEmitter.next({date: event.start, location: 'start'});
-    console.log('Start Event: ', event.start)
   }
 
   onEndClick(event: CalendarEvent): void {
     this.bidService.dateEmitter.next({date: event.start, location: 'end'});
-    console.log('End Event: ', event.start)
   }
-
 
   closeOpenMonthViewDay() {
     this.activeDayIsOpen = false;
@@ -127,6 +130,9 @@ export class CalendarComponent {
         title: formatDate(workday, 'MMM d', 'en-us'),
         color: colors.blue,
         actions: this.actions,
+        meta: {
+          incrementBadgeTotal: false,
+        }
       })
     }
     console.log('getCalendarEvents', workdayList)

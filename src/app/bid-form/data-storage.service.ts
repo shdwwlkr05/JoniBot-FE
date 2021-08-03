@@ -70,4 +70,12 @@ export class DataStorageService {
       this.calendarService.setWorkdays(workdays)
     }))
   }
+
+  submitBid(bid) {
+    this.http
+      .post(baseUrl, bid)
+      .subscribe(res => {
+        console.log(res)
+      })
+  }
 }
