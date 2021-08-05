@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Subject } from 'rxjs'
+import { BehaviorSubject, Subject } from 'rxjs'
 
 interface dateInfo {
   date: Date;
@@ -12,7 +12,7 @@ interface dateInfo {
 export class BidService {
   dateEmitter = new Subject<dateInfo>();
   bidsChanged = new Subject<any>();
-
+  editChoice = new BehaviorSubject<any>(null)
 
   private bids = {}
 

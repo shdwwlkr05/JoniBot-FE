@@ -1,7 +1,8 @@
 <div class="container" style="margin-bottom: 20px">
   <div class="row">
     <div class="col-xs-12 col-sm-10 col-md-8 col-sm-offset-1 col-md-offset-2">
-      <h4>Bid Sheet</h4>
+      <h4 *ngIf="!editing; else elseBlock">Bid Sheet</h4>
+      <ng-template #elseBlock><h4>Edit Bid Sheet</h4></ng-template>
       <form [formGroup]="bidForm" (ngSubmit)="onSubmit()">
         <div class="form-group">
           <label for="bid-round">Round</label>
@@ -72,8 +73,27 @@
             formControlName="use-holiday">
           <label for="use-holiday" style="margin-left: 10px; margin-bottom: 20px">Use holiday</label>
         </div>
-        <button class="btn btn-primary" type="submit">Submit</button>
-        <button class="btn btn-primary" type="button" (click)="onFetchBids()">Fetch</button>
+        <button class="btn btn-primary" type="submit" *ngIf="!editing">Submit</button>
+        <button
+          class="btn btn-success"
+          type="button"
+          *ngIf="editing"
+          (click)="onUpdate()"
+        >Update</button>
+        <button
+          class="btn btn-danger"
+          type="button"
+          *ngIf="editing"
+          (click)="onDelete()"
+          style="margin-left: 15px"
+        >Delete</button>
+        <button
+          class="btn btn-secondary"
+          type="button"
+          *ngIf="editing"
+          (click)="onBack()"
+          style="margin-left: 15px"
+        >Back without saving</button>
       </form>
     </div>
   </div>

@@ -1,9 +1,19 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, Input, OnDestroy, OnInit } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms'
 import { BidService } from './bid.service'
 import { Subscription } from 'rxjs'
 import { DataStorageService } from './data-storage.service'
 import { formatDate } from '@angular/common'
+import { Router } from '@angular/router'
+
+interface bidChoice {
+  awardOpt: string
+  bids: any
+  endDate: string
+  startDate: string
+  useHol: boolean
+  vacType: string
+}
 
 @Component({
   selector: 'app-bid-form',
@@ -11,17 +21,27 @@ import { formatDate } from '@angular/common'
   styleUrls: ['./bid-form.component.css']
 })
 export class BidFormComponent implements OnInit, OnDestroy {
+  @Input() editChoice: bidChoice
   rounds = ['1', '2', '3', '4', '5', '6', '7']
   bidForm: FormGroup
+  editing = false
 
 
   private dateSubscription: Subscription;
   private bidSubscription: Subscription;
   private bids: any = {}
+  private defaultRound: string = '1'
+  private defaultChoice: string = '1'
+  private defaultStart: any = null
+  private defaultEnd: any = null
+  private defaultType: string = 'vac'
+  private defaultOption: string = '50p'
+  private defaultHol: boolean = false
 
   constructor(private bidService: BidService,
-              private data: DataStorageService) {
-  }
+              private data: DataStorageService,
+              private router: Router) {}
+
 
   ngOnInit() {
     this.dateSubscription = this.bidService.dateEmitter.subscribe(dateInfo => {
@@ -40,14 +60,35 @@ export class BidFormComponent implements OnInit, OnDestroy {
       this.bids = bids
     })
 
+    if (this.router.url.includes('/edit') && !!this.editChoice) {
+      console.log('Edit Mode', !!this.editChoice)
+      this.editing = true
+      this.defaultRound = this.editChoice.bids[0]['round']
+      this.defaultChoice = this.editChoice.bids[0]['choice']
+      this.defaultStart = this.editChoice.startDate
+      this.defaultEnd = this.editChoice.endDate
+      this.defaultType = this.editChoice.vacType
+      this.defaultOption = this.editChoice.awardOpt
+      this.defaultHol = this.editChoice.useHol
+    } else {
+      this.editing = false
+      // this.defaultRound = '1'
+      // this.defaultChoice = '1'
+      // this.defaultStart = null
+      // this.defaultEnd = null
+      // this.defaultType = 'vac'
+      // this.defaultOption = '50p'
+      // this.defaultHol = false
+    }
+
     this.bidForm = new FormGroup({
-      'bid-round': new FormControl('1'),
-      'bid-choice': new FormControl('1'),
-      'start-vac': new FormControl(null),
-      'end-vac': new FormControl(null),
-      'vac-type': new FormControl('vac'),
-      'award-option': new FormControl('50p'),
-      'use-holiday': new FormControl(false),
+      'bid-round': new FormControl(this.defaultRound),
+      'bid-choice': new FormControl(this.defaultChoice),
+      'start-vac': new FormControl(this.defaultStart),
+      'end-vac': new FormControl(this.defaultEnd),
+      'vac-type': new FormControl(this.defaultType),
+      'award-option': new FormControl(this.defaultOption),
+      'use-holiday': new FormControl(this.defaultHol),
     })
   }
 
@@ -85,13 +126,23 @@ export class BidFormComponent implements OnInit, OnDestroy {
     // this.data.submitBid(bidList)
   }
 
-  onFetchBids() {
-    // this.bids = this.data.fetchBids().subscribe(bids => {
-    //   console.log(bids);
-    // })
-    // console.log(this.bids)
-    // this.bids = this.bidService.getBids()
-    console.log('FetchBids', this.bids)
+  onUpdate() {
+    for (let bid of this.editChoice.bids) {
+      this.data.deleteBid(bid.id)
+    }
+    this.onSubmit()
+    this.router.navigate(['myBids'])
+  }
 
+  onDelete() {
+    if (confirm('Are you sure you want to delete the bid?')) {
+      for (let bid of this.editChoice.bids) {
+        this.data.deleteBid(bid.id)
+      }
+    }
+  }
+
+  onBack() {
+    this.router.navigate(['myBids'])
   }
 }

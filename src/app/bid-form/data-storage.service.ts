@@ -78,4 +78,10 @@ export class DataStorageService {
         console.log(res)
       })
   }
+
+  deleteBid(bid) {
+    this.http
+      .delete(baseUrl + bid)
+      .subscribe()
+  }
 }
