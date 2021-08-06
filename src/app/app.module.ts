@@ -14,7 +14,8 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { BidListComponent } from './bid-list/bid-list.component';
 import { BidItemComponent } from './bid-list/bid-item/bid-item.component'
 import { AuthInterceptorService } from './auth/auth-interceptor.service';
-import { BidEditComponent } from './bid-list/bid-edit/bid-edit.component'
+import { BidEditComponent } from './bid-list/bid-edit/bid-edit.component';
+import { LoadingSpinnerComponent } from './loading-spinner/loading-spinner.component'
 
 @NgModule({
   declarations: [
@@ -25,6 +26,7 @@ import { BidEditComponent } from './bid-list/bid-edit/bid-edit.component'
     BidListComponent,
     BidItemComponent,
     BidEditComponent,
+    LoadingSpinnerComponent,
   ],
   imports: [
     BrowserModule,

@@ -25,3 +25,4 @@ const appRoutes: Routes = [
 })
 export class AppRoutingModule {
 }
+ //TODO redirect home to auth when not logged in

@@ -11,6 +11,7 @@ import { BidService } from '../bid-form/bid.service'
 export class BidListComponent implements OnInit, OnDestroy {
   bids: any
   editing = false
+  loading = true
   private bidSubscription: Subscription
 
   constructor(private data: DataStorageService,
@@ -18,12 +19,16 @@ export class BidListComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
-    this.bidSubscription = this.bidService.bidsChanged.subscribe(bids => {
-      this.bids = bids
-    })
+    this.loading = true
+    setTimeout(() => {
+      this.data.fetchBids().subscribe()
+      this.bidSubscription = this.bidService.bidsChanged.subscribe(bids => {
+        this.bids = bids
+      })
+      this.loading = false
+    },1000)
     console.log('BidList - ngOnInit')
-    this.data.fetchBids().subscribe()
-    this.bids = this.bidService.getBids()
+    // this.bids = this.bidService.getBids()
   }
 
   ngOnDestroy(): void {

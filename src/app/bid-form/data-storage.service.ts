@@ -5,6 +5,7 @@ import { Bid } from './bid.model'
 import { map, tap } from 'rxjs/operators'
 import { BidService } from './bid.service'
 import { CalendarService } from '../calendar/calendar.service'
+import { Subject } from 'rxjs'
 
 const baseUrl = 'http://127.0.0.1:8000/api/bid/bids/'
 const workdayUrl = 'http://127.0.0.1:8000/api/bid/workdays'
@@ -13,6 +14,7 @@ const workdayUrl = 'http://127.0.0.1:8000/api/bid/workdays'
   providedIn: 'root'
 })
 export class DataStorageService {
+  waitForBids = new Subject()
 
   constructor(private http: HttpClient,
               private bidService: BidService,
@@ -75,13 +77,24 @@ export class DataStorageService {
     this.http
       .post(baseUrl, bid)
       .subscribe(res => {
-        console.log(res)
+        console.log('Submit response', res)
+        // this.fetchBids().subscribe()
       })
   }
 
   deleteBid(bid) {
     this.http
       .delete(baseUrl + bid)
-      .subscribe()
+      .subscribe(() => {
+        // this.fetchBids().subscribe()
+      })
   }
+
+  waitingForBids() {
+    setTimeout(() => {
+      this.waitForBids.next('Finished')
+    })
+  }
+
+
 }

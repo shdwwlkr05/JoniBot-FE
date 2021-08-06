@@ -94,6 +94,13 @@
           (click)="onBack()"
           style="margin-left: 15px"
         >Back without saving</button>
+        <button
+          class="btn btn-secondary"
+          type="button"
+          *ngIf="editing"
+          (click)="onCheck()"
+          style="margin-left: 15px"
+        >Check Bids</button>
       </form>
     </div>
   </div>

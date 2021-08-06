@@ -110,7 +110,8 @@ export class BidFormComponent implements OnInit, OnDestroy {
     }
     const bidList = []
     let order = 1
-
+    //TODO - only submit vac days that are workdays
+    //TODO - only submit number of days available
     let loop = new Date(start)
     while (loop <= end) {
       console.log(loop)
@@ -138,11 +139,18 @@ export class BidFormComponent implements OnInit, OnDestroy {
     if (confirm('Are you sure you want to delete the bid?')) {
       for (let bid of this.editChoice.bids) {
         this.data.deleteBid(bid.id)
+        this.router.navigate(['myBids'])
       }
     }
   }
 
   onBack() {
     this.router.navigate(['myBids'])
+  }
+
+  onCheck() {
+    for (let bid of this.editChoice.bids) {
+      console.log(bid.id)
+    }
   }
 }
