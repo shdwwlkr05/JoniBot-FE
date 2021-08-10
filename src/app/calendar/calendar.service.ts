@@ -1,13 +1,14 @@
 import { Injectable } from '@angular/core';
-import { Subject } from 'rxjs'
+import { BehaviorSubject } from 'rxjs'
 
 @Injectable({
   providedIn: 'root'
 })
 export class CalendarService {
-  workdaysChanged = new Subject<any>()
+  workdaysChanged = new BehaviorSubject<any>(null)
 
   private workdays = []
+
 
   constructor() {
   }
@@ -23,5 +24,6 @@ export class CalendarService {
 
   getWorkdays() {
     return this.workdays.slice()
+
   }
 }

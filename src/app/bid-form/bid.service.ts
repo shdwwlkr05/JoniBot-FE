@@ -13,8 +13,10 @@ export class BidService {
   dateEmitter = new Subject<dateInfo>();
   bidsChanged = new Subject<any>();
   editChoice = new BehaviorSubject<any>(null)
+  balances = new BehaviorSubject<any>(null)
 
   private bids = {}
+  private bal = {}
 
 
   constructor() {
@@ -30,5 +32,10 @@ export class BidService {
   getBids() {
     console.log('getBids', this.bids)
     return this.bids
+  }
+
+  setBalances(balances) {
+    this.bal = balances
+    this.balances.next(this.bal)
   }
 }

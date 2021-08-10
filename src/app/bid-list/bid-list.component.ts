@@ -10,7 +10,6 @@ import { BidService } from '../bid-form/bid.service'
 })
 export class BidListComponent implements OnInit, OnDestroy {
   bids: any
-  editing = false
   loading = true
   private bidSubscription: Subscription
 
@@ -27,7 +26,6 @@ export class BidListComponent implements OnInit, OnDestroy {
       })
       this.loading = false
     },1000)
-    console.log('BidList - ngOnInit')
     // this.bids = this.bidService.getBids()
   }
 
@@ -36,7 +34,7 @@ export class BidListComponent implements OnInit, OnDestroy {
   }
 
   onClick() {
-    console.log(this.editing)
+    this.data.fetchBalances()
   }
 
 }

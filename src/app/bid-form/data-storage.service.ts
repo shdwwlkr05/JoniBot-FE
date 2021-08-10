@@ -5,16 +5,16 @@ import { Bid } from './bid.model'
 import { map, tap } from 'rxjs/operators'
 import { BidService } from './bid.service'
 import { CalendarService } from '../calendar/calendar.service'
-import { Subject } from 'rxjs'
 
 const baseUrl = 'http://127.0.0.1:8000/api/bid/bids/'
 const workdayUrl = 'http://127.0.0.1:8000/api/bid/workdays'
+const balanceUrl = 'http://127.0.0.1:8000/api/bid/balances'
 
 @Injectable({
   providedIn: 'root'
 })
 export class DataStorageService {
-  waitForBids = new Subject()
+
 
   constructor(private http: HttpClient,
               private bidService: BidService,
@@ -90,10 +90,10 @@ export class DataStorageService {
       })
   }
 
-  waitingForBids() {
-    setTimeout(() => {
-      this.waitForBids.next('Finished')
-    })
+  fetchBalances() {
+    return this.http.get(balanceUrl).pipe(tap(balances => {
+      this.bidService.setBalances(balances)
+    }))
   }
 
 

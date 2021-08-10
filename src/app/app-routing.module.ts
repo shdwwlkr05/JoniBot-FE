@@ -9,9 +9,9 @@ import { WorkdayResolverService } from './calendar/workday-resolver.service'
 import { BidEditComponent } from './bid-list/bid-edit/bid-edit.component'
 
 const appRoutes: Routes = [
-  {path: '', component: HomeComponent, pathMatch: 'full', resolve: [WorkdayResolverService]},
+  {path: '', component: HomeComponent, pathMatch: 'full', canActivate: [AuthGuard], resolve: [WorkdayResolverService]},
   {path: 'myBids', component: BidListComponent, canActivate: [AuthGuard]},
-  {path: 'myBids/edit', component: BidEditComponent},
+  {path: 'myBids/edit', component: BidEditComponent, canActivate: [AuthGuard]},
   {path: 'auth', component: AuthComponent},
 ]
 
@@ -25,4 +25,3 @@ const appRoutes: Routes = [
 })
 export class AppRoutingModule {
 }
- //TODO redirect home to auth when not logged in

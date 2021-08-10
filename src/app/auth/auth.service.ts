@@ -17,9 +17,11 @@ export interface AuthResponseData {
 export class AuthService {
   user = new BehaviorSubject<User>(null);
 
-  constructor(private http: HttpClient, private router: Router) { }
+  constructor(private http: HttpClient,
+              private router: Router) {
+  }
 
-  login(username:string, password:string) {
+  login(username: string, password: string) {
     return this.http
       .post<AuthResponseData>(
         'http://127.0.0.1:8000/api/user/token/',
@@ -65,8 +67,8 @@ export class AuthService {
   }
 
   private handleAuthentication(
-    username:string,
-    token:string,
+    username: string,
+    token: string,
   ) {
     const user = new User(username, token);
     this.user.next(user);
@@ -92,4 +94,5 @@ export class AuthService {
     }
     return throwError(errorMessage);
   }
+
 }

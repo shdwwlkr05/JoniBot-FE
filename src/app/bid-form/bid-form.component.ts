@@ -5,6 +5,8 @@ import { Subscription } from 'rxjs'
 import { DataStorageService } from './data-storage.service'
 import { formatDate } from '@angular/common'
 import { Router } from '@angular/router'
+import { CalendarService } from '../calendar/calendar.service'
+import { HttpClient } from '@angular/common/http'
 
 interface bidChoice {
   awardOpt: string
@@ -25,22 +27,28 @@ export class BidFormComponent implements OnInit, OnDestroy {
   rounds = ['1', '2', '3', '4', '5', '6', '7']
   bidForm: FormGroup
   editing = false
-
-
-  private dateSubscription: Subscription;
-  private bidSubscription: Subscription;
-  private bids: any = {}
-  private defaultRound: string = '1'
-  private defaultChoice: string = '1'
-  private defaultStart: any = null
-  private defaultEnd: any = null
-  private defaultType: string = 'vac'
-  private defaultOption: string = '50p'
-  private defaultHol: boolean = false
+  daysAvailable = true
+  dateSubscription: Subscription
+  bidSubscription: Subscription
+  workdaySubscription: Subscription
+  balancesSubscription: Subscription
+  bids: any = {}
+  defaultRound: string = '1'
+  defaultChoice: string = '1'
+  defaultStart: any = null
+  defaultEnd: any = null
+  defaultType: string = 'vac'
+  defaultOption: string = '50p'
+  defaultHol: boolean = false
+  workdays = []
+  balances = {}
 
   constructor(private bidService: BidService,
               private data: DataStorageService,
-              private router: Router) {}
+              private router: Router,
+              private calService: CalendarService,
+              private http: HttpClient) {
+  }
 
 
   ngOnInit() {
@@ -60,6 +68,19 @@ export class BidFormComponent implements OnInit, OnDestroy {
       this.bids = bids
     })
 
+    this.workdaySubscription = this.calService.workdaysChanged.subscribe(workdays => {
+      this.workdays = workdays
+    })
+
+    this.http.get('http://127.0.0.1:8000/api/bid/balances').subscribe(balances => {
+      this.bidService.setBalances(balances[0])
+    })
+
+    this.balancesSubscription = this.bidService.balances.subscribe(balances => {
+      this.balances = balances
+    })
+
+
     if (this.router.url.includes('/edit') && !!this.editChoice) {
       console.log('Edit Mode', !!this.editChoice)
       this.editing = true
@@ -72,13 +93,6 @@ export class BidFormComponent implements OnInit, OnDestroy {
       this.defaultHol = this.editChoice.useHol
     } else {
       this.editing = false
-      // this.defaultRound = '1'
-      // this.defaultChoice = '1'
-      // this.defaultStart = null
-      // this.defaultEnd = null
-      // this.defaultType = 'vac'
-      // this.defaultOption = '50p'
-      // this.defaultHol = false
     }
 
     this.bidForm = new FormGroup({
@@ -94,6 +108,9 @@ export class BidFormComponent implements OnInit, OnDestroy {
 
   ngOnDestroy() {
     this.dateSubscription.unsubscribe()
+    this.bidSubscription.unsubscribe()
+    this.workdaySubscription.unsubscribe()
+    this.balancesSubscription.unsubscribe()
   }
 
   onSubmit() {
@@ -108,23 +125,32 @@ export class BidFormComponent implements OnInit, OnDestroy {
       'award_opt': this.bidForm.value['award-option'],
       'use_hol': this.bidForm.value['use-holiday']
     }
-    const bidList = []
     let order = 1
-    //TODO - only submit vac days that are workdays
-    //TODO - only submit number of days available
+    let vac_remaining = this.balances['vac_remaining']
+    let ppt_remaining = this.balances['ppt_remaining']
     let loop = new Date(start)
-    while (loop <= end) {
-      console.log(loop)
-      bid.award_order = order
-      bid.bid_date = formatDate(loop, 'yyyy-MM-dd', 'en-us')
-      // bidList.push(Object.assign({}, bid))
-      this.data.submitBid(bid)
+    // Loop through all days in range submitted on bid form
+    while (loop <= end && this.daysAvailable) {
+      let formattedDate = formatDate(loop, 'yyyy-MM-dd', 'en-us')
+      // Loop through days checking to see if they are a scheduled workday
+      if (this.workdays.includes(formattedDate)) {
+        bid.award_order = order
+        order++
+        bid.bid_date = formattedDate
+        // Check if vac or PPT was used and remove from remaining balance
+        if (bid.vac_type == 'vac') {
+          vac_remaining -= this.balances['line_hours']
+        } else {
+          ppt_remaining -= this.balances['line_hours']
+        }
+        if (vac_remaining <= 0 || ppt_remaining <= 0) {
+          this.daysAvailable = false
+        }
+        this.data.submitBid(bid)
+      }
       let newDate = loop.setDate(loop.getDate() + 1)
       loop = new Date(newDate)
-      order++
     }
-    console.log(bidList)
-    // this.data.submitBid(bidList)
   }
 
   onUpdate() {
@@ -152,5 +178,9 @@ export class BidFormComponent implements OnInit, OnDestroy {
     for (let bid of this.editChoice.bids) {
       console.log(bid.id)
     }
+  }
+
+  onTest() {
+    console.log(this.balances)
   }
 }
