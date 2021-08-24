@@ -1,6 +1,15 @@
 <div class="container" style="margin-bottom: 20px">
   <div class="row">
     <div class="col-xs-12 col-sm-10 col-md-8 col-sm-offset-1 col-md-offset-2">
+      <div class="alert alert-success" *ngIf="response=='success'">
+        You've successfully posted a new bid!
+        <a class="alert-link" style="cursor: pointer" (click)="onBackToBids()">Go to MyBids</a>
+      </div>
+      <div class="alert alert-danger" *ngIf="error">{{error}}</div>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-xs-12 col-sm-10 col-md-8 col-sm-offset-1 col-md-offset-2">
       <h4 *ngIf="!editing; else elseBlock">Bid Sheet</h4>
       <ng-template #elseBlock><h4>Edit Bid Sheet</h4></ng-template>
       <form [formGroup]="bidForm" (ngSubmit)="onSubmit()">
@@ -74,34 +83,35 @@
           <label for="use-holiday" style="margin-left: 10px; margin-bottom: 20px">Use holiday</label>
         </div>
         <button class="btn btn-primary" type="submit" *ngIf="!editing">Submit</button>
-        <button class="btn btn-primary" type="button" *ngIf="!editing" (click)="onTest()">Test</button>
+        <button
+          class="btn btn-primary"
+          type="button"
+          *ngIf="!editing"
+          (click)="onTest()">Test
+        </button>
         <button
           class="btn btn-success"
           type="button"
           *ngIf="editing"
           (click)="onUpdate()"
-        >Update</button>
+        >Update
+        </button>
         <button
           class="btn btn-danger"
           type="button"
           *ngIf="editing"
           (click)="onDelete()"
           style="margin-left: 15px"
-        >Delete</button>
+        >Delete
+        </button>
         <button
           class="btn btn-secondary"
           type="button"
           *ngIf="editing"
-          (click)="onBack()"
+          (click)="onBackToBids()"
           style="margin-left: 15px"
-        >Back without saving</button>
-        <button
-          class="btn btn-secondary"
-          type="button"
-          *ngIf="editing"
-          (click)="onCheck()"
-          style="margin-left: 15px"
-        >Check Bids</button>
+        >Back without saving
+        </button>
       </form>
     </div>
   </div>

@@ -135,7 +135,6 @@ export class CalendarComponent {
         }
       })
     }
-    console.log('getCalendarEvents', workdayList)
     return workdayList
 
   }

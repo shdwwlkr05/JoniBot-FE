@@ -5,6 +5,8 @@ import { catchError, tap } from 'rxjs/operators'
 import { User } from './user.model';
 import { BehaviorSubject, throwError } from 'rxjs'
 import { Router } from '@angular/router'
+import { DataStorageService } from '../bid-form/data-storage.service'
+import { environment } from '../../environments/environment'
 
 export interface AuthResponseData {
   token: string;
@@ -18,13 +20,14 @@ export class AuthService {
   user = new BehaviorSubject<User>(null);
 
   constructor(private http: HttpClient,
-              private router: Router) {
+              private router: Router,
+              private data: DataStorageService) {
   }
 
   login(username: string, password: string) {
     return this.http
       .post<AuthResponseData>(
-        'http://127.0.0.1:8000/api/user/token/',
+        environment.baseURL + 'api/user/token/',
         {
           username: username,
           password: password,
@@ -57,6 +60,8 @@ export class AuthService {
 
     if (loadedUser.token) {
       this.user.next(loadedUser)
+      this.data.fetchBids().subscribe()
+      this.data.fetchBalances()
     }
   }
 
@@ -73,23 +78,19 @@ export class AuthService {
     const user = new User(username, token);
     this.user.next(user);
     localStorage.setItem('userData', JSON.stringify(user));
+    this.data.fetchBids().subscribe()
+    this.data.fetchBalances()
     this.router.navigate([''])
   }
 
   private handleError(errorRes: HttpErrorResponse) {
     let errorMessage = 'An unknown error occurred!';
-    if (!errorRes.error || !errorRes.error.error) {
+    if (!errorRes.error) {
       return throwError(errorMessage);
     }
-    switch (errorRes.error.error.message) {
-      case 'EMAIL_EXISTS':
-        errorMessage = 'This email exists already';
-        break;
-      case 'EMAIL_NOT_FOUND':
-        errorMessage = 'This email does not exist.';
-        break;
-      case 'INVALID_PASSWORD':
-        errorMessage = 'This password is not correct.';
+    switch (errorRes.error.non_field_errors[0]) {
+      case 'Unable to log in with provided credentials.':
+        errorMessage = 'Unable to log in with provided credentials.';
         break;
     }
     return throwError(errorMessage);

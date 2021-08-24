@@ -19,10 +19,6 @@ export class BidItemComponent implements OnInit {
   }
 
   onClick() {
-    const lastEl = this.choice.value.bids.length - 1;
-    console.log('Test click', this.choice.value)
-    console.log('Start', this.choice.value.bids[0]['bid_date'])
-    console.log('End', this.choice.value.bids[lastEl]['bid_date'])
     this.bidService.editChoice.next(this.choice.value)
     this.router.navigate(['edit'], {relativeTo: this.route})
   }

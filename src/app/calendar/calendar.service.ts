@@ -18,7 +18,6 @@ export class CalendarService {
     for (let workday of workdays) {
       this.workdays.push(workday.workday)
     }
-    console.log('calService', this.workdays)
     this.workdaysChanged.next(this.workdays)
   }
 

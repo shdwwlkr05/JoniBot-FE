@@ -11,9 +11,10 @@ interface dateInfo {
 })
 export class BidService {
   dateEmitter = new Subject<dateInfo>();
-  bidsChanged = new Subject<any>();
+  bidsChanged = new BehaviorSubject<any>(null)
   editChoice = new BehaviorSubject<any>(null)
   balances = new BehaviorSubject<any>(null)
+  httpResponse = new Subject<string>();
 
   private bids = {}
   private bal = {}
@@ -26,12 +27,6 @@ export class BidService {
   setBids(bids) {
     this.bids = bids
     this.bidsChanged.next(this.bids)
-    console.log('setBids', this.bids)
-  }
-
-  getBids() {
-    console.log('getBids', this.bids)
-    return this.bids
   }
 
   setBalances(balances) {

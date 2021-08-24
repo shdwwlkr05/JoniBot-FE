@@ -8,6 +8,7 @@ import { AuthService } from './auth.service'
   styleUrls: ['./auth.component.css']
 })
 export class AuthComponent implements OnInit {
+  error: string
 
   constructor(private authService: AuthService) {
   }
@@ -27,7 +28,7 @@ export class AuthComponent implements OnInit {
         console.log(resData)
       },
       error => {
-        console.log(error)
+        this.error = error;
       }
     )
     authForm.reset()

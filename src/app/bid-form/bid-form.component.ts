@@ -6,7 +6,6 @@ import { DataStorageService } from './data-storage.service'
 import { formatDate } from '@angular/common'
 import { Router } from '@angular/router'
 import { CalendarService } from '../calendar/calendar.service'
-import { HttpClient } from '@angular/common/http'
 
 interface bidChoice {
   awardOpt: string
@@ -15,6 +14,8 @@ interface bidChoice {
   startDate: string
   useHol: boolean
   vacType: string
+  round: string
+  choice: string
 }
 
 @Component({
@@ -32,7 +33,10 @@ export class BidFormComponent implements OnInit, OnDestroy {
   bidSubscription: Subscription
   workdaySubscription: Subscription
   balancesSubscription: Subscription
-  bids: any = {}
+  httpResponse: Subscription
+  response: string
+  error: string
+  existingBids: any = {}
   defaultRound: string = '1'
   defaultChoice: string = '1'
   defaultStart: any = null
@@ -46,8 +50,7 @@ export class BidFormComponent implements OnInit, OnDestroy {
   constructor(private bidService: BidService,
               private data: DataStorageService,
               private router: Router,
-              private calService: CalendarService,
-              private http: HttpClient) {
+              private calService: CalendarService) {
   }
 
 
@@ -65,24 +68,25 @@ export class BidFormComponent implements OnInit, OnDestroy {
     })
 
     this.bidSubscription = this.bidService.bidsChanged.subscribe(bids => {
-      this.bids = bids
+      this.existingBids = bids
     })
 
     this.workdaySubscription = this.calService.workdaysChanged.subscribe(workdays => {
       this.workdays = workdays
     })
 
-    this.http.get('http://127.0.0.1:8000/api/bid/balances').subscribe(balances => {
-      this.bidService.setBalances(balances[0])
-    })
+    this.data.fetchBalances()
 
     this.balancesSubscription = this.bidService.balances.subscribe(balances => {
       this.balances = balances
     })
 
+    this.httpResponse = this.bidService.httpResponse.subscribe(response => {
+      this.response = response
+    })
+
 
     if (this.router.url.includes('/edit') && !!this.editChoice) {
-      console.log('Edit Mode', !!this.editChoice)
       this.editing = true
       this.defaultRound = this.editChoice.bids[0]['round']
       this.defaultChoice = this.editChoice.bids[0]['choice']
@@ -96,14 +100,15 @@ export class BidFormComponent implements OnInit, OnDestroy {
     }
 
     this.bidForm = new FormGroup({
-      'bid-round': new FormControl(this.defaultRound),
-      'bid-choice': new FormControl(this.defaultChoice),
+      'bid-round': new FormControl({value: this.defaultRound, disabled: this.editing}),
+      'bid-choice': new FormControl({value: this.defaultChoice, disabled: this.editing}),
       'start-vac': new FormControl(this.defaultStart),
       'end-vac': new FormControl(this.defaultEnd),
       'vac-type': new FormControl(this.defaultType),
       'award-option': new FormControl(this.defaultOption),
       'use-holiday': new FormControl(this.defaultHol),
     })
+    console.log(this.editing)
   }
 
   ngOnDestroy() {
@@ -114,8 +119,14 @@ export class BidFormComponent implements OnInit, OnDestroy {
   }
 
   onSubmit() {
+    this.error = null
     const start = new Date(this.bidForm.value['start-vac'] + 'T00:00:00')
-    const end = new Date(this.bidForm.value['end-vac'] + 'T00:00:00')
+    let end
+    if (!this.bidForm.value['end-vac']) {
+      end = start
+    } else {
+      end = new Date(this.bidForm.value['end-vac'] + 'T00:00:00')
+    }
     const bid = {
       'round': this.bidForm.value['bid-round'],
       'choice': this.bidForm.value['bid-choice'],
@@ -125,62 +136,85 @@ export class BidFormComponent implements OnInit, OnDestroy {
       'award_opt': this.bidForm.value['award-option'],
       'use_hol': this.bidForm.value['use-holiday']
     }
+    const bids = []
     let order = 1
     let vac_remaining = this.balances['vac_remaining']
     let ppt_remaining = this.balances['ppt_remaining']
+    let prior_to_incremental_remaining = this.balances['prior-to-incremental_allowance']
     let loop = new Date(start)
     // Loop through all days in range submitted on bid form
     while (loop <= end && this.daysAvailable) {
       let formattedDate = formatDate(loop, 'yyyy-MM-dd', 'en-us')
+
+      // Check to see if day has already been bid for Round and Choice
+      let round = 'Round ' + bid.round
+      let choice = 'Choice ' + bid.choice
+      if (round in this.existingBids) {
+        if (choice in this.existingBids[round]) {
+          this.error = `Bid for ${round} - ${choice} already exists.
+          Please select different choice option or edit the existing one.`
+          break
+        }
+      }
+
       // Loop through days checking to see if they are a scheduled workday
       if (this.workdays.includes(formattedDate)) {
         bid.award_order = order
         order++
         bid.bid_date = formattedDate
         // Check if vac or PPT was used and remove from remaining balance
+        if (bid.round < 7) {
+          prior_to_incremental_remaining -= this.balances['line_hours']
+          if (prior_to_incremental_remaining <= 0) {
+            this.daysAvailable = false
+          }
+        }
         if (bid.vac_type == 'vac') {
           vac_remaining -= this.balances['line_hours']
+          if (vac_remaining < 0) {
+            ppt_remaining += vac_remaining
+            vac_remaining = 0
+          }
         } else {
           ppt_remaining -= this.balances['line_hours']
+          if (ppt_remaining < 0) {
+            vac_remaining += ppt_remaining
+            ppt_remaining = 0
+          }
         }
-        if (vac_remaining <= 0 || ppt_remaining <= 0) {
+        if (vac_remaining + ppt_remaining < this.balances['line_hours']) {
           this.daysAvailable = false
         }
-        this.data.submitBid(bid)
+        bids.push(Object.assign({}, bid))
       }
       let newDate = loop.setDate(loop.getDate() + 1)
       loop = new Date(newDate)
     }
+    if (!this.error) {
+      this.data.submitBid(bids)
+    }
   }
 
+  //TODO Ability to reorder bids
+
   onUpdate() {
-    for (let bid of this.editChoice.bids) {
-      this.data.deleteBid(bid.id)
-    }
+    this.data.deleteBid(this.editChoice.round, this.editChoice.choice)
     this.onSubmit()
     this.router.navigate(['myBids'])
   }
 
   onDelete() {
     if (confirm('Are you sure you want to delete the bid?')) {
-      for (let bid of this.editChoice.bids) {
-        this.data.deleteBid(bid.id)
-        this.router.navigate(['myBids'])
-      }
+      this.data.deleteBid(this.editChoice.round, this.editChoice.choice)
+      this.router.navigate(['myBids'])
     }
   }
 
-  onBack() {
+  onBackToBids() {
     this.router.navigate(['myBids'])
   }
 
-  onCheck() {
-    for (let bid of this.editChoice.bids) {
-      console.log(bid.id)
-    }
-  }
-
   onTest() {
-    console.log(this.balances)
+    console.log('Balances: ', this.balances)
   }
 }

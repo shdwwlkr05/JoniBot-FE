@@ -1,14 +1,15 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http'
+import { HttpClient, HttpParams } from '@angular/common/http'
 
 import { Bid } from './bid.model'
 import { map, tap } from 'rxjs/operators'
 import { BidService } from './bid.service'
 import { CalendarService } from '../calendar/calendar.service'
+import { environment } from '../../environments/environment'
 
-const baseUrl = 'http://127.0.0.1:8000/api/bid/bids/'
-const workdayUrl = 'http://127.0.0.1:8000/api/bid/workdays'
-const balanceUrl = 'http://127.0.0.1:8000/api/bid/balances'
+const bidsURL = environment.baseURL + 'api/bid/bids/'
+const workdayUrl = environment.baseURL + 'api/bid/workdays'
+const balanceUrl = environment.baseURL + 'api/bid/balances'
 
 @Injectable({
   providedIn: 'root'
@@ -23,7 +24,7 @@ export class DataStorageService {
 
   fetchBids() {
     const groupedBids = {}
-    return this.http.get<Bid[]>(baseUrl).pipe(
+    return this.http.get<Bid[]>(bidsURL).pipe(
       map(bids => {
         for (let bid of bids) {
           let round = 'Round ' + bid.round
@@ -31,23 +32,29 @@ export class DataStorageService {
           if (round in groupedBids) {
             if (!(choice in groupedBids[round])) {
               groupedBids[round][choice] = {
+                'round': bid.round,
+                'choice': bid.choice,
                 'vacType': bid.vac_type,
                 'awardOpt': bid.award_opt,
                 'useHol': bid.use_hol,
                 'startDate': bid.bid_date,
                 'endDate': bid.bid_date,
-                'bids': []
+                'bids': [],
+                'dates': []
               }
             }
           } else {
             groupedBids[round] = {}
             groupedBids[round][choice] = {
+              'round': bid.round,
+              'choice': bid.choice,
               'vacType': bid.vac_type,
               'awardOpt': bid.award_opt,
               'useHol': bid.use_hol,
               'startDate': bid.bid_date,
               'endDate': bid.bid_date,
-              'bids': []
+              'bids': [],
+              'dates': []
             }
           }
           if (bid.bid_date < groupedBids[round][choice].startDate) {
@@ -57,8 +64,8 @@ export class DataStorageService {
             groupedBids[round][choice].endDate = bid.bid_date
           }
           groupedBids[round][choice].bids.push(bid)
+          groupedBids[round][choice].dates.push(bid.bid_date)
         }
-        console.log('fetchBids', groupedBids)
         return groupedBids
       }),
       tap(bids => {
@@ -73,27 +80,32 @@ export class DataStorageService {
     }))
   }
 
-  submitBid(bid) {
-    this.http
-      .post(baseUrl, bid)
+  submitBid(bids) {
+    this.http.post(bidsURL, bids)
       .subscribe(res => {
-        console.log('Submit response', res)
-        // this.fetchBids().subscribe()
+        this.fetchBids().subscribe()
+        this.bidService.httpResponse.next(res['status'])
       })
   }
 
-  deleteBid(bid) {
+  deleteBid(round, choice) {
     this.http
-      .delete(baseUrl + bid)
+      .delete(bidsURL,
+        {
+          params: new HttpParams()
+            .set('round', round.toString())
+            .set('choice', choice.toString())
+        })
       .subscribe(() => {
-        // this.fetchBids().subscribe()
+        this.fetchBids().subscribe()
       })
   }
 
   fetchBalances() {
-    return this.http.get(balanceUrl).pipe(tap(balances => {
-      this.bidService.setBalances(balances)
-    }))
+    return this.http.get(balanceUrl).subscribe(balances => {
+      this.bidService.setBalances(balances[0])
+    })
+
   }
 
 
