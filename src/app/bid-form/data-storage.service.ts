@@ -8,6 +8,7 @@ import { CalendarService } from '../calendar/calendar.service'
 import { environment } from '../../environments/environment'
 
 const bidsURL = environment.baseURL + 'api/bid/bids/'
+const bidsUpdateURL = environment.baseURL + 'api/bid/bids/update/'
 const workdayUrl = environment.baseURL + 'api/bid/workdays'
 const balanceUrl = environment.baseURL + 'api/bid/balances'
 
@@ -100,6 +101,20 @@ export class DataStorageService {
         this.fetchBids().subscribe()
       })
   }
+
+  updateBid(round, choice, newChoice) {
+    this.http
+      .get(bidsUpdateURL,
+        {
+          params: new HttpParams()
+            .set('currentRound', round.toString())
+            .set('currentChoice', choice.toString())
+            .set('newChoice', newChoice.toString())
+        }).subscribe(() => {
+          this.fetchBids().subscribe()
+    })
+  }z
+
 
   fetchBalances() {
     return this.http.get(balanceUrl).subscribe(balances => {

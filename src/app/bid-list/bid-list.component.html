@@ -16,7 +16,8 @@
     <ul>
       <app-bid-item
         *ngFor="let choice of round.value | keyvalue"
-        [choice]="choice">
+        [choice]="choice"
+        [round]="round.value">
       </app-bid-item>
     </ul>
 

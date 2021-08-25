@@ -108,7 +108,6 @@ export class BidFormComponent implements OnInit, OnDestroy {
       'award-option': new FormControl(this.defaultOption),
       'use-holiday': new FormControl(this.defaultHol),
     })
-    console.log(this.editing)
   }
 
   ngOnDestroy() {
@@ -119,6 +118,7 @@ export class BidFormComponent implements OnInit, OnDestroy {
   }
 
   onSubmit() {
+    this.response = null
     this.error = null
     const start = new Date(this.bidForm.value['start-vac'] + 'T00:00:00')
     let end
@@ -195,7 +195,6 @@ export class BidFormComponent implements OnInit, OnDestroy {
     }
   }
 
-  //TODO Ability to reorder bids
 
   onUpdate() {
     this.data.deleteBid(this.editChoice.round, this.editChoice.choice)
