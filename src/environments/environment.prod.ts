@@ -1,4 +1,4 @@
 export const environment = {
   production: true,
-  baseURL: 'https://joni-bot-be-3xcvs.ondigitalocean.app:8080'
+  baseURL: 'https://joni-bot-be-3xcvs.ondigitalocean.app/'
 };
