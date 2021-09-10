@@ -120,6 +120,7 @@ export class BidFormComponent implements OnInit, OnDestroy {
   onSubmit() {
     this.response = null
     this.error = null
+    console.log('BidForm Value: ', this.bidForm.value)
     const start = new Date(this.bidForm.value['start-vac'] + 'T00:00:00')
     let end
     if (!this.bidForm.value['end-vac']) {
@@ -136,11 +137,12 @@ export class BidFormComponent implements OnInit, OnDestroy {
       'award_opt': this.bidForm.value['award-option'],
       'use_hol': this.bidForm.value['use-holiday']
     }
+    console.log('Bid var: ', bid)
     const bids = []
     let order = 1
     let vac_remaining = this.balances['vac_remaining']
     let ppt_remaining = this.balances['ppt_remaining']
-    let prior_to_incremental_remaining = this.balances['prior-to-incremental_allowance']
+    let prior_to_incremental_remaining = this.balances['prior_to_incremental_allowance']
     let loop = new Date(start)
     // Loop through all days in range submitted on bid form
     while (loop <= end && this.daysAvailable) {
