@@ -121,6 +121,7 @@ export class BidFormComponent implements OnInit, OnDestroy {
     this.response = null
     this.error = null
     console.log('BidForm Value: ', this.bidForm.value)
+    console.log('Edit Choice: ', this.editChoice)
     const start = new Date(this.bidForm.value['start-vac'] + 'T00:00:00')
     let end
     if (!this.bidForm.value['end-vac']) {
