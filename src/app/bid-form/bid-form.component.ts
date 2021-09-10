@@ -1,11 +1,11 @@
-import { Component, Input, OnDestroy, OnInit } from '@angular/core';
-import { FormControl, FormGroup } from '@angular/forms'
-import { BidService } from './bid.service'
-import { Subscription } from 'rxjs'
-import { DataStorageService } from './data-storage.service'
-import { formatDate } from '@angular/common'
-import { Router } from '@angular/router'
-import { CalendarService } from '../calendar/calendar.service'
+import {Component, Input, OnDestroy, OnInit} from '@angular/core';
+import {FormControl, FormGroup} from '@angular/forms'
+import {BidService} from './bid.service'
+import {Subscription} from 'rxjs'
+import {DataStorageService} from './data-storage.service'
+import {formatDate} from '@angular/common'
+import {Router} from '@angular/router'
+import {CalendarService} from '../calendar/calendar.service'
 
 interface bidChoice {
   awardOpt: string
@@ -130,13 +130,20 @@ export class BidFormComponent implements OnInit, OnDestroy {
       end = new Date(this.bidForm.value['end-vac'] + 'T00:00:00')
     }
     const bid = {
-      'round': this.bidForm.value['bid-round'],
-      'choice': this.bidForm.value['bid-choice'],
+      'round': null,
+      'choice': null,
       'award_order': null,
       'bid_date': null,
       'vac_type': this.bidForm.value['vac-type'],
       'award_opt': this.bidForm.value['award-option'],
       'use_hol': this.bidForm.value['use-holiday']
+    }
+    if (!this.editChoice) {
+      bid['round'] = this.bidForm.value['bid-round']
+      bid['choice'] = this.bidForm.value['bid-choice']
+    } else {
+      bid['round'] = this.editChoice.round
+      bid['choice'] = this.editChoice.choice
     }
     console.log('Bid var: ', bid)
     const bids = []
