@@ -12,6 +12,9 @@ export class BidItemComponent implements OnInit {
   @Input() choice: any
   @Input() round: any
   lastEl: number
+  vacType: string
+  awardOpt: string
+  useHol: string
 
   constructor(private bidService: BidService,
               private router: Router,
@@ -21,6 +24,24 @@ export class BidItemComponent implements OnInit {
 
   ngOnInit(): void {
     this.lastEl = Object.keys(this.round).length
+    switch (this.choice.value.vacType) {
+      case 'vac':
+        this.vacType = 'Vacation'
+        break
+      case 'ppt':
+        this.vacType = 'PPT'
+    }
+    switch (this.choice.value.awardOpt) {
+      case 'all':
+        this.awardOpt = 'All Available'
+        break
+      case 'any':
+        this.awardOpt = 'Any Available'
+        break
+      case '50p':
+        this.awardOpt = '50% or Greater'
+    }
+    this.choice.value.useHol ? this.useHol = ' / Use Holiday' : this.useHol = ''
   }
 
   onClick() {

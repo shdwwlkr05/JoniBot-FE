@@ -120,6 +120,7 @@ export class BidFormComponent implements OnInit, OnDestroy {
   onSubmit() {
     this.response = null
     this.error = null
+    this.daysAvailable = true
     const start = new Date(this.bidForm.value['start-vac'] + 'T00:00:00')
     let end
     if (!this.bidForm.value['end-vac']) {
@@ -198,8 +199,11 @@ export class BidFormComponent implements OnInit, OnDestroy {
 
   onUpdate() {
     this.data.deleteBid(this.editChoice.round, this.editChoice.choice)
-    this.onSubmit()
-    this.router.navigate(['myBids'])
+    setTimeout(() => {
+      this.onSubmit()
+      this.router.navigate(['myBids'])
+    }, 1000)
+
   }
 
   onDelete() {
