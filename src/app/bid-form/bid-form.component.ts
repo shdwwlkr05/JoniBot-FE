@@ -121,6 +121,7 @@ export class BidFormComponent implements OnInit, OnDestroy {
     this.response = null
     this.error = null
     this.daysAvailable = true
+    console.log(this.editChoice)
     const start = new Date(this.bidForm.value['start-vac'] + 'T00:00:00')
     let end
     if (!this.bidForm.value['end-vac']) {
@@ -129,14 +130,18 @@ export class BidFormComponent implements OnInit, OnDestroy {
       end = new Date(this.bidForm.value['end-vac'] + 'T00:00:00')
     }
     const bid = {
-      'round': this.bidForm.value['bid-round'],
-      'choice': this.bidForm.value['bid-choice'],
+      'round': null,
+      'choice': null,
       'award_order': null,
       'bid_date': null,
       'vac_type': this.bidForm.value['vac-type'],
       'award_opt': this.bidForm.value['award-option'],
       'use_hol': this.bidForm.value['use-holiday']
     }
+    this.editChoice ? bid.round = this.editChoice['round'] : bid.round = this.bidForm.value['bid-round']
+    this.editChoice ? bid.choice = this.editChoice['choice'] : bid.choice = this.bidForm.value['bid-choice']
+    console.log('Bid Form: ', this.bidForm.value)
+    console.log('Bid: ', bid)
     const bids = []
     let order = 1
     let vac_remaining = this.balances['vac_remaining']
