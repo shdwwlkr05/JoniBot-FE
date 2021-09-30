@@ -3,11 +3,13 @@
     {{choice.value.startDate | date:'MMM dd'}} -
     {{choice.value.endDate | date:'MMM dd'}}
   </span>
-  <span (click)="onMoveUp(choice.value)"
-        style="cursor: pointer; margin-left: 20px"
-        *ngIf="choice.value.choice != 1">Move Up</span>
-  <span (click)="onMoveDown(choice.value)"
-        style="cursor: pointer; margin-left: 20px"
-        *ngIf="choice.value.choice != lastEl">Move Down</span>
   <ul>Type - {{vacType}} / Award - {{awardOpt}}{{useHol}}</ul>
+  <ul>
+    <span (click)="onMoveUp(choice.value)"
+          style="cursor: pointer; margin-right: 20px"
+          *ngIf="choice.value.choice != 1">Move Up</span>
+    <span (click)="onMoveDown(choice.value)"
+          style="cursor: pointer"
+          *ngIf="choice.value.choice != lastEl">Move Down</span>
+  </ul>
 </li>
