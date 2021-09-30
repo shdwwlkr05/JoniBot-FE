@@ -28,6 +28,7 @@ export class BidFormComponent implements OnInit, OnDestroy {
   rounds = ['1', '2', '3', '4', '5', '6', '7']
   bidForm: FormGroup
   editing = false
+  updating = false
   daysAvailable = true
   dateSubscription: Subscription
   bidSubscription: Subscription
@@ -203,9 +204,11 @@ export class BidFormComponent implements OnInit, OnDestroy {
 
 
   onUpdate() {
+    this.updating = true
     this.data.deleteBid(this.editChoice.round, this.editChoice.choice)
     setTimeout(() => {
       this.onSubmit()
+      this.updating = false
       this.router.navigate(['myBids'])
     }, 1000)
 

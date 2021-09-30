@@ -15,7 +15,6 @@ import { BidListComponent } from './bid-list/bid-list.component';
 import { BidItemComponent } from './bid-list/bid-item/bid-item.component'
 import { AuthInterceptorService } from './auth/auth-interceptor.service';
 import { BidEditComponent } from './bid-list/bid-edit/bid-edit.component';
-import { LoadingSpinnerComponent } from './loading-spinner/loading-spinner.component'
 
 @NgModule({
   declarations: [
@@ -26,7 +25,6 @@ import { LoadingSpinnerComponent } from './loading-spinner/loading-spinner.compo
     BidListComponent,
     BidItemComponent,
     BidEditComponent,
-    LoadingSpinnerComponent,
   ],
   imports: [
     BrowserModule,
@@ -39,6 +37,7 @@ import { LoadingSpinnerComponent } from './loading-spinner/loading-spinner.compo
     ReactiveFormsModule
   ],
   providers: [{provide: HTTP_INTERCEPTORS, useClass: AuthInterceptorService, multi: true}],
+  exports: [],
   bootstrap: [AppComponent]
 })
 export class AppModule {

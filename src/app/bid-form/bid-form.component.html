@@ -8,7 +8,13 @@
       <div class="alert alert-danger" *ngIf="error">{{error}}</div>
     </div>
   </div>
-  <div class="row">
+  <div class="row" *ngIf="updating">
+    <div class="col-xs-12">
+      <h5>Updating bid, please wait...</h5>
+      <app-loading-spinner></app-loading-spinner>
+    </div>
+  </div>
+  <div class="row" *ngIf="!updating">
     <div class="col-xs-12 col-sm-10 col-md-8 col-sm-offset-1 col-md-offset-2">
       <h4 *ngIf="!editing; else elseBlock">Bid Sheet</h4>
       <ng-template #elseBlock><h4>Edit Bid Sheet</h4></ng-template>
