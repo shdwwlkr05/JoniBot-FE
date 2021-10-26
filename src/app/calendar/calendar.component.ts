@@ -27,6 +27,14 @@ const colors: any = {
     primary: '#e3bc08',
     secondary: '#FDF1BA',
   },
+  green: {
+    primary: '#2cb805',
+    secondary: '#b0f39d',
+  },
+  orange: {
+    primary: '#ce7e00',
+    secondary: '#d2a768',
+  },
 };
 
 
@@ -123,9 +131,9 @@ export class CalendarComponent {
 
   getCalendarEvents(workdays) {
     // console.log('getCalendarEvents', workdays)
-    const workdayList = []
+    const eventList = []
     for (let workday of workdays) {
-      workdayList.push({
+      eventList.push({
         start: startOfDay(new Date(workday + 'T00:00:00')),
         title: formatDate(workday, 'MMM d', 'en-us'),
         color: colors.blue,
@@ -135,7 +143,44 @@ export class CalendarComponent {
         }
       })
     }
-    return workdayList
+    const max_off_per_day = 10
+    const counts = {}
+    const awarded = []
+    const awarded_days = this.data.fetchAwards().toPromise()
+    awarded_days.then(awards => {
+      for (let award of awards) {
+        awarded.push(award['bid_date'])
+      }
+      awarded.forEach(function (x) { counts[x] = (counts[x] || 0) + 1; })
+      for (const [key, value] of Object.entries(counts)) {
+        console.log(`${key} has been awarded ${value} time(s)`)
+        const percent_awarded = +value / max_off_per_day
+        let set_color
+        switch (true) {
+          case (percent_awarded < .75):
+            set_color = colors.green
+            break
+          case (percent_awarded < .85):
+            set_color = colors.yellow
+            break
+          case (percent_awarded < 1):
+            set_color = colors.orange
+            break
+          case (percent_awarded == 1):
+            set_color = colors.red
+            break
+        }
+        eventList.push({
+          start: startOfDay(new Date(key + 'T00:00:00')),
+          title: `${value} slot(s) awarded out of a possible ${max_off_per_day}`,
+          color: set_color,
+          meta: {
+            incrementBadgeTotal: false,
+          }
+        })
+      }
+    })
+    return eventList
 
   }
 

@@ -4,7 +4,7 @@
 
 export const environment = {
   production: false,
-  baseURL: 'http://127.0.0.1:8000/'
+  baseURL: 'https://joni-bot-be-3xcvs.ondigitalocean.app/'
 };
 
 /*

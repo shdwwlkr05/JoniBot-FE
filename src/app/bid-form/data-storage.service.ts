@@ -11,6 +11,7 @@ const bidsURL = environment.baseURL + 'api/bid/bids/'
 const bidsUpdateURL = environment.baseURL + 'api/bid/bids/update/'
 const workdayUrl = environment.baseURL + 'api/bid/workdays'
 const balanceUrl = environment.baseURL + 'api/bid/balances'
+const awardUrl = environment.baseURL + 'api/bid/awards'
 
 @Injectable({
   providedIn: 'root'
@@ -113,7 +114,7 @@ export class DataStorageService {
         }).subscribe(() => {
           this.fetchBids().subscribe()
     })
-  }z
+  }
 
 
   fetchBalances() {
@@ -121,6 +122,11 @@ export class DataStorageService {
       this.bidService.setBalances(balances[0])
     })
 
+  }
+
+
+  fetchAwards() {
+    return this.http.get<[]>(awardUrl)
   }
 
 

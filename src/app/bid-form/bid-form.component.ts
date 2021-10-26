@@ -47,6 +47,7 @@ export class BidFormComponent implements OnInit, OnDestroy {
   defaultHol: boolean = false
   workdays = []
   balances = {}
+  awards
 
   constructor(private bidService: BidService,
               private data: DataStorageService,
@@ -130,6 +131,10 @@ export class BidFormComponent implements OnInit, OnDestroy {
     } else {
       end = new Date(this.bidForm.value['end-vac'] + 'T00:00:00')
     }
+    if (end < start) {
+      this.error = `Start date is after end date.
+      Please check your dates and try again.`
+    }
     const bid = {
       'round': null,
       'choice': null,
@@ -141,6 +146,9 @@ export class BidFormComponent implements OnInit, OnDestroy {
     }
     this.editChoice ? bid.round = this.editChoice['round'] : bid.round = this.bidForm.value['bid-round']
     this.editChoice ? bid.choice = this.editChoice['choice'] : bid.choice = this.bidForm.value['bid-choice']
+    if (bid.choice < 0) {
+      this.error = `Choice must be greater than 0.`
+    }
     console.log('Bid Form: ', this.bidForm.value)
     console.log('Bid: ', bid)
     const bids = []
@@ -150,7 +158,7 @@ export class BidFormComponent implements OnInit, OnDestroy {
     let prior_to_incremental_remaining = this.balances['prior-to-incremental_allowance']
     let loop = new Date(start)
     // Loop through all days in range submitted on bid form
-    while (loop <= end && this.daysAvailable) {
+    while (loop <= end && this.daysAvailable && !this.error) {
       let formattedDate = formatDate(loop, 'yyyy-MM-dd', 'en-us')
 
       // Check to see if day has already been bid for Round and Choice
@@ -226,6 +234,17 @@ export class BidFormComponent implements OnInit, OnDestroy {
   }
 
   onTest() {
-    console.log('Balances: ', this.balances)
+    const counts = {}
+    const awarded = []
+    const awarded_days = this.data.fetchAwards().toPromise()
+    awarded_days.then(awards => {
+      for (let award of awards) {
+        awarded.push(award['bid_date'])
+      }
+      awarded.forEach(function (x) { counts[x] = (counts[x] || 0) + 1; })
+      for (const [key, value] of Object.entries(counts)) {
+        console.log(`${key} has been awarded ${value} time(s)`)
+      }
+    })
   }
 }
