@@ -61,6 +61,7 @@ export class AuthService {
     if (loadedUser.token) {
       this.user.next(loadedUser)
       this.data.fetchBids().subscribe()
+      this.data.fetchRound7().subscribe()
       this.data.fetchBalances()
     }
   }

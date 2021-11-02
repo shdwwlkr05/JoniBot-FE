@@ -32,12 +32,14 @@ export class BidFormComponent implements OnInit, OnDestroy {
   daysAvailable = true
   dateSubscription: Subscription
   bidSubscription: Subscription
+  incrementalSubscription: Subscription
   workdaySubscription: Subscription
   balancesSubscription: Subscription
   httpResponse: Subscription
   response: string
   error: string
   existingBids: any = {}
+  incrementalBids: any = {}
   defaultRound: string = '1'
   defaultChoice: string = '1'
   defaultStart: any = null
@@ -48,6 +50,7 @@ export class BidFormComponent implements OnInit, OnDestroy {
   workdays = []
   balances = {}
   awards
+  round7
 
   constructor(private bidService: BidService,
               private data: DataStorageService,
@@ -73,6 +76,10 @@ export class BidFormComponent implements OnInit, OnDestroy {
       this.existingBids = bids
     })
 
+    this.incrementalSubscription = this.bidService.round7Bids.subscribe(bids => {
+      this.incrementalBids = bids
+    })
+
     this.workdaySubscription = this.calService.workdaysChanged.subscribe(workdays => {
       this.workdays = workdays
     })
@@ -89,18 +96,29 @@ export class BidFormComponent implements OnInit, OnDestroy {
 
 
     if (this.router.url.includes('/edit') && !!this.editChoice) {
+      console.log('Edit Choice:', this.editChoice)
+      console.log('Vac Type:', this.editChoice['vac_type'])
       this.editing = true
-      this.defaultRound = this.editChoice.bids[0]['round']
-      this.defaultChoice = this.editChoice.bids[0]['choice']
-      this.defaultStart = this.editChoice.startDate
-      this.defaultEnd = this.editChoice.endDate
-      this.defaultType = this.editChoice.vacType
-      this.defaultOption = this.editChoice.awardOpt
-      this.defaultHol = this.editChoice.useHol
+      if (this.editChoice.round >= '7') {
+        this.round7 = true
+        this.defaultRound = '7'
+        this.defaultChoice = this.editChoice.choice
+        this.defaultStart = this.editChoice['bid_date']
+        this.defaultType = this.editChoice['vac_type']
+      } else {
+        this.defaultRound = this.editChoice.round
+        this.defaultChoice = this.editChoice.choice
+        this.defaultStart = this.editChoice.startDate
+        this.defaultEnd = this.editChoice.endDate
+        this.defaultType = this.editChoice.vacType
+        this.defaultOption = this.editChoice.awardOpt
+        this.defaultHol = this.editChoice.useHol
+      }
     } else {
       this.editing = false
     }
 
+    console.log('Default Type:', this.defaultType)
     this.bidForm = new FormGroup({
       'bid-round': new FormControl({value: this.defaultRound, disabled: this.editing}),
       'bid-choice': new FormControl({value: this.defaultChoice, disabled: this.editing}),
@@ -117,6 +135,7 @@ export class BidFormComponent implements OnInit, OnDestroy {
     this.bidSubscription.unsubscribe()
     this.workdaySubscription.unsubscribe()
     this.balancesSubscription.unsubscribe()
+    this.incrementalSubscription.unsubscribe()
   }
 
   onSubmit() {
@@ -149,8 +168,9 @@ export class BidFormComponent implements OnInit, OnDestroy {
     if (bid.choice < 0) {
       this.error = `Choice must be greater than 0.`
     }
-    console.log('Bid Form: ', this.bidForm.value)
-    console.log('Bid: ', bid)
+    if (!this.bidForm.value['start-vac']) {
+      this.error = `You must request at least one day to submit a bid`
+    }
     const bids = []
     let order = 1
     let vac_remaining = this.balances['vac_remaining']
@@ -162,17 +182,51 @@ export class BidFormComponent implements OnInit, OnDestroy {
       let formattedDate = formatDate(loop, 'yyyy-MM-dd', 'en-us')
 
       // Check to see if day has already been bid for Round and Choice
-      let round = 'Round ' + bid.round
+      let round
+      let vacType
+      if (bid.round >= 7) {
+        switch (bid['vac_type']) {
+          case 'vac':
+            bid.round = 7
+            vacType = 'Vacation'
+            break
+          case 'ppt':
+            bid.round = 8
+            vacType = 'PPT'
+            break
+          case 'hol':
+            bid.round = 9
+            vacType = 'Holiday'
+            break
+        }
+      } else {
+        round = 'Round ' + bid.round
+      }
       let choice = 'Choice ' + bid.choice
-      if (round in this.existingBids) {
-        if (choice in this.existingBids[round]) {
-          this.error = `Bid for ${round} - ${choice} already exists.
-          Please select different choice option or edit the existing one.`
+      console.log('Round? ', bid.round)
+      console.log('Incremental Bids: ', this.incrementalBids)
+      console.log('Vacation Type: ',bid['vac_type'])
+      if (+bid.round >= 7) {
+        const found = this.incrementalBids[bid['vac_type']].some(
+          el => el.choice == bid.choice
+        )
+        if (found) {
+          this.error = `Bid for ${vacType} - ${choice} already exists.
+              Please select different choice option or edit the existing one.`
           break
+        }
+      } else {
+        if (round in this.existingBids) {
+          if (choice in this.existingBids[round]) {
+            this.error = `Bid for ${round} - ${choice} already exists.
+              Please select different choice option or edit the existing one.`
+            break
+          }
         }
       }
 
       // Loop through days checking to see if they are a scheduled workday
+      console.log('Formatted Date:', formattedDate)
       if (this.workdays.includes(formattedDate)) {
         bid.award_order = order
         order++
@@ -241,10 +295,16 @@ export class BidFormComponent implements OnInit, OnDestroy {
       for (let award of awards) {
         awarded.push(award['bid_date'])
       }
-      awarded.forEach(function (x) { counts[x] = (counts[x] || 0) + 1; })
+      awarded.forEach(function (x) {
+        counts[x] = (counts[x] || 0) + 1;
+      })
       for (const [key, value] of Object.entries(counts)) {
         console.log(`${key} has been awarded ${value} time(s)`)
       }
     })
+  }
+
+  roundChange(event) {
+    event == 7 ? this.round7 = true : this.round7 = false
   }
 }

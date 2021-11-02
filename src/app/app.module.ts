@@ -15,6 +15,8 @@ import { BidListComponent } from './bid-list/bid-list.component';
 import { BidItemComponent } from './bid-list/bid-item/bid-item.component'
 import { AuthInterceptorService } from './auth/auth-interceptor.service';
 import { BidEditComponent } from './bid-list/bid-edit/bid-edit.component';
+import { IncrementalItemComponent } from './bid-list/incremental-item/incremental-item.component';
+import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 
 @NgModule({
   declarations: [
@@ -25,6 +27,7 @@ import { BidEditComponent } from './bid-list/bid-edit/bid-edit.component';
     BidListComponent,
     BidItemComponent,
     BidEditComponent,
+    IncrementalItemComponent,
   ],
   imports: [
     BrowserModule,
@@ -34,7 +37,8 @@ import { BidEditComponent } from './bid-list/bid-edit/bid-edit.component';
     HttpClientModule,
     AppRoutingModule,
     FormsModule,
-    ReactiveFormsModule
+    ReactiveFormsModule,
+    FontAwesomeModule
   ],
   providers: [{provide: HTTP_INTERCEPTORS, useClass: AuthInterceptorService, multi: true}],
   exports: [],

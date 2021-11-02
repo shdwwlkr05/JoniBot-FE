@@ -76,6 +76,28 @@ export class DataStorageService {
     )
   }
 
+  fetchRound7() {
+    const groupedBids = {'vac': [], 'ppt': [], 'hol': []}
+    return this.http.get<Bid[]>(bidsURL,
+      {
+        params: new HttpParams()
+          .set('round', '7')
+      }).pipe(
+      map(bids => {
+        for (let bid of bids) {
+          groupedBids[bid['vac_type']].push(bid)
+        }
+        groupedBids['vac'].sort((a, b) => (a.choice > b.choice) ? 1 : ((b.choice > a.choice) ? -1 : 0))
+        groupedBids['ppt'].sort((a, b) => (a.choice > b.choice) ? 1 : ((b.choice > a.choice) ? -1 : 0))
+        groupedBids['hol'].sort((a, b) => (a.choice > b.choice) ? 1 : ((b.choice > a.choice) ? -1 : 0))
+        return groupedBids
+      }),
+      tap(bids => {
+        this.bidService.setRound7(bids)
+      })
+    )
+  }
+
   fetchWorkdays() {
     return this.http.get(workdayUrl).pipe(tap(workdays => {
       this.calendarService.setWorkdays(workdays)
@@ -86,6 +108,7 @@ export class DataStorageService {
     this.http.post(bidsURL, bids)
       .subscribe(res => {
         this.fetchBids().subscribe()
+        this.fetchRound7().subscribe()
         this.bidService.httpResponse.next(res['status'])
       })
   }
@@ -100,6 +123,7 @@ export class DataStorageService {
         })
       .subscribe(() => {
         this.fetchBids().subscribe()
+        this.fetchRound7().subscribe()
       })
   }
 
@@ -112,7 +136,8 @@ export class DataStorageService {
             .set('currentChoice', choice.toString())
             .set('newChoice', newChoice.toString())
         }).subscribe(() => {
-          this.fetchBids().subscribe()
+      this.fetchBids().subscribe()
+      this.fetchRound7().subscribe()
     })
   }
 

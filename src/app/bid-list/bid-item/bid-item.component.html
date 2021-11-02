@@ -5,11 +5,23 @@
   </span>
   <ul>Type - {{vacType}} / Award - {{awardOpt}}{{useHol}}</ul>
   <ul>
-    <span (click)="onMoveUp(choice.value)"
-          style="cursor: pointer; margin-right: 20px"
-          *ngIf="choice.value.choice != 1">Move Up</span>
-    <span (click)="onMoveDown(choice.value)"
-          style="cursor: pointer"
-          *ngIf="choice.value.choice != lastEl">Move Down</span>
+    <fa-icon [icon]="faArrowCircleUp"
+             style="cursor: pointer;
+             margin-right: 10px;
+             color: #0d6efd;"
+             size="lg"
+             *ngIf="choice.value.choice != 1"
+             (click)="onMoveUp(choice.value)"
+    >
+    </fa-icon>
+    <fa-icon [icon]="faArrowCircleDown"
+             style="cursor: pointer;
+             margin-right: 10px;
+             color: #0d6efd;"
+             size="lg"
+             *ngIf="choice.value.choice != lastEl"
+             (click)="onMoveDown(choice.value)"
+    >
+    </fa-icon>
   </ul>
 </li>

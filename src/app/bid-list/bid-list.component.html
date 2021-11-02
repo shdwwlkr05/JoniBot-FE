@@ -11,18 +11,49 @@
   </div>
 </div>
 <div class="row" *ngIf="!loading">
-  <div class="col-xs-12" *ngFor="let round of bids | keyvalue">
-    <h5>{{round.key}}</h5>
-    <ul>
-      <app-bid-item
-        *ngFor="let choice of round.value | keyvalue"
-        [choice]="choice"
-        [round]="round.value">
-      </app-bid-item>
-    </ul>
+  <div class="col">
+    <div *ngFor="let round of bids | keyvalue">
+      <h5>{{round.key}}</h5>
+      <ul>
+        <app-bid-item
+          *ngFor="let choice of round.value | keyvalue"
+          [choice]="choice"
+          [round]="round.value">
+        </app-bid-item>
+      </ul>
 
-<!--    <app-bid-item-->
-<!--    *ngFor="let round of rounds"-->
-<!--    [bid]="bidEl"></app-bid-item>-->
+  <!--    <app-bid-item-->
+  <!--    *ngFor="let round of rounds"-->
+  <!--    [bid]="bidEl"></app-bid-item>-->
+    </div>
+  </div>
+  <div class="col">
+    <div>
+      <h5>Round 7</h5>
+      <ul><b>Vacation</b>
+        <app-incremental-item
+         *ngFor="let bid of incrementalBids['vac']"
+         [bid]="bid"
+         [len] = vacLen
+        >
+        </app-incremental-item>
+      </ul>
+      <ul><b>PPT</b>
+        <app-incremental-item
+          *ngFor="let bid of incrementalBids['ppt']"
+          [bid]="bid"
+          [len] = pptLen
+        >
+        </app-incremental-item>
+      </ul>
+      <ul><b>Holidays</b>
+        <app-incremental-item
+          *ngFor="let bid of incrementalBids['hol']"
+          [bid]="bid"
+          [len] = holLen
+        >
+        </app-incremental-item>
+      </ul>
+    </div>
   </div>
 </div>

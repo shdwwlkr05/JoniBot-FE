@@ -10,8 +10,13 @@ import { BidService } from '../bid-form/bid.service'
 })
 export class BidListComponent implements OnInit, OnDestroy {
   bids: any
+  incrementalBids = {'vac': [], 'ppt': [], 'hol': []}
+  vacLen: number
+  pptLen: number
+  holLen: number
   loading = false
   private bidSubscription: Subscription
+  private incrementalSubscription: Subscription
 
   constructor(private data: DataStorageService,
               private bidService: BidService) {
@@ -22,10 +27,24 @@ export class BidListComponent implements OnInit, OnDestroy {
     this.bidSubscription = this.bidService.bidsChanged.subscribe(bids => {
       this.bids = bids
     })
+    this.incrementalSubscription = this.bidService.round7Bids.subscribe(bids => {
+      this.incrementalBids = bids
+      if (!this.incrementalBids){
+        this.incrementalBids = {'vac': [], 'ppt': [], 'hol': []}
+        this.vacLen = 0
+        this.pptLen = 0
+        this.holLen = 0
+      }else {
+        this.vacLen = this.incrementalBids['vac'].length
+        this.pptLen = this.incrementalBids['ppt'].length
+        this.holLen = this.incrementalBids['hol'].length
+      }
+    })
   }
 
   ngOnDestroy(): void {
     this.bidSubscription.unsubscribe()
+    this.incrementalSubscription.unsubscribe()
   }
 
 

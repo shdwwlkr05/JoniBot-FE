@@ -153,7 +153,6 @@ export class CalendarComponent {
       }
       awarded.forEach(function (x) { counts[x] = (counts[x] || 0) + 1; })
       for (const [key, value] of Object.entries(counts)) {
-        console.log(`${key} has been awarded ${value} time(s)`)
         const percent_awarded = +value / max_off_per_day
         let set_color
         switch (true) {

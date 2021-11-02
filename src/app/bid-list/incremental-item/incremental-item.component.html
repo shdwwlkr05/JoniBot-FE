@@ -1,0 +1,21 @@
+<ul>
+  <span (click)="onClick(bid)">{{bid['bid_date'] | date: 'MMM dd'}}</span>
+  <fa-icon [icon]="faArrowCircleUp"
+           style="cursor: pointer;
+             margin-left: 10px;
+             color: #0d6efd;"
+           size="lg"
+           *ngIf="bid.choice != 1"
+           (click)="onMoveUp(bid)"
+  >
+  </fa-icon>
+  <fa-icon [icon]="faArrowCircleDown"
+           style="cursor: pointer;
+             margin-left: 10px;
+             color: #0d6efd;"
+           size="lg"
+           *ngIf="bid.choice != len"
+           (click)="onMoveDown(bid)"
+  >
+  </fa-icon>
+</ul>

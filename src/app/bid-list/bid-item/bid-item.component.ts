@@ -2,6 +2,8 @@ import { Component, Input, OnInit } from '@angular/core';
 import { BidService } from '../../bid-form/bid.service'
 import { ActivatedRoute, Router } from '@angular/router'
 import { DataStorageService } from '../../bid-form/data-storage.service'
+import { faArrowCircleUp } from '@fortawesome/free-solid-svg-icons'
+import { faArrowCircleDown } from '@fortawesome/free-solid-svg-icons'
 
 @Component({
   selector: 'app-bid-item',
@@ -15,6 +17,8 @@ export class BidItemComponent implements OnInit {
   vacType: string
   awardOpt: string
   useHol: string
+  faArrowCircleUp = faArrowCircleUp
+  faArrowCircleDown = faArrowCircleDown
 
   constructor(private bidService: BidService,
               private router: Router,

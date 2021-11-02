@@ -25,7 +25,8 @@
             name="bid-round"
             id="bid-round"
             class="form-select"
-            formControlName="bid-round">
+            formControlName="bid-round"
+            (change)="roundChange($event.target.value)">
             <option *ngFor="let round of rounds" value="{{round}}">{{round}}</option>
           </select>
         </div>
@@ -41,14 +42,15 @@
             pattern="^[1-9]+[0-9]*$">
         </div>
         <div class="form-group">
-          <label for="start-vac">Start of Vacation</label>
+          <label for="start-vac" *ngIf="!round7">Start of Vacation</label>
+          <label for="start-vac" *ngIf="round7">Date Requested</label>
           <input type="date"
                  id="start-vac"
                  name="start-vac"
                  class="form-control"
                  formControlName="start-vac">
         </div>
-        <div class="form-group">
+        <div class="form-group" *ngIf="!round7">
           <label for="end-vac">End of Vacation</label>
           <input type="date"
                  id="end-vac"
@@ -56,7 +58,7 @@
                  class="form-control"
                  formControlName="end-vac">
         </div>
-        <div class="form-group">
+        <div class="form-group" *ngIf="!(round7 && editing)">
           <label for="vac-type">Vacation Type</label>
           <select
             name="vac-type"
@@ -65,9 +67,10 @@
             formControlName="vac-type">
             <option value="vac">Vacation</option>
             <option value="ppt">PPT</option>
+            <option value="hol" *ngIf="round7">Holiday</option>
           </select>
         </div>
-        <div class="form-group">
+        <div class="form-group" *ngIf="!round7">
           <label for="award-option">Award if...</label>
           <select
             name="award-option"
@@ -80,7 +83,7 @@
           </select>
         </div>
         <br>
-        <div class="form-group">
+        <div class="form-group" *ngIf="!round7">
           <input
             type="checkbox"
             id="use-holiday"
