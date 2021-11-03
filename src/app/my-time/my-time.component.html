@@ -1,24 +1,57 @@
 <div class="row">
   <div class="col-xs-12">
-    <h5>My Time</h5>
+    <h5>My Time (WIP)</h5>
   </div>
 </div>
 <hr>
 <div class="row">
   <div class="col-xs-12">
     <b>Vacation</b>
-
+    <div class="col-xs-12">
+      {{balances['vac_remaining']}} hours remaining <br>
+      I want to use a max of
+      <input
+        name="maxVac"
+        type="text"
+        maxlength="3"
+        size="3"
+        [(ngModel)]="maxVac"
+        #vacInput="ngModel"
+      >
+      vacation hours during Round 7. <br>
+      <button class="btn btn-primary" type="button" (click)="onClick()" *ngIf="vacInput.dirty">Save</button>
+    </div>
   </div>
 </div>
 <hr>
 <div class="row">
   <div class="col-xs-12">
     <b>PPT</b>
+    <div class="col-xs-12">
+      {{balances['ppt_remaining']}} hours remaining <br>
+      I want to use a max of
+      <input
+        name="maxPpt"
+        type="text"
+        maxlength="3"
+        size="3"
+        [(ngModel)]="maxPpt"
+        #pptInput="ngModel"
+      >
+      PPT hours during Round 7. <br>
+      <button class="btn btn-primary" type="button" (click)="onClick()" *ngIf="pptInput.dirty">Save</button>
+    </div>
   </div>
 </div>
 <hr>
 <div class="row">
-  <div class="col-xs-12">
-    <b>Holidays</b>
+  <b>Holidays</b>
+  <p>Use checkbox to select if you want to use this holiday during round 7</p>
+  <div class="col">
+    2021
+  </div>
+  <div class="col">
+    2022
   </div>
 </div>
+

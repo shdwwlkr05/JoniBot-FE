@@ -132,12 +132,31 @@ export class CalendarComponent {
   getCalendarEvents(workdays) {
     // console.log('getCalendarEvents', workdays)
     const eventList = []
+    let formattedDate
     for (let workday of workdays) {
+      formattedDate = formatDate(workday, 'MMM d', 'en-us')
       eventList.push({
         start: startOfDay(new Date(workday + 'T00:00:00')),
-        title: formatDate(workday, 'MMM d', 'en-us'),
+        // title: ,
         color: colors.blue,
-        actions: this.actions,
+        actions: [
+          {
+            label: `Start vacation on ${formattedDate}`,
+            a11yLabel: 'Start',
+            onClick: ({event}: { event: CalendarEvent }): void => {
+              this.onStartClick(event);
+            },
+            cssClass: 'my-custom-action',
+          },
+          {
+            label: `End vacation on ${formattedDate}`,
+            a11yLabel: 'End',
+            onClick: ({event}: { event: CalendarEvent }): void => {
+              this.onEndClick(event);
+            },
+            cssClass: 'my-custom-action',
+          },
+        ],
         meta: {
           incrementBadgeTotal: false,
         }
