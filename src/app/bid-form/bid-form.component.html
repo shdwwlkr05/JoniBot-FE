@@ -64,7 +64,8 @@
             name="vac-type"
             id="vac-type"
             class="form-select"
-            formControlName="vac-type">
+            formControlName="vac-type"
+            (change)="vacTypeChange($event.target.value)">
             <option value="vac">Vacation</option>
             <option value="ppt">PPT</option>
             <option value="hol" *ngIf="round7">Holiday</option>

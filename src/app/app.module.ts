@@ -17,6 +17,7 @@ import { AuthInterceptorService } from './auth/auth-interceptor.service';
 import { BidEditComponent } from './bid-list/bid-edit/bid-edit.component';
 import { IncrementalItemComponent } from './bid-list/incremental-item/incremental-item.component';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
+import { MyTimeComponent } from './my-time/my-time.component';
 
 @NgModule({
   declarations: [
@@ -28,6 +29,7 @@ import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
     BidItemComponent,
     BidEditComponent,
     IncrementalItemComponent,
+    MyTimeComponent,
   ],
   imports: [
     BrowserModule,

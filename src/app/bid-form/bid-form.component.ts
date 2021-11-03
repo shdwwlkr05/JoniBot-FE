@@ -74,6 +74,9 @@ export class BidFormComponent implements OnInit, OnDestroy {
 
     this.bidSubscription = this.bidService.bidsChanged.subscribe(bids => {
       this.existingBids = bids
+      if (!!bids) {
+        this.defaultChoice = String(Object.keys(this.existingBids['Round 1']).length + 1)
+      }
     })
 
     this.incrementalSubscription = this.bidService.round7Bids.subscribe(bids => {
@@ -96,8 +99,6 @@ export class BidFormComponent implements OnInit, OnDestroy {
 
 
     if (this.router.url.includes('/edit') && !!this.editChoice) {
-      console.log('Edit Choice:', this.editChoice)
-      console.log('Vac Type:', this.editChoice['vac_type'])
       this.editing = true
       if (this.editChoice.round >= '7') {
         this.round7 = true
@@ -118,7 +119,6 @@ export class BidFormComponent implements OnInit, OnDestroy {
       this.editing = false
     }
 
-    console.log('Default Type:', this.defaultType)
     this.bidForm = new FormGroup({
       'bid-round': new FormControl({value: this.defaultRound, disabled: this.editing}),
       'bid-choice': new FormControl({value: this.defaultChoice, disabled: this.editing}),
@@ -205,14 +205,22 @@ export class BidFormComponent implements OnInit, OnDestroy {
       let choice = 'Choice ' + bid.choice
       console.log('Round? ', bid.round)
       console.log('Incremental Bids: ', this.incrementalBids)
-      console.log('Vacation Type: ',bid['vac_type'])
+      console.log('Vacation Type: ', bid['vac_type'])
       if (+bid.round >= 7) {
-        const found = this.incrementalBids[bid['vac_type']].some(
+        const foundChoice = this.incrementalBids[bid['vac_type']].some(
           el => el.choice == bid.choice
         )
-        if (found) {
+        if (foundChoice) {
           this.error = `Bid for ${vacType} - ${choice} already exists.
               Please select different choice option or edit the existing one.`
+          break
+        }
+        const foundDay = this.incrementalBids[bid['vac_type']].some(
+          el => el['bid_date'] == formattedDate
+        )
+        if (foundDay) {
+          this.error = `A bid for ${formattedDate} using ${vacType} already exists.
+              Please select a different day.`
           break
         }
       } else {
@@ -288,23 +296,37 @@ export class BidFormComponent implements OnInit, OnDestroy {
   }
 
   onTest() {
-    const counts = {}
-    const awarded = []
-    const awarded_days = this.data.fetchAwards().toPromise()
-    awarded_days.then(awards => {
-      for (let award of awards) {
-        awarded.push(award['bid_date'])
-      }
-      awarded.forEach(function (x) {
-        counts[x] = (counts[x] || 0) + 1;
-      })
-      for (const [key, value] of Object.entries(counts)) {
-        console.log(`${key} has been awarded ${value} time(s)`)
-      }
-    })
+    console.log('Existing bids:', this.existingBids)
+    console.log('Incremental bids:', this.incrementalBids)
+    console.log('Bid form round:', this.bidForm.controls['vac-type'].value)
+    console.log('Round Length:', Object.keys(this.existingBids['Round 1']).length)
   }
 
   roundChange(event) {
-    event == 7 ? this.round7 = true : this.round7 = false
+    let numChoices
+    if (event == 7) {
+      this.round7 = true
+      const selectedVacType = this.bidForm.controls['vac-type'].value
+      numChoices = this.incrementalBids[selectedVacType].length + 1
+    } else {
+      this.round7 = false
+      const selectedRound = 'Round ' + event
+      const roundObject = this.existingBids[selectedRound]
+      if (roundObject) {
+        numChoices = Object.keys(roundObject).length + 1
+      } else {
+        numChoices = 1
+      }
+    }
+    this.bidForm.controls['bid-choice'].setValue(numChoices)
+
+  }
+
+  vacTypeChange(vacType: string) {
+    let numChoices
+    if (this.bidForm.controls['bid-round'].value == 7) {
+      numChoices = this.incrementalBids[vacType].length + 1
+      this.bidForm.controls['bid-choice'].setValue(numChoices)
+    }
   }
 }

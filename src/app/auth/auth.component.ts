@@ -22,10 +22,10 @@ export class AuthComponent implements OnInit {
     }
     const username = authForm.value.username;
     const password = authForm.value.password;
-    console.log(authForm.value, username, password)
+    // console.log(authForm.value, username, password)
     this.authService.login(username, password).subscribe(
       resData => {
-        console.log(resData)
+        // console.log(resData)
       },
       error => {
         this.error = error;

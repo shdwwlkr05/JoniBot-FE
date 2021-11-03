@@ -7,6 +7,7 @@ import { BehaviorSubject, throwError } from 'rxjs'
 import { Router } from '@angular/router'
 import { DataStorageService } from '../bid-form/data-storage.service'
 import { environment } from '../../environments/environment'
+import { BidService } from '../bid-form/bid.service'
 
 export interface AuthResponseData {
   token: string;
