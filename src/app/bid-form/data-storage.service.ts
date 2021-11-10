@@ -12,6 +12,8 @@ const bidsUpdateURL = environment.baseURL + 'api/bid/bids/update/'
 const workdayUrl = environment.baseURL + 'api/bid/workdays'
 const balanceUrl = environment.baseURL + 'api/bid/balances'
 const awardUrl = environment.baseURL + 'api/bid/awards'
+const usedHolUrl = environment.baseURL + 'api/bid/usedHol'
+const round7UsageUrl = environment.baseURL + 'api/bid/round7'
 
 @Injectable({
   providedIn: 'root'
@@ -152,6 +154,35 @@ export class DataStorageService {
 
   fetchAwards() {
     return this.http.get<[]>(awardUrl)
+  }
+
+
+  fetchUsedHolidays() {
+    return this.http.get<[]>(usedHolUrl).subscribe(holidays => {
+      console.log(holidays)
+      if (!!holidays) {
+        this.bidService.setUsedHol(holidays)
+      }
+    })
+  }
+
+
+  fetchRound7Usage() {
+    return this.http.get(round7UsageUrl).subscribe(usage => {
+      console.log(usage)
+      if (!!usage) {
+        this.bidService.setRound7Usage(usage[0])
+      }
+    })
+  }
+
+
+  updateRound7Usage(usages) {
+    const url = round7UsageUrl + '/' + usages.id + '/'
+    return this.http.put(url, usages).subscribe(response => {
+      this.fetchRound7Usage()
+      location.reload()
+    })
   }
 
 

@@ -1,6 +1,6 @@
 <div class="row">
   <div class="col-xs-12">
-    <h5>My Time (WIP)</h5>
+    <h5>My Time</h5>
   </div>
 </div>
 <hr>
@@ -15,11 +15,11 @@
         type="text"
         maxlength="3"
         size="3"
-        [(ngModel)]="maxVac"
+        [(ngModel)]="maxUsage.vac"
         #vacInput="ngModel"
       >
       vacation hours during Round 7. <br>
-      <button class="btn btn-primary" type="button" (click)="onClick()" *ngIf="vacInput.dirty">Save</button>
+      <div class="alert alert-danger" *ngIf="vacInput.dirty">You have unsaved changes</div>
     </div>
   </div>
 </div>
@@ -35,23 +35,87 @@
         type="text"
         maxlength="3"
         size="3"
-        [(ngModel)]="maxPpt"
+        [(ngModel)]="maxUsage.ppt"
         #pptInput="ngModel"
       >
       PPT hours during Round 7. <br>
-      <button class="btn btn-primary" type="button" (click)="onClick()" *ngIf="pptInput.dirty">Save</button>
+      <div class="alert alert-danger" *ngIf="pptInput.dirty">You have unsaved changes</div>
     </div>
   </div>
 </div>
 <hr>
 <div class="row">
   <b>Holidays</b>
-  <p>Use checkbox to select if you want to use this holiday during round 7</p>
+  <p>Use the checkboxes to select if you want to use a holiday during round 7</p>
   <div class="col">
-    2021
+    {{ currYear }}
+    <form #currHols="ngForm">
+      <div
+        class="form-group"
+        *ngFor="let hol of holidays"
+      >
+        <div *ngIf="holidayUsed(currYear, hol); then thenBlock else elseBlock"></div>
+        <ng-template #thenBlock>
+          <span>{{holidayUsedDate(currYear, hol)}}</span>
+        </ng-template>
+        <ng-template #elseBlock>
+          <input
+            type="checkbox"
+            id="{{currYear}} - {{hol}}"
+            name="{{currYear}} - {{hol}}"
+            class="form-check-input"
+            [(ngModel)]="maxUsage['curr'+hol]">
+          <label
+            for="{{currYear}} - {{hol}}"
+            style="margin-left: 5px"
+          >{{hol}}
+          </label>
+        </ng-template>
+      </div>
+      <div class="alert alert-danger" *ngIf="currHols.dirty">You have unsaved changes</div>
+    </form>
   </div>
   <div class="col">
-    2022
+    {{ nextYear }}
+    <form #nextHols="ngForm">
+      <div
+        class="form-group"
+        *ngFor="let hol of holidays"
+      >
+        <div *ngIf="holidayUsed(nextYear, hol); then thenBlock else elseBlock"></div>
+        <ng-template #thenBlock>
+          <span>{{holidayUsedDate(nextYear, hol)}}</span>
+        </ng-template>
+        <ng-template #elseBlock>
+          <input
+            type="checkbox"
+            id="{{nextYear}} - {{hol}}"
+            name="{{nextYear}} - {{hol}}"
+            class="form-check-input"
+            [(ngModel)]="maxUsage['next'+hol]">
+          <label
+            for="{{nextYear}} - {{hol}}"
+            style="margin-left: 5px"
+          >{{hol}}
+          </label>
+        </ng-template>
+      </div>
+      <div class="alert alert-danger" *ngIf="nextHols.dirty">You have unsaved changes</div>
+    </form>
   </div>
 </div>
-
+<div *ngIf="currHols.dirty || nextHols.dirty|| vacInput.dirty || pptInput.dirty">
+  <button
+    class="btn btn-primary"
+    type="button"
+    (click)="onSave()">
+    Save
+  </button>
+  <button
+    class="btn btn-secondary"
+    type="button"
+    style="margin-left: 5px"
+    (click)="onRevert()">
+    Revert Changes
+  </button>
+</div>

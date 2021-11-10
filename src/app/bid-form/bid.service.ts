@@ -16,6 +16,8 @@ export class BidService {
   editChoice = new BehaviorSubject<any>(null)
   balances = new BehaviorSubject<any>(null)
   httpResponse = new Subject<string>();
+  usedHol = new Subject<any>()
+  round7Usage = new Subject<any>()
 
   private bids = {}
   private bal = {}
@@ -39,5 +41,13 @@ export class BidService {
   setBalances(balances) {
     this.bal = balances
     this.balances.next(this.bal)
+  }
+
+  setUsedHol(usedHol) {
+    this.usedHol.next(usedHol)
+  }
+
+  setRound7Usage(usage) {
+    this.round7Usage.next(usage)
   }
 }
