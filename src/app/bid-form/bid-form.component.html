@@ -69,6 +69,8 @@
             <option value="vac">Vacation</option>
             <option value="ppt">PPT</option>
             <option value="hol" *ngIf="round7">Holiday</option>
+            <option value="adj" *ngIf="round7">Adjustment Day</option>
+            <option value="any" *ngIf="round7">Any time I have available</option>
           </select>
         </div>
         <div class="form-group" *ngIf="!round7">

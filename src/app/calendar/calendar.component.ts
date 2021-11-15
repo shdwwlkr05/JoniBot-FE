@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, TemplateRef, ViewChild, ViewEncapsulation, } from '@angular/core';
-import { isSameDay, isSameMonth, startOfDay, } from 'date-fns';
+import { isSameDay, startOfDay, } from 'date-fns';
 import { Subject } from 'rxjs';
 import {
   CalendarEvent,
@@ -91,11 +91,11 @@ export class CalendarComponent {
   }
 
   dayClicked({date, events}: { date: Date; events: CalendarEvent[] }): void {
-    if (isSameMonth(date, this.viewDate)) {
-      this.activeDayIsOpen = !((isSameDay(this.viewDate, date) && this.activeDayIsOpen === true) ||
-        events.length === 0);
-      this.viewDate = date;
-    }
+
+    this.activeDayIsOpen = !((isSameDay(this.viewDate, date) && this.activeDayIsOpen === true) ||
+      events.length === 0);
+    this.viewDate = date;
+
     // console.log(date);
   }
 
@@ -133,11 +133,12 @@ export class CalendarComponent {
     // console.log('getCalendarEvents', workdays)
     const eventList = []
     let formattedDate
-    for (let workday of workdays) {
+    for (let workday_el of workdays) {
+      const workday = workday_el.workday
       formattedDate = formatDate(workday, 'MMM d', 'en-us')
       eventList.push({
         start: startOfDay(new Date(workday + 'T00:00:00')),
-        // title: ,
+        title: workday_el.shift,
         color: colors.blue,
         actions: [
           {
@@ -170,7 +171,9 @@ export class CalendarComponent {
       for (let award of awards) {
         awarded.push(award['bid_date'])
       }
-      awarded.forEach(function (x) { counts[x] = (counts[x] || 0) + 1; })
+      awarded.forEach(function (x) {
+        counts[x] = (counts[x] || 0) + 1;
+      })
       for (const [key, value] of Object.entries(counts)) {
         const percent_awarded = +value / max_off_per_day
         let set_color

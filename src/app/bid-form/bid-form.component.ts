@@ -175,7 +175,8 @@ export class BidFormComponent implements OnInit, OnDestroy {
     let order = 1
     let vac_remaining = this.balances['vac_remaining']
     let ppt_remaining = this.balances['ppt_remaining']
-    let prior_to_incremental_remaining = this.balances['prior-to-incremental_allowance']
+    let prior_to_incremental_remaining = this.balances['prior_to_incremental_allowance']
+    console.log('Set - PriorToIncrementalRemaining: ', prior_to_incremental_remaining)
     let loop = new Date(start)
     // Loop through all days in range submitted on bid form
     while (loop <= end && this.daysAvailable && !this.error) {
@@ -198,6 +199,14 @@ export class BidFormComponent implements OnInit, OnDestroy {
             bid.round = 9
             vacType = 'Holiday'
             break
+          case 'adj':
+            bid.round = 10
+            vacType = 'Adjustment Day'
+            break
+          case 'any':
+            bid.round = 11
+            vacType = 'Any available'
+            break
         }
       } else {
         round = 'Round ' + bid.round
@@ -206,6 +215,7 @@ export class BidFormComponent implements OnInit, OnDestroy {
       console.log('Round? ', bid.round)
       console.log('Incremental Bids: ', this.incrementalBids)
       console.log('Vacation Type: ', bid['vac_type'])
+      console.log('PriorToIncrementalRemaining: ', prior_to_incremental_remaining)
       if (+bid.round >= 7) {
         const foundChoice = this.incrementalBids[bid['vac_type']].some(
           el => el.choice == bid.choice
@@ -235,31 +245,32 @@ export class BidFormComponent implements OnInit, OnDestroy {
 
       // Loop through days checking to see if they are a scheduled workday
       console.log('Formatted Date:', formattedDate)
-      if (this.workdays.includes(formattedDate)) {
+      if (this.workdays.some(workday => workday.workday == formattedDate)) {
         bid.award_order = order
         order++
         bid.bid_date = formattedDate
         // Check if vac or PPT was used and remove from remaining balance
+        const shift_hours = this.getShiftHours(formattedDate)
         if (bid.round < 7) {
-          prior_to_incremental_remaining -= this.balances['line_hours']
+          prior_to_incremental_remaining -= shift_hours
           if (prior_to_incremental_remaining <= 0) {
             this.daysAvailable = false
           }
         }
         if (bid.vac_type == 'vac') {
-          vac_remaining -= this.balances['line_hours']
+          vac_remaining -= shift_hours
           if (vac_remaining < 0) {
             ppt_remaining += vac_remaining
             vac_remaining = 0
           }
         } else {
-          ppt_remaining -= this.balances['line_hours']
+          ppt_remaining -= shift_hours
           if (ppt_remaining < 0) {
             vac_remaining += ppt_remaining
             ppt_remaining = 0
           }
         }
-        if (vac_remaining + ppt_remaining < this.balances['line_hours']) {
+        if (vac_remaining + ppt_remaining < shift_hours) {
           this.daysAvailable = false
         }
         bids.push(Object.assign({}, bid))
@@ -296,10 +307,11 @@ export class BidFormComponent implements OnInit, OnDestroy {
   }
 
   onTest() {
-    console.log('Existing bids:', this.existingBids)
-    console.log('Incremental bids:', this.incrementalBids)
-    console.log('Bid form round:', this.bidForm.controls['vac-type'].value)
-    console.log('Round Length:', Object.keys(this.existingBids['Round 1']).length)
+    // console.log('Existing bids:', this.existingBids)
+    // console.log('Incremental bids:', this.incrementalBids)
+    // console.log('Bid form round:', this.bidForm.controls['vac-type'].value)
+    // console.log('Round Length:', Object.keys(this.existingBids['Round 1']).length)
+    console.log(this.getShiftHours('2021-09-01'))
   }
 
   roundChange(event) {
@@ -327,6 +339,15 @@ export class BidFormComponent implements OnInit, OnDestroy {
     if (this.bidForm.controls['bid-round'].value == 7) {
       numChoices = this.incrementalBids[vacType].length + 1
       this.bidForm.controls['bid-choice'].setValue(numChoices)
+    }
+  }
+
+  getShiftHours(formattedDate: String) {
+    const index = this.workdays.map(workday => workday.workday).indexOf(formattedDate)
+    if (this.workdays[index].shift.slice(-1) == 'T') {
+      return 10
+    } else {
+      return 9
     }
   }
 }

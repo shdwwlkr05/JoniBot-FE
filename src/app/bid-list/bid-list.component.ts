@@ -10,10 +10,12 @@ import { BidService } from '../bid-form/bid.service'
 })
 export class BidListComponent implements OnInit, OnDestroy {
   bids: any
-  incrementalBids = {'vac': [], 'ppt': [], 'hol': []}
+  incrementalBids = {'vac': [], 'ppt': [], 'hol': [], 'adj': [], 'any': []}
   vacLen: number
   pptLen: number
   holLen: number
+  adjLen: number
+  anyLen: number
   loading = false
   round7bids: boolean = false
   private bidSubscription: Subscription
@@ -36,7 +38,9 @@ export class BidListComponent implements OnInit, OnDestroy {
       this.vacLen = this.incrementalBids['vac'].length
       this.pptLen = this.incrementalBids['ppt'].length
       this.holLen = this.incrementalBids['hol'].length
-      this.round7bids = !(this.vacLen == 0 && this.pptLen == 0 && this.holLen == 0)
+      this.adjLen = this.incrementalBids['adj'].length
+      this.anyLen = this.incrementalBids['any'].length
+      this.round7bids = !(this.vacLen == 0 && this.pptLen == 0 && this.holLen == 0 && this.adjLen == 0 && this.anyLen == 0)
     })
   }
 

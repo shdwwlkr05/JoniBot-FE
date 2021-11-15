@@ -30,7 +30,7 @@
   <div class="col" *ngIf="round7bids">
     <div>
       <h5>Round 7</h5>
-      <ul><b>Vacation</b>
+      <ul *ngIf="vacLen > 0"><b>Vacation</b>
         <app-incremental-item
          *ngFor="let bid of incrementalBids['vac']"
          [bid]="bid"
@@ -38,7 +38,7 @@
         >
         </app-incremental-item>
       </ul>
-      <ul><b>PPT</b>
+      <ul *ngIf="pptLen > 0"><b>PPT</b>
         <app-incremental-item
           *ngFor="let bid of incrementalBids['ppt']"
           [bid]="bid"
@@ -46,9 +46,25 @@
         >
         </app-incremental-item>
       </ul>
-      <ul><b>Holidays</b>
+      <ul *ngIf="holLen > 0"><b>Holidays</b>
         <app-incremental-item
           *ngFor="let bid of incrementalBids['hol']"
+          [bid]="bid"
+          [len] = holLen
+        >
+        </app-incremental-item>
+      </ul>
+      <ul *ngIf="adjLen > 0"><b>Adjustment Days</b>
+        <app-incremental-item
+          *ngFor="let bid of incrementalBids['adj']"
+          [bid]="bid"
+          [len] = holLen
+        >
+        </app-incremental-item>
+      </ul>
+      <ul *ngIf="anyLen > 0"><b>Any time I have available</b>
+        <app-incremental-item
+          *ngFor="let bid of incrementalBids['any']"
           [bid]="bid"
           [len] = holLen
         >

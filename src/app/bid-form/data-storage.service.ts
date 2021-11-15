@@ -79,7 +79,7 @@ export class DataStorageService {
   }
 
   fetchRound7() {
-    const groupedBids = {'vac': [], 'ppt': [], 'hol': []}
+    const groupedBids = {'vac': [], 'ppt': [], 'hol': [], 'adj': [], 'any': []}
     return this.http.get<Bid[]>(bidsURL,
       {
         params: new HttpParams()
@@ -92,6 +92,8 @@ export class DataStorageService {
         groupedBids['vac'].sort((a, b) => (a.choice > b.choice) ? 1 : ((b.choice > a.choice) ? -1 : 0))
         groupedBids['ppt'].sort((a, b) => (a.choice > b.choice) ? 1 : ((b.choice > a.choice) ? -1 : 0))
         groupedBids['hol'].sort((a, b) => (a.choice > b.choice) ? 1 : ((b.choice > a.choice) ? -1 : 0))
+        groupedBids['adj'].sort((a, b) => (a.choice > b.choice) ? 1 : ((b.choice > a.choice) ? -1 : 0))
+        groupedBids['any'].sort((a, b) => (a.choice > b.choice) ? 1 : ((b.choice > a.choice) ? -1 : 0))
         return groupedBids
       }),
       tap(bids => {
@@ -159,7 +161,6 @@ export class DataStorageService {
 
   fetchUsedHolidays() {
     return this.http.get<[]>(usedHolUrl).subscribe(holidays => {
-      console.log(holidays)
       if (!!holidays) {
         this.bidService.setUsedHol(holidays)
       }
@@ -169,7 +170,6 @@ export class DataStorageService {
 
   fetchRound7Usage() {
     return this.http.get(round7UsageUrl).subscribe(usage => {
-      console.log(usage)
       if (!!usage) {
         this.bidService.setRound7Usage(usage[0])
       }

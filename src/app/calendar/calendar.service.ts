@@ -16,7 +16,7 @@ export class CalendarService {
   setWorkdays(workdays) {
     this.workdays = []
     for (let workday of workdays) {
-      this.workdays.push(workday.workday)
+      this.workdays.push(workday)
     }
     this.workdaysChanged.next(this.workdays)
   }
