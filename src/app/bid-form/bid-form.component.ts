@@ -346,6 +346,8 @@ export class BidFormComponent implements OnInit, OnDestroy {
     const index = this.workdays.map(workday => workday.workday).indexOf(formattedDate)
     if (this.workdays[index].shift.slice(-1) == 'T') {
       return 10
+    } else if (this.workdays[index].shift.slice(-1) == 'W'){
+      return 12
     } else {
       return 9
     }

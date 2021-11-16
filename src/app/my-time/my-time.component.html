@@ -44,6 +44,15 @@
   </div>
 </div>
 <hr>
+<div class="row" *ngIf="balances['adjustment_days'] != 0">
+  <div class="col-xs-12">
+    <b>Adjustment Days</b>
+    <div class="col-xs-12">
+      {{balances['adjustment_days']}} hours remaining <br>
+    </div>
+  </div>
+  <hr>
+</div>
 <div class="row">
   <b>Holidays</b>
   <p>Use the checkboxes to select if you want to use a holiday during round 7</p>
