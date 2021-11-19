@@ -56,7 +56,6 @@ export class MyTimeComponent implements OnInit, OnDestroy {
     this.dataSubscription = this.data.fetchBalances()
     this.balancesSubscription = this.bidService.balances.subscribe(balances => {
       if (!!balances) {
-        console.log('balances: ', balances)
         this.balances = balances
         this.maxVac = balances['vac_remaining']
         this.maxPpt = balances['ppt_remaining']

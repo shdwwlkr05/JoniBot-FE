@@ -163,7 +163,7 @@ export class CalendarComponent {
         }
       })
     }
-    const max_off_per_day = 10
+    const max_off_per_day = 22
     const counts = {}
     const awarded = []
     const awarded_days = this.data.fetchAwards().toPromise()

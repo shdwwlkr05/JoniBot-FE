@@ -279,6 +279,7 @@ export class BidFormComponent implements OnInit, OnDestroy {
       loop = new Date(newDate)
     }
     if (!this.error) {
+      console.log('Submitted bid: ', bids)
       this.data.submitBid(bids)
     }
   }
