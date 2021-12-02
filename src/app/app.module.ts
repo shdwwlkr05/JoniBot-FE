@@ -18,6 +18,7 @@ import { BidEditComponent } from './bid-list/bid-edit/bid-edit.component';
 import { IncrementalItemComponent } from './bid-list/incremental-item/incremental-item.component';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { MyTimeComponent } from './my-time/my-time.component';
+import { AwardListComponent } from './award-list/award-list.component';
 
 @NgModule({
   declarations: [
@@ -30,6 +31,7 @@ import { MyTimeComponent } from './my-time/my-time.component';
     BidEditComponent,
     IncrementalItemComponent,
     MyTimeComponent,
+    AwardListComponent,
   ],
   imports: [
     BrowserModule,

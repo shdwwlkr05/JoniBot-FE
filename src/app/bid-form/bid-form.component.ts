@@ -312,7 +312,7 @@ export class BidFormComponent implements OnInit, OnDestroy {
     // console.log('Incremental bids:', this.incrementalBids)
     // console.log('Bid form round:', this.bidForm.controls['vac-type'].value)
     // console.log('Round Length:', Object.keys(this.existingBids['Round 1']).length)
-    console.log(this.getShiftHours('2021-09-01'))
+    this.data.fetchUserAwards()
   }
 
   roundChange(event) {

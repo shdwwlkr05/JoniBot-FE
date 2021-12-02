@@ -2,7 +2,6 @@ import { Component, OnDestroy, OnInit } from '@angular/core';
 import { Subscription } from 'rxjs'
 import { DataStorageService } from '../bid-form/data-storage.service'
 import { BidService } from '../bid-form/bid.service'
-
 @Component({
   selector: 'app-bid-list',
   templateUrl: './bid-list.component.html',

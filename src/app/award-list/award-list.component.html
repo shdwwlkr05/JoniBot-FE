@@ -1,0 +1,18 @@
+<div class="row">
+  <div class="col-xs-12">
+    <h5>My Awards</h5>
+  </div>
+</div>
+<div class="row" *ngFor="let round of bid_rounds">
+  <div class="col-xs-12" *ngIf="!!awards[round]">
+  <hr>
+    <h5>Round {{round}}</h5>
+    The following days were awarded with the listed vacation type:
+    <ul>
+      <li *ngFor="let bid of awards[round]['bids']">
+        {{bid['bid_date'] | date:'shortDate'}} - {{bid['vac_type']}}
+      </li>
+    </ul>
+  </div>
+</div>
+

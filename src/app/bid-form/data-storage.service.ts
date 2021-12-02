@@ -159,6 +159,13 @@ export class DataStorageService {
   }
 
 
+  fetchUserAwards() {
+    return this.http.get<[]>(awardUrl + '/user').subscribe(awards => {
+      this.bidService.setAwards(awards)
+    })
+  }
+
+
   fetchUsedHolidays() {
     return this.http.get<[]>(usedHolUrl).subscribe(holidays => {
       if (!!holidays) {
