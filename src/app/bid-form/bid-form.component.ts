@@ -139,6 +139,7 @@ export class BidFormComponent implements OnInit, OnDestroy {
   }
 
   onSubmit() {
+    const checkWorkdays = false
     this.response = null
     this.error = null
     this.daysAvailable = true
@@ -244,39 +245,49 @@ export class BidFormComponent implements OnInit, OnDestroy {
       }
 
       // Loop through days checking to see if they are a scheduled workday
-      console.log('Formatted Date:', formattedDate)
-      if (this.workdays.some(workday => workday.workday == formattedDate)) {
+      if (checkWorkdays) {
+        console.log('Formatted Date:', formattedDate)
+        if (this.workdays.some(workday => workday.workday == formattedDate)) {
+          bid.award_order = order
+          order++
+          bid.bid_date = formattedDate
+          // Check if vac or PPT was used and remove from remaining balance
+          const shift_hours = this.getShiftHours(formattedDate)
+          if (bid.round < 7) {
+            prior_to_incremental_remaining -= shift_hours
+            if (prior_to_incremental_remaining <= 0) {
+              this.daysAvailable = false
+            }
+          }
+          if (bid.vac_type == 'vac') {
+            vac_remaining -= shift_hours
+            if (vac_remaining < 0) {
+              ppt_remaining += vac_remaining
+              vac_remaining = 0
+            }
+          } else {
+            ppt_remaining -= shift_hours
+            if (ppt_remaining < 0) {
+              vac_remaining += ppt_remaining
+              ppt_remaining = 0
+            }
+          }
+          if (vac_remaining + ppt_remaining < shift_hours) {
+            this.daysAvailable = false
+          }
+          bids.push(Object.assign({}, bid))
+        }
+        let newDate = loop.setDate(loop.getDate() + 1)
+        loop = new Date(newDate)
+      } else {
         bid.award_order = order
         order++
         bid.bid_date = formattedDate
-        // Check if vac or PPT was used and remove from remaining balance
-        const shift_hours = this.getShiftHours(formattedDate)
-        if (bid.round < 7) {
-          prior_to_incremental_remaining -= shift_hours
-          if (prior_to_incremental_remaining <= 0) {
-            this.daysAvailable = false
-          }
-        }
-        if (bid.vac_type == 'vac') {
-          vac_remaining -= shift_hours
-          if (vac_remaining < 0) {
-            ppt_remaining += vac_remaining
-            vac_remaining = 0
-          }
-        } else {
-          ppt_remaining -= shift_hours
-          if (ppt_remaining < 0) {
-            vac_remaining += ppt_remaining
-            ppt_remaining = 0
-          }
-        }
-        if (vac_remaining + ppt_remaining < shift_hours) {
-          this.daysAvailable = false
-        }
         bids.push(Object.assign({}, bid))
+        let newDate = loop.setDate(loop.getDate() + 1)
+        loop = new Date(newDate)
       }
-      let newDate = loop.setDate(loop.getDate() + 1)
-      loop = new Date(newDate)
+
     }
     if (!this.error) {
       console.log('Submitted bid: ', bids)
@@ -347,7 +358,7 @@ export class BidFormComponent implements OnInit, OnDestroy {
     const index = this.workdays.map(workday => workday.workday).indexOf(formattedDate)
     if (this.workdays[index].shift.slice(-1) == 'T') {
       return 10
-    } else if (this.workdays[index].shift.slice(-1) == 'W'){
+    } else if (this.workdays[index].shift.slice(-1) == 'W') {
       return 12
     } else {
       return 9

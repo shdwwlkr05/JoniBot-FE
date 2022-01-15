@@ -3,6 +3,7 @@ import { BidService } from '../bid-form/bid.service'
 import { DataStorageService } from '../bid-form/data-storage.service'
 import { Subscription } from 'rxjs'
 import { formatDate } from '@angular/common'
+import { environment } from '../../environments/environment'
 
 @Component({
   selector: 'app-my-time',
@@ -18,8 +19,8 @@ export class MyTimeComponent implements OnInit, OnDestroy {
   balances: any = {}
   maxVac
   maxPpt
-  currYear = 2021
-  nextYear = 2022
+  currYear = environment.currYear
+  nextYear = environment.nextYear
   holidays = ['H1', 'H2', 'H3', 'H4', 'H5', 'H6', 'H7', 'H8', 'H9', 'H10']
   usedHolidaysCurrYear = []
   usedHolidaysNextYear = []
