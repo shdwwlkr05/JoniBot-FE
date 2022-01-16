@@ -28,6 +28,7 @@ export class BidListComponent implements OnInit, OnDestroy {
     this.data.fetchBids().subscribe()
     this.data.fetchRound7().subscribe()
     this.bidSubscription = this.bidService.bidsChanged.subscribe(bids => {
+      console.log('Bid List: ', bids)
       this.bids = bids
     })
     this.incrementalSubscription = this.bidService.round7Bids.subscribe(bids => {
@@ -47,6 +48,10 @@ export class BidListComponent implements OnInit, OnDestroy {
     this.bidSubscription.unsubscribe()
     this.incrementalSubscription.unsubscribe()
   }
+
+  returnZero() {
+    return 0
+}
 
 
 }

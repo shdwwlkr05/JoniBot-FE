@@ -19,6 +19,9 @@ import { IncrementalItemComponent } from './bid-list/incremental-item/incrementa
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { MyTimeComponent } from './my-time/my-time.component';
 import { AwardListComponent } from './award-list/award-list.component';
+import { OrderByPipe } from './bid-list/order-by.pipe';
+import { MobileComponent } from './mobile/mobile.component';
+
 
 @NgModule({
   declarations: [
@@ -32,6 +35,9 @@ import { AwardListComponent } from './award-list/award-list.component';
     IncrementalItemComponent,
     MyTimeComponent,
     AwardListComponent,
+    OrderByPipe,
+    MobileComponent,
+
   ],
   imports: [
     BrowserModule,

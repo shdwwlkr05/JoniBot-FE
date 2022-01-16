@@ -1,6 +1,6 @@
 {
   "hosting": {
-    "public": "dist\JoniBot-FE",
+    "public": "dist",
     "ignore": [
       "firebase.json",
       "**/.*",

@@ -16,7 +16,7 @@
       <h5>{{round.key}}</h5>
       <ul>
         <app-bid-item
-          *ngFor="let choice of round.value | keyvalue"
+          *ngFor="let choice of round.value | keyvalue : returnZero"
           [choice]="choice"
           [round]="round.value">
         </app-bid-item>
