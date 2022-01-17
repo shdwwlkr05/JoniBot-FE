@@ -17,7 +17,7 @@ const appRoutes: Routes = [
   {path: 'myBids/edit', component: BidEditComponent, canActivate: [AuthGuard]},
   {path: 'myTime', component: MyTimeComponent, canActivate: [AuthGuard]},
   {path: 'myAwards', component: AwardListComponent, canActivate: [AuthGuard]},
-  {path: 'mobile', component: MobileComponent, canActivate: [AuthGuard]},
+  // {path: 'mobile', component: MobileComponent, canActivate: [AuthGuard]},
   {path: 'auth', component: AuthComponent},
 ]
 
