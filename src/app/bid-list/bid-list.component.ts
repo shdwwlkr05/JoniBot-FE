@@ -2,6 +2,19 @@ import { Component, OnDestroy, OnInit } from '@angular/core';
 import { Subscription } from 'rxjs'
 import { DataStorageService } from '../bid-form/data-storage.service'
 import { BidService } from '../bid-form/bid.service'
+import { KeyValue } from '@angular/common'
+
+interface bidChoice {
+  awardOpt: string
+  bids: any
+  endDate: string
+  startDate: string
+  useHol: boolean
+  vacType: string
+  round: string
+  choice: string
+}
+
 @Component({
   selector: 'app-bid-list',
   templateUrl: './bid-list.component.html',
@@ -28,7 +41,6 @@ export class BidListComponent implements OnInit, OnDestroy {
     this.data.fetchBids().subscribe()
     this.data.fetchRound7().subscribe()
     this.bidSubscription = this.bidService.bidsChanged.subscribe(bids => {
-      console.log('Bid List: ', bids)
       this.bids = bids
     })
     this.incrementalSubscription = this.bidService.round7Bids.subscribe(bids => {
@@ -51,7 +63,7 @@ export class BidListComponent implements OnInit, OnDestroy {
 
   returnZero() {
     return 0
-}
+  }
 
 
 }

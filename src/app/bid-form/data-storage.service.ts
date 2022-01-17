@@ -73,7 +73,6 @@ export class DataStorageService {
         return groupedBids
       }),
       tap(bids => {
-        console.log('Fetch Bids: ', bids)
         this.bidService.setBids(bids);
       })
     )
