@@ -1,7 +1,7 @@
 <li>
   <span (click)="onClick()" style="cursor: pointer"><b>{{choice.key}}: </b>
-    {{choice.value.startDate | date:'MMM dd yyyy'}} -
-    {{choice.value.endDate | date:'MMM dd yyyy'}}
+    {{choice.value.startDate | date:'MMM dd, yyyy'}} -
+    {{choice.value.endDate | date:'MMM dd, yyyy'}}
   </span>
   <ul>Type - {{vacType}} / Award - {{awardOpt}}{{useHol}}</ul>
   <ul>

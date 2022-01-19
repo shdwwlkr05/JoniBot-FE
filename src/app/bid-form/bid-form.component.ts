@@ -51,6 +51,8 @@ export class BidFormComponent implements OnInit, OnDestroy {
   balances = {}
   awards
   round7
+  bidStart = new Date(2022, 3, 1)
+  bidEnd = new Date(2023, 2, 31)
 
   constructor(private bidService: BidService,
               private data: DataStorageService,
@@ -154,6 +156,19 @@ export class BidFormComponent implements OnInit, OnDestroy {
     if (end < start) {
       this.error = `Start date is after end date.
       Please check your dates and try again.`
+    }
+    if (start < this.bidStart) {
+      this.error = `Check start date. Date is before bid begins.
+      Date must be between ${this.bidStart.toLocaleDateString("en-US")} and ${this.bidEnd.toLocaleDateString("en-US")}.`
+    } else if (start > this.bidEnd) {
+      this.error = `Check start date. Date is after bid ends
+      Date must be between ${this.bidStart.toLocaleDateString("en-US")} and ${this.bidEnd.toLocaleDateString("en-US")}.`
+    } else if (end < this.bidStart) {
+      this.error = `Check end date. Date is before bid begins.
+      Date must be between ${this.bidStart.toLocaleDateString("en-US")} and ${this.bidEnd.toLocaleDateString("en-US")}.`
+    } else if (end > this.bidEnd) {
+      this.error = `Check end date. Date is after bid ends
+      Date must be between ${this.bidStart.toLocaleDateString("en-US")} and ${this.bidEnd.toLocaleDateString("en-US")}.`
     }
     const bid = {
       'round': null,
