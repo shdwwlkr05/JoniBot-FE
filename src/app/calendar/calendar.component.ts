@@ -1,6 +1,14 @@
-import { ChangeDetectionStrategy, Component, TemplateRef, ViewChild, ViewEncapsulation, } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  OnDestroy,
+  OnInit,
+  TemplateRef,
+  ViewChild,
+  ViewEncapsulation,
+} from '@angular/core';
 import { isSameDay, startOfDay, } from 'date-fns';
-import { Subject } from 'rxjs';
+import { Subject, Subscription } from 'rxjs';
 import {
   CalendarEvent,
   CalendarEventAction,
@@ -13,6 +21,7 @@ import { BidService } from '../bid-form/bid.service'
 import { DataStorageService } from '../bid-form/data-storage.service'
 import { CalendarService } from './calendar.service'
 import { formatDate } from '@angular/common'
+import { AuthService } from '../auth/auth.service'
 
 const colors: any = {
   red: {
@@ -46,8 +55,11 @@ const colors: any = {
   encapsulation: ViewEncapsulation.None,
   animations: [collapseAnimation]
 })
-export class CalendarComponent {
+export class CalendarComponent implements OnInit, OnDestroy{
   @ViewChild('modalContent', {static: true}) modalContent: TemplateRef<any>;
+
+  authSub: Subscription
+  user: any
 
   view: CalendarView = CalendarView.Month;
 
@@ -79,7 +91,18 @@ export class CalendarComponent {
 
   constructor(private bidService: BidService,
               private data: DataStorageService,
-              private calService: CalendarService) {
+              private calService: CalendarService,
+              private auth: AuthService) {
+  }
+
+  ngOnInit(): void {
+    this.authSub = this.auth.user.subscribe(user => {
+      this.user = user
+    })
+  }
+
+  ngOnDestroy(): void {
+    this.authSub.unsubscribe()
   }
 
   beforeMonthViewRender({body}: { body: CalendarMonthViewDay[] }): void {
@@ -163,13 +186,33 @@ export class CalendarComponent {
         }
       })
     }
-    const max_off_per_day = 21
+    let max_off_per_day = 21
     const counts = {}
     const awarded = []
     const awarded_days = this.data.fetchAwards().toPromise()
     awarded_days.then(awards => {
+      console.log('Calendar awarded days: ', awards)
+      console.log('User: ', +this.user['username'].slice(3))
+      const userName = +this.user['username'].slice(3)
+      let userGroup = 'fs'
+      switch (true) {
+        case (userName > 800):
+          userGroup = 'ssom'
+          max_off_per_day = 1
+          break
+        case (userName > 500):
+          userGroup = 'som'
+          max_off_per_day = 5
+          break
+        default:
+          userGroup = 'fs'
+          max_off_per_day = 21
+      }
+      console.log('User group: ', userGroup)
       for (let award of awards) {
-        awarded.push(award['bid_date'])
+        if (award['bid_group'] == userGroup) {
+          awarded.push(award['bid_date'])
+        }
       }
       awarded.forEach(function (x) {
         counts[x] = (counts[x] || 0) + 1;
