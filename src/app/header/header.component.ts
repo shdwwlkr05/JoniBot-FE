@@ -12,6 +12,7 @@ export class HeaderComponent implements OnInit, OnDestroy{
   isAuthenticated = false;
   private userSub: Subscription;
   user
+  awardsVisible = false
 
 
   constructor(
@@ -23,6 +24,21 @@ export class HeaderComponent implements OnInit, OnDestroy{
     this.userSub = this.authService.user.subscribe(user => {
       this.isAuthenticated = !!user
       this.user = user;
+      if (!!user) {
+        const userName = +user['username'].slice(3)
+        switch (true) {
+          // SSOM
+          case (userName > 800):
+            this.awardsVisible = true
+            break
+          // SOM
+          case (userName > 500):
+            this.awardsVisible = true
+            break
+          default:
+            this.awardsVisible = false
+        }
+      }
     })
   }
 

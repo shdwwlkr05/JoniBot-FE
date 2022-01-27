@@ -191,8 +191,6 @@ export class CalendarComponent implements OnInit, OnDestroy{
     const awarded = []
     const awarded_days = this.data.fetchAwards().toPromise()
     awarded_days.then(awards => {
-      console.log('Calendar awarded days: ', awards)
-      console.log('User: ', +this.user['username'].slice(3))
       const userName = +this.user['username'].slice(3)
       let userGroup = 'fs'
       switch (true) {
@@ -208,7 +206,6 @@ export class CalendarComponent implements OnInit, OnDestroy{
           userGroup = 'fs'
           max_off_per_day = 21
       }
-      console.log('User group: ', userGroup)
       for (let award of awards) {
         if (award['bid_group'] == userGroup) {
           awarded.push(award['bid_date'])
