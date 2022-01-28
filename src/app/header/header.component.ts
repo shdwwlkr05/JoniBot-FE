@@ -36,7 +36,7 @@ export class HeaderComponent implements OnInit, OnDestroy{
             this.awardsVisible = true
             break
           default:
-            this.awardsVisible = false
+            this.awardsVisible = true
         }
       }
     })
