@@ -29,14 +29,14 @@ export class HeaderComponent implements OnInit, OnDestroy{
         switch (true) {
           // SSOM
           case (userName > 800):
-            this.awardsVisible = true
+            this.awardsVisible = false
             break
           // SOM
           case (userName > 500):
-            this.awardsVisible = true
+            this.awardsVisible = false
             break
           default:
-            this.awardsVisible = true
+            this.awardsVisible = false
         }
       }
     })
