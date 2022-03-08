@@ -202,12 +202,16 @@ export class CalendarComponent implements OnInit, OnDestroy{
           userGroup = 'som'
           max_off_per_day = 5
           break
+        case (userName > 300):
+          userGroup = 'afs'
+          max_off_per_day = 21
+          break
         default:
           userGroup = 'fs'
           max_off_per_day = 21
       }
       for (let award of awards) {
-        if (award['bid_group'] == userGroup) {
+        if (award['bid_group'] == userGroup && award['vac_type'] != 'adj') {
           awarded.push(award['bid_date'])
         }
       }

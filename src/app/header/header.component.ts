@@ -35,6 +35,10 @@ export class HeaderComponent implements OnInit, OnDestroy{
           case (userName > 500):
             this.awardsVisible = true
             break
+          // AFS
+          case (userName > 300):
+            this.awardsVisible = true
+            break
           default:
             this.awardsVisible = true
         }
