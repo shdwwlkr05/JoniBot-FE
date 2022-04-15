@@ -1,0 +1,132 @@
+<div class="container">
+  <div class="row">
+    <div class="col-xs-12">
+      <h5>{{title}}</h5>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col">
+      <h6>Your Bid</h6>
+    </div>
+    <div class="col">
+      <h6>Available Shifts</h6>
+    </div>
+  </div>
+  <div class="row">
+    <div class="btn-col" style="width: 50%">
+      <button
+        class="btn btn-primary"
+        type="button"
+        (click)="onSave()"
+        style="margin-bottom: 5px"
+        *ngIf="response==''"
+      >
+        Save Bid
+      </button>
+      <button
+        class="btn btn-primary"
+        type="button"
+        (click)="onSave()"
+        style="margin-bottom: 5px"
+        *ngIf="response=='success'"
+      >
+        Your bid was saved
+      </button>
+      <button
+        class="btn btn-danger"
+        type="button"
+        (click)="onRevert()"
+        style="margin-bottom: 5px"
+      >
+        Revert bid to last save
+      </button>
+    </div>
+    <div class="col" style="width: 50%">
+      <label class="checkbox-inline" style="margin-left: 10px">
+        <input type="checkbox" [(ngModel)]="showAM">
+        AM
+      </label>
+      <label class="checkbox-inline" style="margin-left: 10px">
+        <input type="checkbox" [(ngModel)]="showPM">
+        PM
+      </label>
+      <label class="checkbox-inline" style="margin-left: 10px">
+        <input type="checkbox" [(ngModel)]="showMID">
+        MID
+      </label>
+      <label class="checkbox-inline" style="margin-left: 10px">
+        <input type="checkbox" [(ngModel)]="showDOM">
+        DOM
+      </label>
+      <label class="checkbox-inline" style="margin-left: 10px">
+        <input type="checkbox" [(ngModel)]="showINTL">
+        INTL
+      </label>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col" id="left">
+      <table style="width:100%">
+        <tr>
+          <th>Day</th>
+          <th>Shift</th>
+          <th>Up</th>
+          <th>Dn</th>
+          <th>Del</th>
+        </tr>
+        <tr *ngFor="let bid of bids; index as i" style="cursor: pointer">
+          <td>{{bid.day}}</td>
+          <td>{{bid.shift}}</td>
+          <td>
+            <fa-icon [icon]="faArrowCircleUp"
+                     style="cursor: pointer;
+                     color: #0d6efd;"
+                     size="lg"
+                     (click)="onMoveUp(bid)"
+                     *ngIf="i != 0"
+            >
+            </fa-icon>
+          </td>
+          <td>
+            <fa-icon [icon]="faArrowCircleDown"
+                     style="cursor: pointer;
+                     color: #0d6efd;"
+                     size="lg"
+                     (click)="onMoveDown(bid)"
+                     *ngIf="i != numberOfBids - 1"
+            >
+            </fa-icon>
+          </td>
+          <td>
+            <fa-icon [icon]="faTrash"
+                     style="cursor: pointer;
+                     color: #0d6efd;"
+                     size="lg"
+                     (click)="onDelete(bid)"
+            >
+            </fa-icon>
+          </td>
+        </tr>
+      </table>
+    </div>
+    <div class="col" id="right">
+      <table style="width: 100%;">
+        <tr>
+          <th>Day</th>
+          <th>Shift</th>
+        </tr>
+        <ng-container *ngFor="let shift of open_shifts">
+          <tr *ngIf="shift ? setVisibility(shift) : false"
+              (click)="add_shift(shift)"
+              [ngStyle]="{'background-color': (shiftOnBid(shift)) ? 'LightGray' : 'MediumSeaGreen'}"
+              style="cursor: pointer"
+          >
+            <td>{{shift.day}}</td>
+            <td>{{shift.shift}}</td>
+          </tr>
+        </ng-container>
+
+      </table>
+    </div>
+  </div>
+</div>

@@ -6,6 +6,8 @@ import { map, tap } from 'rxjs/operators'
 import { BidService } from './bid.service'
 import { CalendarService } from '../calendar/calendar.service'
 import { environment } from '../../environments/environment'
+import { Subject } from 'rxjs'
+
 
 const bidsURL = environment.baseURL + 'api/bid/bids/'
 const bidsUpdateURL = environment.baseURL + 'api/bid/bids/update/'
@@ -14,12 +16,16 @@ const balanceUrl = environment.baseURL + 'api/bid/balances'
 const awardUrl = environment.baseURL + 'api/bid/awards'
 const usedHolUrl = environment.baseURL + 'api/bid/usedHol'
 const round7UsageUrl = environment.baseURL + 'api/bid/round7'
+const openTimeShiftsUrl = environment.baseURL + 'api/bid/openTimeShifts'
+const openTimeBidUrl = environment.baseURL + 'api/bid/openTimeBid'
 
 @Injectable({
   providedIn: 'root'
 })
 export class DataStorageService {
-
+  openTimeShifts = new Subject<any>();
+  openTimeBid = new Subject<any>();
+  httpResponse = new Subject<any>();
 
   constructor(private http: HttpClient,
               private bidService: BidService,
@@ -190,6 +196,32 @@ export class DataStorageService {
       this.fetchRound7Usage()
       location.reload()
     })
+  }
+
+
+  fetchOpenTimeShifts() {
+    return this.http.get(openTimeShiftsUrl).subscribe(shifts => {
+      this.openTimeShifts.next(shifts)
+    })
+  }
+
+
+  fetchOpenTimeBid() {
+    console.log('Fetch')
+    return this.http.get(openTimeBidUrl).subscribe(bid => {
+      this.openTimeBid.next(bid)
+    })
+  }
+
+
+  submitOpenTimeBid(payload) {
+    console.log('Submit', payload)
+    const headers = {'Content-Type': 'application/json'}
+    return this.http.post(openTimeBidUrl, JSON.stringify(payload), {'headers': headers})
+      .subscribe(response => {
+        this.fetchOpenTimeBid()
+        this.httpResponse.next(response['status'])
+      })
   }
 
 

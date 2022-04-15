@@ -10,6 +10,7 @@ import { BidEditComponent } from './bid-list/bid-edit/bid-edit.component'
 import { MyTimeComponent } from './my-time/my-time.component'
 import { AwardListComponent } from './award-list/award-list.component'
 import { MobileComponent } from './mobile/mobile.component'
+import { OpenTimeComponent } from './open-time/open-time.component'
 
 const appRoutes: Routes = [
   {path: '', component: HomeComponent, pathMatch: 'full', canActivate: [AuthGuard], resolve: [WorkdayResolverService]},
@@ -18,6 +19,7 @@ const appRoutes: Routes = [
   {path: 'myTime', component: MyTimeComponent, canActivate: [AuthGuard]},
   {path: 'myAwards', component: AwardListComponent, canActivate: [AuthGuard]},
   // {path: 'mobile', component: MobileComponent, canActivate: [AuthGuard]},
+  {path: 'openTime', component: OpenTimeComponent, canActivate: [AuthGuard]},
   {path: 'auth', component: AuthComponent},
 ]
 

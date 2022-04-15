@@ -1,0 +1,42 @@
+body, html {
+  width: 100vw;
+  height: 100vh;
+  margin: 0;
+  padding: 0;
+}
+
+table, th, td {
+  border: 1px solid black;
+  border-collapse: collapse;
+}
+
+th, td {
+  padding: 1px 1px 1px 4px;
+}
+
+table {
+  position: relative;
+}
+
+th {
+  background-color: white;
+  position: sticky;
+  top: 0;
+}
+
+#left, #right {
+  float: left;
+  max-height: calc(100vh - 200px);
+  width: 50%;
+  overflow: auto;
+}
+
+button {
+  padding: 2px 2px 2px 2px;
+}
+
+.btn-col {
+  display: flex;
+  justify-content: space-between;
+}
+

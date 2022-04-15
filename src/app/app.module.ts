@@ -21,6 +21,7 @@ import { MyTimeComponent } from './my-time/my-time.component';
 import { AwardListComponent } from './award-list/award-list.component';
 import { OrderByPipe } from './bid-list/order-by.pipe';
 import { MobileComponent } from './mobile/mobile.component';
+import { OpenTimeComponent } from './open-time/open-time.component';
 
 
 @NgModule({
@@ -37,6 +38,7 @@ import { MobileComponent } from './mobile/mobile.component';
     AwardListComponent,
     OrderByPipe,
     MobileComponent,
+    OpenTimeComponent,
 
   ],
   imports: [

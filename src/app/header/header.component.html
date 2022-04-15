@@ -42,6 +42,13 @@
              routerLinkActive="active"
              [routerLinkActiveOptions]="{exact: true}">My Awards</a>
         </li>
+        <li class="nav-item" *ngIf="isAuthenticated">
+          <a class="nav-link"
+             aria-current="page"
+             routerLink="openTime"
+             routerLinkActive="active"
+             [routerLinkActiveOptions]="{exact: true}">Open Time (WIP)</a>
+        </li>
       </ul>
       <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
         <li class="nav-item" *ngIf="!isAuthenticated">
