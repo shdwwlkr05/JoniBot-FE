@@ -22,6 +22,7 @@ import { AwardListComponent } from './award-list/award-list.component';
 import { OrderByPipe } from './bid-list/order-by.pipe';
 import { MobileComponent } from './mobile/mobile.component';
 import { OpenTimeComponent } from './open-time/open-time.component';
+import { DragDropModule } from '@angular/cdk/drag-drop'
 
 
 @NgModule({
@@ -50,7 +51,8 @@ import { OpenTimeComponent } from './open-time/open-time.component';
     AppRoutingModule,
     FormsModule,
     ReactiveFormsModule,
-    FontAwesomeModule
+    FontAwesomeModule,
+    DragDropModule
   ],
   providers: [{provide: HTTP_INTERCEPTORS, useClass: AuthInterceptorService, multi: true}],
   exports: [],

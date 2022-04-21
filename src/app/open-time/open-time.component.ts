@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { faArrowCircleDown, faArrowCircleUp, faTrash } from '@fortawesome/free-solid-svg-icons'
 import { DataStorageService } from '../bid-form/data-storage.service'
 import { Subscription } from 'rxjs'
+import { moveItemInArray } from '@angular/cdk/drag-drop'
 
 interface shift {
   id: string
@@ -121,7 +122,9 @@ export class OpenTimeComponent implements OnInit {
 
 
   setVisibility(shift: shift) {
-    if (this.shiftOnBid(shift) && !this.showOnBid) {
+    if (this.selectedDesks[0] != 'All') {
+      return this.onSelectedDesk(shift)
+    } else if (this.shiftOnBid(shift) && !this.showOnBid) {
       return false
     } else if (isNaN(+shift.shift[2]) && !this.showINTL) {
       return false
@@ -137,8 +140,6 @@ export class OpenTimeComponent implements OnInit {
       return false
     } else if (shift.shift[3] == 'N' && !this.showNine) {
       return false
-    } else if (this.selectedDesks[0] != 'All') {
-      return this.onSelectedDesk(shift)
     } else {
       return true
     }
@@ -157,7 +158,6 @@ export class OpenTimeComponent implements OnInit {
     const payload = {"bid": bidIDs.join(',')}
     console.log('payload:', payload)
     this.data.submitOpenTimeBid(payload)
-    //  TODO Get this to send
   }
 
   onRevert() {
@@ -190,5 +190,9 @@ export class OpenTimeComponent implements OnInit {
 
   test() {
     console.log('Selected Desks: ', this.selectedDesks)
+  }
+
+  onDrop(event) {
+    moveItemInArray(this.bids, event.previousIndex, event.currentIndex)
   }
 }

@@ -42,7 +42,7 @@
       </button>
     </div>
     <div class="col" style="width: 50%">
-      <table>
+      <table class="table table-sm table-bordered">
         <tr>
           <td>
             <label class="checkbox-inline" style="margin-left: 10px; margin-right: 10px">
@@ -132,19 +132,22 @@
   </div>
   <div class="row">
     <div class="col" id="left">
-      <table style="width:100%">
-        <tr>
+      <table style="width:100%" class="table table-sm table-bordered table-striped">
+        <thead>
+        <tr style="position: sticky; top: 0; background-color: white">
           <th style="width:10%">Choice</th>
           <th style="width:10%">Day</th>
-          <th>Shift</th>
+          <th>Shift (Dragable)</th>
           <th style="width:10%">Up</th>
           <th style="width:10%">Dn</th>
           <th style="width:10%">Del</th>
         </tr>
-        <tr *ngFor="let bid of bids; index as i" style="cursor: pointer">
+        </thead>
+        <tbody cdkDropList (cdkDropListDropped)="onDrop($event)">
+        <tr cdkDrag cdkDragLockAxis="y" *ngFor="let bid of bids; index as i" style="cursor: pointer">
           <td>{{i + 1}}</td>
           <td>{{bid.day}}</td>
-          <td>{{bid.shift}}</td>
+          <td cdkDragHandle>{{bid.shift}}</td>
           <td>
             <fa-icon [icon]="faArrowCircleUp"
                      style="cursor: pointer;
@@ -174,15 +177,22 @@
             >
             </fa-icon>
           </td>
+          <div *cdkDragPreview class="container">
+            {{bid.shift}}
+          </div>
         </tr>
+        </tbody>
       </table>
     </div>
     <div class="col" id="right">
-      <table style="width: 100%;">
-        <tr>
+      <table style="width: 100%;" class="table table-sm table-bordered">
+        <thead>
+        <tr style="position: sticky; top: 0; background-color: white">
           <th>Day</th>
           <th>Shift</th>
         </tr>
+        </thead>
+        <tbody>
         <ng-container *ngFor="let shift of open_shifts">
           <tr *ngIf="shift ? setVisibility(shift) : false"
               (click)="add_shift(shift)"
@@ -193,7 +203,7 @@
             <td>{{shift.shift}}</td>
           </tr>
         </ng-container>
-
+        </tbody>
       </table>
     </div>
   </div>
