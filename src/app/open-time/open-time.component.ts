@@ -28,21 +28,33 @@ export class OpenTimeComponent implements OnInit {
   showMID = true
   showDOM = true
   showINTL = true
+  showNine = true
+  showTen = true
+  showOnBid = true
   response = ''
   open_shifts: shift[] = []
+  openDesks = []
+  selectedDesks = ['All']
   shiftSubscription: Subscription
   bidSubscription: Subscription
   responseSubscription: Subscription
+  limitAwards = false
+  maxAward: number = 1
+  numbers = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
 
   constructor(private data: DataStorageService) {
+
   }
 
   ngOnInit(): void {
     this.data.fetchOpenTimeShifts()
     this.data.fetchOpenTimeBid()
-    this.responseSubscription = this.data.httpResponse.subscribe(response => {this.response = response})
+    this.responseSubscription = this.data.httpResponse.subscribe(response => {
+      this.response = response
+    })
     this.shiftSubscription = this.data.openTimeShifts.subscribe(shifts => {
       this.open_shifts = shifts
+      this.openDesks = Array.from(new Set(shifts.map((shift) => shift.shift))).sort()
       this.mapBids()
     })
     this.bidSubscription = this.data.openTimeBid.subscribe(bid => {
@@ -72,10 +84,16 @@ export class OpenTimeComponent implements OnInit {
   check_shifts() {
     this.numberOfBids = this.bids.length
     console.log('Number of bids: ', this.numberOfBids)
+    console.log('Bids: ', this.bids)
+    console.log('Shifts: ', this.open_shifts)
   }
 
   shiftOnBid(shift: shift) {
     return this.bids.some(e => e.id === shift.id)
+  }
+
+  onSelectedDesk(shift:shift) {
+    return this.selectedDesks.some(e => e === shift.shift)
   }
 
   onMoveUp(bid: shift) {
@@ -103,7 +121,9 @@ export class OpenTimeComponent implements OnInit {
 
 
   setVisibility(shift: shift) {
-    if (isNaN(+shift.shift[2]) && !this.showINTL) {
+    if (this.shiftOnBid(shift) && !this.showOnBid) {
+      return false
+    } else if (isNaN(+shift.shift[2]) && !this.showINTL) {
       return false
     } else if (!isNaN(+shift.shift[2]) && !this.showDOM) {
       return false
@@ -113,19 +133,31 @@ export class OpenTimeComponent implements OnInit {
       return false
     } else if (shift.shift[0] == 'M' && !this.showMID) {
       return false
+    } else if (shift.shift[3] == 'T' && !this.showTen) {
+      return false
+    } else if (shift.shift[3] == 'N' && !this.showNine) {
+      return false
+    } else if (this.selectedDesks[0] != 'All') {
+      return this.onSelectedDesk(shift)
     } else {
       return true
     }
   }
 
   onSave() {
-    let bidIDs = this.bids.map(function (bid) {
-      return bid.id
-    })
-    const payload = {"bid": "1,2,3,4,5"}
+    console.log('onSave', this.bids)
+    let bidIDs
+    if (this.bids.length == 0) {
+      bidIDs = ['0']
+    } else {
+      bidIDs = this.bids.map(function (bid) {
+        return bid.id
+      })
+    }
+    const payload = {"bid": bidIDs.join(',')}
     console.log('payload:', payload)
     this.data.submitOpenTimeBid(payload)
-  //  TODO Get this to send
+    //  TODO Get this to send
   }
 
   onRevert() {
@@ -135,19 +167,28 @@ export class OpenTimeComponent implements OnInit {
   }
 
   mapBids() {
-    console.log('Map Bids - Bid: ', this.received_ids)
-    console.log('Map Bids - Shifts: ', this.open_shifts)
+    // console.log('Map Bids - Bid: ', this.received_ids)
+    // console.log('Map Bids - Shifts: ', this.open_shifts)
     if (this.received_ids.length == 0 || this.open_shifts.length == 0) {
-      console.log('Map Bids - True')
+      // console.log('Map Bids - True')
       return
     } else {
-      this.received_bids = []
-      this.received_ids.forEach(bidID => {
-        this.received_bids.push(this.open_shifts.find((shift) => bidID === shift.id))
-      })
-      console.log('Map Bids - Bid Shifts: ', this.received_bids)
-      this.bids = this.received_bids.slice()
-      this.check_shifts()
+      if (this.received_ids.length == 1 && this.received_ids[0] == 0) {
+        return
+      } else {
+        console.log('Map Bids', this.received_ids[0])
+        this.received_bids = []
+        this.received_ids.forEach(bidID => {
+          this.received_bids.push(this.open_shifts.find((shift) => bidID === shift.id))
+        })
+        // console.log('Map Bids - Bid Shifts: ', this.received_bids)
+        this.bids = this.received_bids.slice()
+        this.check_shifts()
+      }
     }
+  }
+
+  test() {
+    console.log('Selected Desks: ', this.selectedDesks)
   }
 }

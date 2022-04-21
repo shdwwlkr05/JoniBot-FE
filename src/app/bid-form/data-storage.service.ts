@@ -17,7 +17,7 @@ const awardUrl = environment.baseURL + 'api/bid/awards'
 const usedHolUrl = environment.baseURL + 'api/bid/usedHol'
 const round7UsageUrl = environment.baseURL + 'api/bid/round7'
 const openTimeShiftsUrl = environment.baseURL + 'api/bid/openTimeShifts'
-const openTimeBidUrl = environment.baseURL + 'api/bid/openTimeBid'
+const openTimeBidUrl = environment.baseURL + 'api/bid/openTimeBid/'
 
 @Injectable({
   providedIn: 'root'
@@ -207,8 +207,8 @@ export class DataStorageService {
 
 
   fetchOpenTimeBid() {
-    console.log('Fetch')
     return this.http.get(openTimeBidUrl).subscribe(bid => {
+    console.log('Fetch', bid)
       this.openTimeBid.next(bid)
     })
   }

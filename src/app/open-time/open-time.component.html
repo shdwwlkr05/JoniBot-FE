@@ -42,39 +42,107 @@
       </button>
     </div>
     <div class="col" style="width: 50%">
-      <label class="checkbox-inline" style="margin-left: 10px">
-        <input type="checkbox" [(ngModel)]="showAM">
-        AM
+      <table>
+        <tr>
+          <td>
+            <label class="checkbox-inline" style="margin-left: 10px; margin-right: 10px">
+              <input type="checkbox" [(ngModel)]="showAM">
+              AM
+            </label>
+          </td>
+          <td>
+            <label class="checkbox-inline" style="margin-left: 10px; margin-right: 10px">
+              <input type="checkbox" [(ngModel)]="showPM">
+              PM
+            </label>
+          </td>
+          <td>
+            <label class="checkbox-inline" style="margin-left: 10px; margin-right: 10px">
+              <input type="checkbox" [(ngModel)]="showMID">
+              MID
+            </label>
+          </td>
+          <td rowspan="4" style="border-right: None" (click)="test()">
+            Desk
+          </td>
+          <td rowspan="4" style="border-left: None">
+            <select style="margin-left: 5px" multiple [(ngModel)]="selectedDesks">
+              <option value="All">All</option>
+              <option *ngFor="let desk of openDesks" [value]="desk">{{desk}}</option>
+            </select>
+          </td>
+        </tr>
+        <tr>
+          <td>
+            <label class="checkbox-inline" style="margin-left: 10px; margin-right: 10px">
+              <input type="checkbox" [(ngModel)]="showDOM">
+              DOM
+            </label>
+          </td>
+          <td>
+            <label class="checkbox-inline" style="margin-left: 10px; margin-right: 10px">
+              <input type="checkbox" [(ngModel)]="showINTL">
+              INTL
+            </label>
+          </td>
+        </tr>
+        <tr>
+          <td>
+            <label class="checkbox-inline" style="margin-left: 10px; margin-right: 10px">
+              <input type="checkbox" [(ngModel)]="showNine">
+              Nine Hr
+            </label>
+          </td>
+          <td>
+            <label class="checkbox-inline" style="margin-left: 10px; margin-right: 10px">
+              <input type="checkbox" [(ngModel)]="showTen">
+              Ten Hr
+            </label>
+          </td>
+        </tr>
+        <tr>
+          <td>
+            <label class="checkbox-inline" style="margin-left: 10px">
+              <input type="checkbox" [(ngModel)]="showOnBid">
+              On Bid
+            </label>
+          </td>
+        </tr>
+      </table>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col">
+      <input type="checkbox" [(ngModel)]="limitAwards">
+      <label class="checkbox-inline" style="margin-left: 10px" *ngIf="!limitAwards">
+        Limit My Awards
       </label>
-      <label class="checkbox-inline" style="margin-left: 10px">
-        <input type="checkbox" [(ngModel)]="showPM">
-        PM
-      </label>
-      <label class="checkbox-inline" style="margin-left: 10px">
-        <input type="checkbox" [(ngModel)]="showMID">
-        MID
-      </label>
-      <label class="checkbox-inline" style="margin-left: 10px">
-        <input type="checkbox" [(ngModel)]="showDOM">
-        DOM
-      </label>
-      <label class="checkbox-inline" style="margin-left: 10px">
-        <input type="checkbox" [(ngModel)]="showINTL">
-        INTL
-      </label>
+      <span *ngIf="limitAwards" style="margin-left: 10px">
+        Only award
+        <select>
+          <option *ngFor="let number of numbers" value="number">{{number}}</option>
+        </select>
+        shift per
+        <select>
+          <option value="m">month.</option>
+          <option value="pp">pay period.</option>
+        </select>
+      </span>
     </div>
   </div>
   <div class="row">
     <div class="col" id="left">
       <table style="width:100%">
         <tr>
-          <th>Day</th>
+          <th style="width:10%">Choice</th>
+          <th style="width:10%">Day</th>
           <th>Shift</th>
-          <th>Up</th>
-          <th>Dn</th>
-          <th>Del</th>
+          <th style="width:10%">Up</th>
+          <th style="width:10%">Dn</th>
+          <th style="width:10%">Del</th>
         </tr>
         <tr *ngFor="let bid of bids; index as i" style="cursor: pointer">
+          <td>{{i + 1}}</td>
           <td>{{bid.day}}</td>
           <td>{{bid.shift}}</td>
           <td>
