@@ -18,6 +18,7 @@ const usedHolUrl = environment.baseURL + 'api/bid/usedHol'
 const round7UsageUrl = environment.baseURL + 'api/bid/round7'
 const openTimeShiftsUrl = environment.baseURL + 'api/bid/openTimeShifts'
 const openTimeBidUrl = environment.baseURL + 'api/bid/openTimeBid/'
+const workgroupUrl = environment.baseURL + 'api/bid/workgroups/'
 
 @Injectable({
   providedIn: 'root'
@@ -199,8 +200,12 @@ export class DataStorageService {
   }
 
 
-  fetchOpenTimeShifts() {
-    return this.http.get(openTimeShiftsUrl).subscribe(shifts => {
+  fetchOpenTimeShifts(group) {
+    return this.http.get(openTimeShiftsUrl,
+      {
+        params: new HttpParams()
+          .set('group', group)
+      }).subscribe(shifts => {
       this.openTimeShifts.next(shifts)
     })
   }
@@ -210,6 +215,12 @@ export class DataStorageService {
     return this.http.get(openTimeBidUrl).subscribe(bid => {
     console.log('Fetch', bid)
       this.openTimeBid.next(bid)
+    })
+  }
+
+  fetchWorkgroup() {
+    return this.http.get(workgroupUrl).subscribe(workgroup => {
+      console.log('Fetch workgroup', workgroup)
     })
   }
 

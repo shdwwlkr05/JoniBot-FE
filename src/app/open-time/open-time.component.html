@@ -18,25 +18,35 @@
         class="btn btn-primary"
         type="button"
         (click)="onSave()"
-        style="margin-bottom: 5px"
-        *ngIf="response==''"
+        style="margin-bottom: 5px; height: 100px;"
+        *ngIf="response=='unsaved'"
       >
-        Save Bid
+        You Have Unsaved Changes
       </button>
       <button
-        class="btn btn-primary"
+        class="btn btn-success"
         type="button"
         (click)="onSave()"
-        style="margin-bottom: 5px"
+        style="margin-bottom: 5px; height: 100px;"
         *ngIf="response=='success'"
       >
         Your bid was saved
       </button>
       <button
+        class="btn btn-secondary"
+        type="button"
+        style="margin-bottom: 5px; height: 100px;"
+        *ngIf="response=='none'"
+        (click)="test()"
+      >
+        This is your current bid
+      </button>
+      <button
         class="btn btn-danger"
         type="button"
         (click)="onRevert()"
-        style="margin-bottom: 5px"
+        style="margin-bottom: 5px; height: 100px;"
+        *ngIf="response=='unsaved'"
       >
         Revert bid to last save
       </button>
@@ -119,11 +129,11 @@
       </label>
       <span *ngIf="limitAwards" style="margin-left: 10px">
         Only award
-        <select>
-          <option *ngFor="let number of numbers" value="number">{{number}}</option>
+        <select [(ngModel)]="maxAward">
+          <option *ngFor="let number of numbers" value="{{number}}">{{number}}</option>
         </select>
-        shift per
-        <select>
+        shift(s) per
+        <select [(ngModel)]="awardPeriod">
           <option value="m">month.</option>
           <option value="pp">pay period.</option>
         </select>
@@ -137,7 +147,7 @@
         <tr style="position: sticky; top: 0; background-color: white">
           <th style="width:10%">Choice</th>
           <th style="width:10%">Day</th>
-          <th>Shift (Dragable)</th>
+          <th>Shift (Drag to reorder)</th>
           <th style="width:10%">Up</th>
           <th style="width:10%">Dn</th>
           <th style="width:10%">Del</th>

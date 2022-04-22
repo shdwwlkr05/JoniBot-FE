@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { faArrowCircleDown, faArrowCircleUp, faTrash } from '@fortawesome/free-solid-svg-icons'
 import { DataStorageService } from '../bid-form/data-storage.service'
 import { Subscription } from 'rxjs'
-import { moveItemInArray } from '@angular/cdk/drag-drop'
+import { moveItemInArray, transferArrayItem } from '@angular/cdk/drag-drop'
 
 interface shift {
   id: string
@@ -32,7 +32,7 @@ export class OpenTimeComponent implements OnInit {
   showNine = true
   showTen = true
   showOnBid = true
-  response = ''
+  response = 'none'
   open_shifts: shift[] = []
   openDesks = []
   selectedDesks = ['All']
@@ -41,14 +41,16 @@ export class OpenTimeComponent implements OnInit {
   responseSubscription: Subscription
   limitAwards = false
   maxAward: number = 1
+  awardPeriod = 'm'
   numbers = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+  userGroup = 'fs'
 
   constructor(private data: DataStorageService) {
 
   }
 
   ngOnInit(): void {
-    this.data.fetchOpenTimeShifts()
+    this.data.fetchOpenTimeShifts(this.userGroup)
     this.data.fetchOpenTimeBid()
     this.responseSubscription = this.data.httpResponse.subscribe(response => {
       this.response = response
@@ -78,7 +80,7 @@ export class OpenTimeComponent implements OnInit {
       return
     }
     this.bids.push(shift)
-    this.response = ''
+    this.response = 'unsaved'
     this.check_shifts()
   }
 
@@ -101,7 +103,7 @@ export class OpenTimeComponent implements OnInit {
     const elIndex = this.bids.indexOf(bid)
     this.bids.splice(elIndex, 1)
     this.bids.splice(elIndex - 1, 0, bid)
-    this.response = ''
+    this.response = 'unsaved'
     this.check_shifts()
   }
 
@@ -109,14 +111,14 @@ export class OpenTimeComponent implements OnInit {
     const elIndex = this.bids.indexOf(bid)
     this.bids.splice(elIndex, 1)
     this.bids.splice(elIndex + 1, 0, bid)
-    this.response = ''
+    this.response = 'unsaved'
     this.check_shifts()
   }
 
   onDelete(bid: shift) {
     const elIndex = this.bids.indexOf(bid)
     this.bids.splice(elIndex, 1)
-    this.response = ''
+    this.response = 'unsaved'
     this.check_shifts()
   }
 
@@ -162,7 +164,7 @@ export class OpenTimeComponent implements OnInit {
 
   onRevert() {
     this.bids = this.received_bids.slice()
-    this.response = ''
+    this.response = 'none'
     this.check_shifts()
   }
 
@@ -174,9 +176,9 @@ export class OpenTimeComponent implements OnInit {
       return
     } else {
       if (this.received_ids.length == 1 && this.received_ids[0] == 0) {
+        this.received_bids = []
         return
       } else {
-        console.log('Map Bids', this.received_ids[0])
         this.received_bids = []
         this.received_ids.forEach(bidID => {
           this.received_bids.push(this.open_shifts.find((shift) => bidID === shift.id))
@@ -189,10 +191,12 @@ export class OpenTimeComponent implements OnInit {
   }
 
   test() {
-    console.log('Selected Desks: ', this.selectedDesks)
+    console.log('maxAward: ', this.maxAward)
+    console.log('awardPeriod: ', this.awardPeriod)
   }
 
   onDrop(event) {
     moveItemInArray(this.bids, event.previousIndex, event.currentIndex)
+    this.response = 'unsaved'
   }
 }
