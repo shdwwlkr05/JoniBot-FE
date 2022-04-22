@@ -6,7 +6,7 @@ import { map, tap } from 'rxjs/operators'
 import { BidService } from './bid.service'
 import { CalendarService } from '../calendar/calendar.service'
 import { environment } from '../../environments/environment'
-import { Subject } from 'rxjs'
+import { BehaviorSubject, Subject } from 'rxjs'
 
 
 const bidsURL = environment.baseURL + 'api/bid/bids/'
@@ -27,6 +27,7 @@ export class DataStorageService {
   openTimeShifts = new Subject<any>();
   openTimeBid = new Subject<any>();
   httpResponse = new Subject<any>();
+  userWorkgroup = new BehaviorSubject<any>(null);
 
   constructor(private http: HttpClient,
               private bidService: BidService,
@@ -213,20 +214,18 @@ export class DataStorageService {
 
   fetchOpenTimeBid() {
     return this.http.get(openTimeBidUrl).subscribe(bid => {
-    console.log('Fetch', bid)
       this.openTimeBid.next(bid)
     })
   }
 
   fetchWorkgroup() {
     return this.http.get(workgroupUrl).subscribe(workgroup => {
-      console.log('Fetch workgroup', workgroup)
+      this.userWorkgroup.next(workgroup[0].group)
     })
   }
 
 
   submitOpenTimeBid(payload) {
-    console.log('Submit', payload)
     const headers = {'Content-Type': 'application/json'}
     return this.http.post(openTimeBidUrl, JSON.stringify(payload), {'headers': headers})
       .subscribe(response => {

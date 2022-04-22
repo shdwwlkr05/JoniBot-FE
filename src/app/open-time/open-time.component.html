@@ -73,6 +73,15 @@
             </label>
           </td>
           <td rowspan="4" style="border-right: None" (click)="test()">
+            Day
+          </td>
+          <td rowspan="4" style="border-left: None">
+            <select style="margin-left: 5px" multiple [(ngModel)]="selectedDays">
+              <option value="All">All</option>
+              <option *ngFor="let day of openDays" [value]="day">{{day}}</option>
+            </select>
+          </td>
+          <td rowspan="4" style="border-right: None" (click)="test()">
             Desk
           </td>
           <td rowspan="4" style="border-left: None">

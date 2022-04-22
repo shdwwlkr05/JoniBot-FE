@@ -64,6 +64,7 @@ export class AuthService {
       this.data.fetchBids().subscribe()
       this.data.fetchRound7().subscribe()
       this.data.fetchBalances()
+      this.data.fetchWorkgroup()
     }
   }
 
@@ -82,6 +83,7 @@ export class AuthService {
     localStorage.setItem('userData', JSON.stringify(user));
     this.data.fetchBids().subscribe()
     this.data.fetchBalances()
+    this.data.fetchWorkgroup()
     this.router.navigate([''])
   }
 
