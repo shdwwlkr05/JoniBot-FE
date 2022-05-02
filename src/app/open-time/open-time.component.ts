@@ -42,6 +42,8 @@ export class OpenTimeComponent implements OnInit {
   bidSubscription: Subscription
   responseSubscription: Subscription
   workgroupSubscription: Subscription
+  workgroupCountSubscription: Subscription
+  openTimeRankSubscription: Subscription
   limitAwards = false
   receivedLimit = false
   maxAward: number = 1
@@ -50,7 +52,8 @@ export class OpenTimeComponent implements OnInit {
   receivedPeriod = 'm'
   numbers = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
   userGroup = ''
-
+  openTimeRank = ''
+  totalInGroup = ''
   constructor(private data: DataStorageService) {
 
   }
@@ -59,8 +62,10 @@ export class OpenTimeComponent implements OnInit {
     this.workgroupSubscription = this.data.userWorkgroup.subscribe(workgroup => {
       this.userGroup = workgroup
       this.data.fetchOpenTimeShifts(workgroup)
+      this.data.fetchWorkgroupCount(workgroup)
     })
     this.data.fetchOpenTimeBid()
+    this.data.fetchOpenTimeRank()
     this.responseSubscription = this.data.httpResponse.subscribe(response => {
       this.response = response
     })
@@ -72,7 +77,6 @@ export class OpenTimeComponent implements OnInit {
       this.mapBids()
     })
     this.bidSubscription = this.data.openTimeBid.subscribe(bid => {
-      console.log('Bid Sub', bid)
       this.received_ids = bid.bid.split(',').map(Number)
       this.limitAwards = bid.limit_award
       this.receivedLimit = bid.limit_award
@@ -82,6 +86,12 @@ export class OpenTimeComponent implements OnInit {
       this.receivedPeriod = bid.limit_period
       this.mapBids()
     })
+    this.workgroupCountSubscription = this.data.workgroupCount.subscribe(count => {
+      this.totalInGroup = count
+    })
+    this.openTimeRankSubscription = this.data.openTimeRank.subscribe(rank => {
+      this.openTimeRank = rank
+    })
     this.check_shifts()
 
   }
@@ -90,6 +100,8 @@ export class OpenTimeComponent implements OnInit {
     this.shiftSubscription.unsubscribe()
     this.bidSubscription.unsubscribe()
     this.responseSubscription.unsubscribe()
+    this.workgroupCountSubscription.unsubscribe()
+    this.openTimeRankSubscription.unsubscribe()
   }
 
   add_shift(shift: shift) {

@@ -19,6 +19,8 @@ const round7UsageUrl = environment.baseURL + 'api/bid/round7'
 const openTimeShiftsUrl = environment.baseURL + 'api/bid/openTimeShifts'
 const openTimeBidUrl = environment.baseURL + 'api/bid/openTimeBid/'
 const workgroupUrl = environment.baseURL + 'api/bid/workgroups/'
+const totalUrl = environment.baseURL + 'api/bid/rank/'
+const rankUrl = environment.baseURL + 'api/bid/bidTime'
 
 @Injectable({
   providedIn: 'root'
@@ -28,6 +30,8 @@ export class DataStorageService {
   openTimeBid = new Subject<any>();
   httpResponse = new Subject<any>();
   userWorkgroup = new BehaviorSubject<any>(null);
+  workgroupCount = new Subject<any>();
+  openTimeRank = new Subject<any>();
 
   constructor(private http: HttpClient,
               private bidService: BidService,
@@ -212,11 +216,30 @@ export class DataStorageService {
   }
 
 
+  fetchWorkgroupCount(group) {
+    return this.http.get(totalUrl,
+      {
+        params: new HttpParams()
+          .set('group', group)
+      }).subscribe(count => {
+      this.workgroupCount.next(count['user_count'])
+    })
+  }
+
+
   fetchOpenTimeBid() {
     return this.http.get(openTimeBidUrl).subscribe(bid => {
       this.openTimeBid.next(bid)
     })
   }
+
+
+  fetchOpenTimeRank() {
+    return this.http.get(rankUrl).subscribe(rank => {
+      this.openTimeRank.next(rank[0]['opentime'])
+    })
+  }
+
 
   fetchWorkgroup() {
     return this.http.get(workgroupUrl).subscribe(workgroup => {
@@ -233,8 +256,6 @@ export class DataStorageService {
         this.httpResponse.next(response['status'])
       })
   }
-
-//  TODO: Fetch Open Time Rank
 
 
 }
