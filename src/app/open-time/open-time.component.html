@@ -6,7 +6,7 @@
   </div>
   <div class="row">
     <div class="col">
-      <h6>Your Bid</h6>
+      <h6>Your Bid - Open Time Rank: X of Y</h6> <!-- TODO: Display Open Time Rank -->
     </div>
     <div class="col">
       <h6>Available Shifts</h6>
@@ -132,17 +132,17 @@
   </div>
   <div class="row">
     <div class="col">
-      <input type="checkbox" [(ngModel)]="limitAwards">
+      <input type="checkbox" [(ngModel)]="limitAwards" (click)="setUnsaved()">
       <label class="checkbox-inline" style="margin-left: 10px" *ngIf="!limitAwards">
         Limit My Awards
       </label>
       <span *ngIf="limitAwards" style="margin-left: 10px">
-        Only award
-        <select [(ngModel)]="maxAward">
+        Award up to
+        <select [(ngModel)]="maxAward" (change)="setUnsaved()">
           <option *ngFor="let number of numbers" value="{{number}}">{{number}}</option>
         </select>
         shift(s) per
-        <select [(ngModel)]="awardPeriod">
+        <select [(ngModel)]="awardPeriod" (change)="setUnsaved()">
           <option value="m">month.</option>
           <option value="pp">pay period.</option>
         </select>

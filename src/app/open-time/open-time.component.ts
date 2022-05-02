@@ -43,8 +43,11 @@ export class OpenTimeComponent implements OnInit {
   responseSubscription: Subscription
   workgroupSubscription: Subscription
   limitAwards = false
+  receivedLimit = false
   maxAward: number = 1
+  receivedMax = 1
   awardPeriod = 'm'
+  receivedPeriod = 'm'
   numbers = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
   userGroup = ''
 
@@ -65,11 +68,18 @@ export class OpenTimeComponent implements OnInit {
       this.open_shifts = shifts
       this.openDesks = Array.from(new Set(shifts.map((shift) => shift.shift))).sort()
       this.openDays = Array.from(new Set(shifts.map((shift) => +shift.day)))
-      this.openDays.sort((a,b) => a-b)
+      this.openDays.sort((a, b) => a - b)
       this.mapBids()
     })
     this.bidSubscription = this.data.openTimeBid.subscribe(bid => {
+      console.log('Bid Sub', bid)
       this.received_ids = bid.bid.split(',').map(Number)
+      this.limitAwards = bid.limit_award
+      this.receivedLimit = bid.limit_award
+      this.maxAward = bid.limit_amount
+      this.receivedMax = bid.limit_amount
+      this.awardPeriod = bid.limit_period
+      this.receivedPeriod = bid.limit_period
       this.mapBids()
     })
     this.check_shifts()
@@ -87,7 +97,7 @@ export class OpenTimeComponent implements OnInit {
       return
     }
     this.bids.push(shift)
-    this.response = 'unsaved'
+    this.setUnsaved()
     this.check_shifts()
   }
 
@@ -99,11 +109,11 @@ export class OpenTimeComponent implements OnInit {
     return this.bids.some(e => e.id === shift.id)
   }
 
-  onSelectedDesk(shift:shift) {
+  onSelectedDesk(shift: shift) {
     return this.selectedDesks.some(e => e === shift.shift)
   }
 
-  onSelectedDay(shift:shift) {
+  onSelectedDay(shift: shift) {
     return this.selectedDays.some(e => e == shift.day)
   }
 
@@ -111,7 +121,7 @@ export class OpenTimeComponent implements OnInit {
     const elIndex = this.bids.indexOf(bid)
     this.bids.splice(elIndex, 1)
     this.bids.splice(elIndex - 1, 0, bid)
-    this.response = 'unsaved'
+    this.setUnsaved()
     this.check_shifts()
   }
 
@@ -119,14 +129,14 @@ export class OpenTimeComponent implements OnInit {
     const elIndex = this.bids.indexOf(bid)
     this.bids.splice(elIndex, 1)
     this.bids.splice(elIndex + 1, 0, bid)
-    this.response = 'unsaved'
+    this.setUnsaved()
     this.check_shifts()
   }
 
   onDelete(bid: shift) {
     const elIndex = this.bids.indexOf(bid)
     this.bids.splice(elIndex, 1)
-    this.response = 'unsaved'
+    this.setUnsaved()
     this.check_shifts()
   }
 
@@ -176,12 +186,20 @@ export class OpenTimeComponent implements OnInit {
         return bid.id
       })
     }
-    const payload = {"bid": bidIDs.join(',')}
+    const payload = {
+      "bid": bidIDs.join(','),
+      "limit_amount": this.maxAward,
+      "limit_award": this.limitAwards,
+      "limit_period": this.awardPeriod
+    }
     this.data.submitOpenTimeBid(payload)
   }
 
   onRevert() {
     this.bids = this.received_bids.slice()
+    this.limitAwards = this.receivedLimit
+    this.maxAward = this.receivedMax
+    this.awardPeriod = this.receivedPeriod
     this.response = 'none'
     this.check_shifts()
   }
@@ -211,6 +229,10 @@ export class OpenTimeComponent implements OnInit {
 
   onDrop(event) {
     moveItemInArray(this.bids, event.previousIndex, event.currentIndex)
+    this.setUnsaved()
+  }
+
+  setUnsaved() {
     this.response = 'unsaved'
   }
 }
