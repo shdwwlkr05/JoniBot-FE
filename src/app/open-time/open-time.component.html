@@ -54,21 +54,21 @@
     <div class="col" style="width: 50%">
       <table class="table table-sm table-bordered">
         <tr>
-          <td>
+          <td [ngStyle]="{'background-color': (!showAM && !showPM && !showMID) ? '#FFCCCB' : 'transparent'}">
             <label class="checkbox-inline" style="margin-left: 10px; margin-right: 10px">
-              <input type="checkbox" [(ngModel)]="showAM">
+              <input type="checkbox" [(ngModel)]="showAM" (change)="shiftsToShow()">
               AM
             </label>
           </td>
-          <td>
+          <td [ngStyle]="{'background-color': (!showAM && !showPM && !showMID) ? '#FFCCCB' : 'transparent'}">
             <label class="checkbox-inline" style="margin-left: 10px; margin-right: 10px">
-              <input type="checkbox" [(ngModel)]="showPM">
+              <input type="checkbox" [(ngModel)]="showPM" (change)="shiftsToShow()">
               PM
             </label>
           </td>
-          <td>
+          <td [ngStyle]="{'background-color': (!showAM && !showPM && !showMID) ? '#FFCCCB' : 'transparent'}">
             <label class="checkbox-inline" style="margin-left: 10px; margin-right: 10px">
-              <input type="checkbox" [(ngModel)]="showMID">
+              <input type="checkbox" [(ngModel)]="showMID" (change)="shiftsToShow()">
               MID
             </label>
           </td>
@@ -92,29 +92,29 @@
           </td>
         </tr>
         <tr>
-          <td>
+          <td [ngStyle]="{'background-color': (!showDOM && !showINTL) ? '#FFCCCB' : 'transparent'}">
             <label class="checkbox-inline" style="margin-left: 10px; margin-right: 10px">
-              <input type="checkbox" [(ngModel)]="showDOM">
+              <input type="checkbox" [(ngModel)]="showDOM" (change)="shiftsToShow()">
               DOM
             </label>
           </td>
-          <td>
+          <td [ngStyle]="{'background-color': (!showDOM && !showINTL) ? '#FFCCCB' : 'transparent'}">
             <label class="checkbox-inline" style="margin-left: 10px; margin-right: 10px">
-              <input type="checkbox" [(ngModel)]="showINTL">
+              <input type="checkbox" [(ngModel)]="showINTL" (change)="shiftsToShow()">
               INTL
             </label>
           </td>
         </tr>
         <tr>
-          <td>
+          <td [ngStyle]="{'background-color': (!showNine && !showTen) ? '#FFCCCB' : 'transparent'}">
             <label class="checkbox-inline" style="margin-left: 10px; margin-right: 10px">
-              <input type="checkbox" [(ngModel)]="showNine">
+              <input type="checkbox" [(ngModel)]="showNine" (change)="shiftsToShow()">
               Nine Hr
             </label>
           </td>
-          <td>
+          <td [ngStyle]="{'background-color': (!showNine && !showTen) ? '#FFCCCB' : 'transparent'}">
             <label class="checkbox-inline" style="margin-left: 10px; margin-right: 10px">
-              <input type="checkbox" [(ngModel)]="showTen">
+              <input type="checkbox" [(ngModel)]="showTen" (change)="shiftsToShow()">
               Ten Hr
             </label>
           </td>
@@ -122,7 +122,7 @@
         <tr>
           <td>
             <label class="checkbox-inline" style="margin-left: 10px">
-              <input type="checkbox" [(ngModel)]="showOnBid">
+              <input type="checkbox" [(ngModel)]="showOnBid" (change)="shiftsToShow()">
               On Bid
             </label>
           </td>
@@ -212,8 +212,8 @@
         </tr>
         </thead>
         <tbody>
-        <ng-container *ngFor="let shift of open_shifts">
-          <tr *ngIf="shift ? setVisibility(shift) : false"
+        <ng-container *ngFor="let shift of show_shifts">
+          <tr *ngIf="setVisibility(shift)"
               (click)="add_shift(shift)"
               [ngStyle]="{'background-color': (shiftOnBid(shift)) ? 'LightGray' : 'MediumSeaGreen'}"
               style="cursor: pointer"
@@ -222,6 +222,9 @@
             <td>{{shift.shift}}</td>
           </tr>
         </ng-container>
+        <tr *ngIf="show_shifts.length == 0">
+          <td colspan="2">No shifts based on current filters</td>
+        </tr>
         </tbody>
       </table>
     </div>

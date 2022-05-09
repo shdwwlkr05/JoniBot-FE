@@ -32,8 +32,10 @@ export class OpenTimeComponent implements OnInit {
   showNine = true
   showTen = true
   showOnBid = true
+  shiftFilterWarning = false
   response = 'none'
   open_shifts: shift[] = []
+  show_shifts: shift[] = []
   openDesks = []
   openDays = []
   selectedDesks = ['All']
@@ -115,6 +117,7 @@ export class OpenTimeComponent implements OnInit {
 
   check_shifts() {
     this.numberOfBids = this.bids.length
+    this.shiftsToShow()
   }
 
   shiftOnBid(shift: shift) {
@@ -152,6 +155,14 @@ export class OpenTimeComponent implements OnInit {
     this.check_shifts()
   }
 
+  shiftsToShow() {
+    this.show_shifts = []
+    for (let shift of this.open_shifts) {
+      if (this.setVisibility(shift)) {
+        this.show_shifts.push(shift)
+      }
+    }
+  }
 
   setVisibility(shift: shift) {
     let showMe = true
@@ -186,6 +197,7 @@ export class OpenTimeComponent implements OnInit {
     if (shift.shift[3] == 'N' && !this.showNine) {
       showMe = false
     }
+    this.shiftFilterWarning = !showMe
     return showMe
   }
 
