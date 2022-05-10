@@ -76,7 +76,7 @@
             Day
           </td>
           <td rowspan="4" style="border-left: None">
-            <select style="margin-left: 5px" multiple [(ngModel)]="selectedDays">
+            <select style="margin-left: 5px" multiple [(ngModel)]="selectedDays" (change)="shiftsToShow()">
               <option value="All">All</option>
               <option *ngFor="let day of openDays" [value]="day">{{day}}</option>
             </select>
@@ -85,7 +85,7 @@
             Desk
           </td>
           <td rowspan="4" style="border-left: None">
-            <select style="margin-left: 5px" multiple [(ngModel)]="selectedDesks">
+            <select style="margin-left: 5px" multiple [(ngModel)]="selectedDesks" (change)="shiftsToShow()">
               <option value="All">All</option>
               <option *ngFor="let desk of openDesks" [value]="desk">{{desk}}</option>
             </select>
