@@ -66,13 +66,14 @@
               PM
             </label>
           </td>
-          <td [ngStyle]="{'background-color': (!showAM && !showPM && !showMID) ? '#FFCCCB' : 'transparent'}">
+          <td [ngStyle]="{'background-color': (!showAM && !showPM && !showMID) ? '#FFCCCB' : 'transparent'}"
+              *ngIf="!(userGroup == 'ssom')">
             <label class="checkbox-inline" style="margin-left: 10px; margin-right: 10px">
               <input type="checkbox" [(ngModel)]="showMID" (change)="shiftsToShow()">
               MID
             </label>
           </td>
-          <td rowspan="4" style="border-right: None" (click)="test()">
+          <td rowspan="4" style="border-right: None">
             Day
           </td>
           <td rowspan="4" style="border-left: None">
@@ -81,7 +82,7 @@
               <option *ngFor="let day of openDays" [value]="day">{{day}}</option>
             </select>
           </td>
-          <td rowspan="4" style="border-right: None" (click)="test()">
+          <td rowspan="4" style="border-right: None">
             Desk
           </td>
           <td rowspan="4" style="border-left: None">
@@ -91,7 +92,7 @@
             </select>
           </td>
         </tr>
-        <tr>
+        <tr *ngIf="userGroup == 'fs'">
           <td [ngStyle]="{'background-color': (!showDOM && !showINTL) ? '#FFCCCB' : 'transparent'}">
             <label class="checkbox-inline" style="margin-left: 10px; margin-right: 10px">
               <input type="checkbox" [(ngModel)]="showDOM" (change)="shiftsToShow()">
@@ -105,7 +106,21 @@
             </label>
           </td>
         </tr>
-        <tr>
+        <tr *ngIf="userGroup == 'som'">
+          <td [ngStyle]="{'background-color': (!showFleet && !showSPT) ? '#FFCCCB' : 'transparent'}">
+            <label class="checkbox-inline" style="margin-left: 10px; margin-right: 10px">
+              <input type="checkbox" [(ngModel)]="showFleet" (change)="shiftsToShow()">
+              Fleet
+            </label>
+          </td>
+          <td [ngStyle]="{'background-color': (!showFleet && !showSPT) ? '#FFCCCB' : 'transparent'}">
+            <label class="checkbox-inline" style="margin-left: 10px; margin-right: 10px">
+              <input type="checkbox" [(ngModel)]="showSPT" (change)="shiftsToShow()">
+              SPT
+            </label>
+          </td>
+        </tr>
+        <tr *ngIf="userGroup == 'fs'">
           <td [ngStyle]="{'background-color': (!showNine && !showTen) ? '#FFCCCB' : 'transparent'}">
             <label class="checkbox-inline" style="margin-left: 10px; margin-right: 10px">
               <input type="checkbox" [(ngModel)]="showNine" (change)="shiftsToShow()">

@@ -29,6 +29,8 @@ export class OpenTimeComponent implements OnInit {
   showMID = true
   showDOM = true
   showINTL = true
+  showFleet = true
+  showSPT = true
   showNine = true
   showTen = true
   showOnBid = true
@@ -38,6 +40,8 @@ export class OpenTimeComponent implements OnInit {
   show_shifts: shift[] = []
   openDesks = []
   openDays = []
+  sptDesks = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'J', 'K']
+  fleetDesks = ['Q', 'R', 'S', 'V', 'W', 'X', 'Y', 'Z']
   selectedDesks = ['All']
   selectedDays = ['All']
   shiftSubscription: Subscription
@@ -76,6 +80,8 @@ export class OpenTimeComponent implements OnInit {
       this.openDesks = Array.from(new Set(shifts.map((shift) => shift.shift))).sort()
       this.openDays = Array.from(new Set(shifts.map((shift) => +shift.day)))
       this.openDays.sort((a, b) => a - b)
+      this.open_shifts.sort((a, b) => +a.day - +b.day)
+      this.shiftsToShow()
       this.mapBids()
     })
     this.bidSubscription = this.data.openTimeBid.subscribe(bid => {
@@ -180,6 +186,12 @@ export class OpenTimeComponent implements OnInit {
       showMe = false
     }
     if (!isNaN(+shift.shift[2]) && !this.showDOM) {
+      showMe = false
+    }
+    if (this.sptDesks.includes(shift.shift[3]) && !this.showSPT) {
+      showMe = false
+    }
+    if (this.fleetDesks.includes(shift.shift[3]) && !this.showFleet) {
       showMe = false
     }
     if ((shift.shift[0] == 'A' || shift.shift[0] == 'E') && !this.showAM) {
