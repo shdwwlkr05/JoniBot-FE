@@ -145,25 +145,25 @@
       </table>
     </div>
   </div>
-  <div class="row">
-    <div class="col">
-      <input type="checkbox" [(ngModel)]="limitAwards" (click)="setUnsaved()">
-      <label class="checkbox-inline" style="margin-left: 10px" *ngIf="!limitAwards">
-        Limit My Awards
-      </label>
-      <span *ngIf="limitAwards" style="margin-left: 10px">
-        Award up to
-        <select [(ngModel)]="maxAward" (change)="setUnsaved()">
-          <option *ngFor="let number of numbers" value="{{number}}">{{number}}</option>
-        </select>
-        shift(s) per
-        <select [(ngModel)]="awardPeriod" (change)="setUnsaved()">
-          <option value="m">month.</option>
-          <option value="pp">pay period.</option>
-        </select>
-      </span>
-    </div>
-  </div>
+<!--  <div class="row">-->
+<!--    <div class="col">-->
+<!--      <input type="checkbox" [(ngModel)]="limitAwards" (click)="setUnsaved()">-->
+<!--      <label class="checkbox-inline" style="margin-left: 10px" *ngIf="!limitAwards">-->
+<!--        Limit My Awards-->
+<!--      </label>-->
+<!--      <span *ngIf="limitAwards" style="margin-left: 10px">-->
+<!--        Award up to-->
+<!--        <select [(ngModel)]="maxAward" (change)="setUnsaved()">-->
+<!--          <option *ngFor="let number of numbers" value="{{number}}">{{number}}</option>-->
+<!--        </select>-->
+<!--        shift(s) per-->
+<!--        <select [(ngModel)]="awardPeriod" (change)="setUnsaved()">-->
+<!--          <option value="m">month.</option>-->
+<!--          <option value="pp">pay period.</option>-->
+<!--        </select>-->
+<!--      </span>-->
+<!--    </div>-->
+<!--  </div>-->
   <div class="row">
     <div class="col" id="left">
       <table style="width:100%" class="table table-sm table-bordered table-striped">

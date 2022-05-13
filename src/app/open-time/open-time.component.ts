@@ -19,7 +19,7 @@ export class OpenTimeComponent implements OnInit {
   faArrowCircleUp = faArrowCircleUp
   faArrowCircleDown = faArrowCircleDown
   faTrash = faTrash
-  title: string = 'Open Time for May 2022 (WIP)'
+  title: string = 'Open Time for May 2022'
   bids = []
   numberOfBids: number = 0
   received_ids = []

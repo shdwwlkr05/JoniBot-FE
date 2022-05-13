@@ -84,7 +84,7 @@ export class AuthService {
     this.data.fetchBids().subscribe()
     this.data.fetchBalances()
     this.data.fetchWorkgroup()
-    this.router.navigate([''])
+    this.router.navigate(['/openTime'])
   }
 
   private handleError(errorRes: HttpErrorResponse) {
