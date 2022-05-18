@@ -21,6 +21,7 @@ const openTimeBidUrl = environment.baseURL + 'api/bid/openTimeBid/'
 const workgroupUrl = environment.baseURL + 'api/bid/workgroups/'
 const totalUrl = environment.baseURL + 'api/bid/rank/'
 const rankUrl = environment.baseURL + 'api/bid/bidTime'
+const shiftTimesUrl = environment.baseURL + 'api/bid/shifttimes/'
 
 @Injectable({
   providedIn: 'root'
@@ -32,6 +33,7 @@ export class DataStorageService {
   userWorkgroup = new BehaviorSubject<any>(null);
   workgroupCount = new Subject<any>();
   openTimeRank = new Subject<any>();
+  shiftTimes = new Subject<any>();
 
   constructor(private http: HttpClient,
               private bidService: BidService,
@@ -255,6 +257,12 @@ export class DataStorageService {
         this.fetchOpenTimeBid()
         this.httpResponse.next(response['status'])
       })
+  }
+
+  fetchShiftTimes() {
+    return this.http.get(shiftTimesUrl).subscribe(times => {
+      this.shiftTimes.next(times)
+    })
   }
 
 

@@ -184,7 +184,7 @@
           <td>{{i + 1}}</td>
           <td>{{bid.day}}</td>
           <td cdkDragHandle>{{bid.shift}}</td>
-          <td *ngIf="userGroup == 'fs'">{{shift_times[bid.shift]}}</td>
+          <td *ngIf="userGroup == 'fs'">{{shiftTimes[bid.shift]}}</td>
           <td>
             <fa-icon [icon]="faArrowCircleUp"
                      style="cursor: pointer;
@@ -239,7 +239,7 @@
           >
             <td>{{shift.day}}</td>
             <td>{{shift.shift}}</td>
-            <td *ngIf="userGroup == 'fs'">{{shift_times[shift.shift]}}</td>
+            <td *ngIf="userGroup == 'fs'">{{shiftTimes[shift.shift]}}</td>
           </tr>
         </ng-container>
         <tr *ngIf="show_shifts.length == 0">
