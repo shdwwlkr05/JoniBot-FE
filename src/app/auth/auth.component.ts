@@ -20,7 +20,7 @@ export class AuthComponent implements OnInit {
     if (!authForm.valid) {
       return;
     }
-    const username = authForm.value.username;
+    const username = authForm.value.username.toUpperCase();
     const password = authForm.value.password;
     // console.log(authForm.value, username, password)
     this.authService.login(username, password).subscribe(
