@@ -20,6 +20,7 @@ export class OpenTimeComponent implements OnInit {
   faArrowCircleDown = faArrowCircleDown
   faTrash = faTrash
   title: string = 'Open Time for June 2022'
+  shiftDate = new Date('June 1, 2022')
   bids = []
   numberOfBids: number = 0
   received_ids = []
@@ -34,6 +35,14 @@ export class OpenTimeComponent implements OnInit {
   showNine = true
   showTen = true
   showOnBid = true
+  dayOfWeekFilterSelected = true
+  showSu = true
+  showMo = true
+  showTu = true
+  showWe = true
+  showTh = true
+  showFr = true
+  showSa = true
   shiftFilterWarning = false
   response = 'none'
   open_shifts: shift[] = []
@@ -218,7 +227,8 @@ export class OpenTimeComponent implements OnInit {
       showMe = false
     }
     this.shiftFilterWarning = !showMe
-    return showMe
+    let showDayOfWeek = this.shiftOnDayOfWeek(shift)
+    return showMe && showDayOfWeek
   }
 
   onSave() {
@@ -267,8 +277,7 @@ export class OpenTimeComponent implements OnInit {
   }
 
   test() {
-    console.log('maxAward: ', this.maxAward)
-    console.log('awardPeriod: ', this.awardPeriod)
+    this.showWe = !this.showWe
   }
 
   onDrop(event) {
@@ -278,5 +287,30 @@ export class OpenTimeComponent implements OnInit {
 
   setUnsaved() {
     this.response = 'unsaved'
+  }
+
+  shiftOnDayOfWeek(shift: shift) {
+    this.shiftDate.setDate(+shift.day)
+    switch (+this.shiftDate.getDay()) {
+      case 0:
+        return this.showSu
+      case 1:
+        return this.showMo
+      case 2:
+        return this.showTu
+      case 3:
+        return this.showWe
+      case 4:
+        return this.showTh
+      case 5:
+        return this.showFr
+      case 6:
+        return this.showSa
+    }
+  }
+
+  isDayOfWeekFilterSelected() {
+    this.shiftsToShow()
+    this.dayOfWeekFilterSelected = this.showSu || this.showMo || this.showTu || this.showWe || this.showTh || this.showFr || this.showSa
   }
 }

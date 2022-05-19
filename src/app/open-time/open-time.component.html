@@ -146,8 +146,8 @@
       </table>
     </div>
   </div>
-<!--  <div class="row">-->
-<!--    <div class="col">-->
+  <div class="row">
+    <div class="col">
 <!--      <input type="checkbox" [(ngModel)]="limitAwards" (click)="setUnsaved()">-->
 <!--      <label class="checkbox-inline" style="margin-left: 10px" *ngIf="!limitAwards">-->
 <!--        Limit My Awards-->
@@ -163,8 +163,56 @@
 <!--          <option value="pp">pay period.</option>-->
 <!--        </select>-->
 <!--      </span>-->
-<!--    </div>-->
-<!--  </div>-->
+    </div>
+    <div class="col" style="width: 50%">
+      <table class="table table-sm table-bordered">
+        <tr>
+          <td [ngStyle]="{'background-color': (!dayOfWeekFilterSelected) ? '#FFCCCB' : 'transparent'}">
+            <label class="checkbox-inline" style="margin-left: 10px; margin-right: 10px">
+              <input type="checkbox" [(ngModel)]="showSu" (change)="isDayOfWeekFilterSelected()">
+              Su
+            </label>
+          </td>
+          <td [ngStyle]="{'background-color': (!dayOfWeekFilterSelected) ? '#FFCCCB' : 'transparent'}">
+            <label class="checkbox-inline" style="margin-left: 10px; margin-right: 10px">
+              <input type="checkbox" [(ngModel)]="showMo" (change)="isDayOfWeekFilterSelected()">
+              Mo
+            </label>
+          </td>
+          <td [ngStyle]="{'background-color': (!dayOfWeekFilterSelected) ? '#FFCCCB' : 'transparent'}">
+            <label class="checkbox-inline" style="margin-left: 10px; margin-right: 10px">
+              <input type="checkbox" [(ngModel)]="showTu" (change)="isDayOfWeekFilterSelected()">
+              Tu
+            </label>
+          </td>
+          <td [ngStyle]="{'background-color': (!dayOfWeekFilterSelected) ? '#FFCCCB' : 'transparent'}">
+            <label class="checkbox-inline" style="margin-left: 10px; margin-right: 10px">
+              <input type="checkbox" [(ngModel)]="showWe" (change)="isDayOfWeekFilterSelected()">
+              We
+            </label>
+          </td>
+          <td [ngStyle]="{'background-color': (!dayOfWeekFilterSelected) ? '#FFCCCB' : 'transparent'}">
+            <label class="checkbox-inline" style="margin-left: 10px; margin-right: 10px">
+              <input type="checkbox" [(ngModel)]="showTh" (change)="isDayOfWeekFilterSelected()">
+              Th
+            </label>
+          </td>
+          <td [ngStyle]="{'background-color': (!dayOfWeekFilterSelected) ? '#FFCCCB' : 'transparent'}">
+            <label class="checkbox-inline" style="margin-left: 10px; margin-right: 10px">
+              <input type="checkbox" [(ngModel)]="showFr" (change)="isDayOfWeekFilterSelected()">
+              Fr
+            </label>
+          </td>
+          <td [ngStyle]="{'background-color': (!dayOfWeekFilterSelected) ? '#FFCCCB' : 'transparent'}">
+            <label class="checkbox-inline" style="margin-left: 10px; margin-right: 10px">
+              <input type="checkbox" [(ngModel)]="showSa" (change)="isDayOfWeekFilterSelected()">
+              Sa
+            </label>
+          </td>
+        </tr>
+      </table>
+    </div>
+  </div>
   <div class="row">
     <div class="col" id="left">
       <table style="width:100%" class="table table-sm table-bordered table-striped">
