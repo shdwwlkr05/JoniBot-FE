@@ -19,8 +19,10 @@ export class OpenTimeComponent implements OnInit {
   faArrowCircleUp = faArrowCircleUp
   faArrowCircleDown = faArrowCircleDown
   faTrash = faTrash
-  title: string = 'Open Time for June 2022'
-  shiftDate = new Date('June 1, 2022')
+  // TODO: Auto populate date for title
+  title: string = 'Open Time for July 2022'
+  // TODO: Use actual shift date (will require database change
+  shiftDate = new Date('July 1, 2022')
   bids = []
   numberOfBids: number = 0
   received_ids = []
