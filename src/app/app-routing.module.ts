@@ -11,6 +11,8 @@ import { MyTimeComponent } from './my-time/my-time.component'
 import { AwardListComponent } from './award-list/award-list.component'
 import { MobileComponent } from './mobile/mobile.component'
 import { OpenTimeComponent } from './open-time/open-time.component'
+import { ChangePwComponent } from './auth/change-pw/change-pw.component';
+import {AdminChangePwComponent} from "./auth/admin-change-pw/admin-change-pw.component";
 
 const appRoutes: Routes = [
   {path: '', component: HomeComponent, pathMatch: 'full', canActivate: [AuthGuard], resolve: [WorkdayResolverService]},
@@ -21,6 +23,8 @@ const appRoutes: Routes = [
   // {path: 'mobile', component: MobileComponent, canActivate: [AuthGuard]},
   {path: 'openTime', component: OpenTimeComponent, canActivate: [AuthGuard]},
   {path: 'auth', component: AuthComponent},
+  {path: 'changePW', component: ChangePwComponent},
+  {path: 'adminChangePW', component: AdminChangePwComponent},
 ]
 
 @NgModule({

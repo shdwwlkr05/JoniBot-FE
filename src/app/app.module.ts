@@ -22,7 +22,9 @@ import { AwardListComponent } from './award-list/award-list.component';
 import { OrderByPipe } from './bid-list/order-by.pipe';
 import { MobileComponent } from './mobile/mobile.component';
 import { OpenTimeComponent } from './open-time/open-time.component';
-import { DragDropModule } from '@angular/cdk/drag-drop'
+import { DragDropModule } from '@angular/cdk/drag-drop';
+import { ChangePwComponent } from './auth/change-pw/change-pw.component';
+import { AdminChangePwComponent } from './auth/admin-change-pw/admin-change-pw.component';
 
 
 @NgModule({
@@ -40,6 +42,8 @@ import { DragDropModule } from '@angular/cdk/drag-drop'
     OrderByPipe,
     MobileComponent,
     OpenTimeComponent,
+    ChangePwComponent,
+    AdminChangePwComponent,
 
   ],
   imports: [

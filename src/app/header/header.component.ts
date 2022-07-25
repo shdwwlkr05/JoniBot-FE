@@ -51,7 +51,7 @@ export class HeaderComponent implements OnInit, OnDestroy{
   }
 
   onLogout() {
-    this.authService.logout();
+    this.authService.logout('Thank You for using the Flight Control Bidder. Please log in to continue.');
   }
 
 }

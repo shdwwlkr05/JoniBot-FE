@@ -3,7 +3,7 @@ import { HttpClient, HttpErrorResponse } from '@angular/common/http'
 import { catchError, tap } from 'rxjs/operators'
 
 import { User } from './user.model';
-import { BehaviorSubject, throwError } from 'rxjs'
+import {BehaviorSubject, Subject, throwError} from 'rxjs'
 import { Router } from '@angular/router'
 import { DataStorageService } from '../bid-form/data-storage.service'
 import { environment } from '../../environments/environment'
@@ -19,6 +19,7 @@ export interface AuthResponseData {
 })
 export class AuthService {
   user = new BehaviorSubject<User>(null);
+  authMessage = new BehaviorSubject<any>('');
 
   constructor(private http: HttpClient,
               private router: Router,
@@ -68,10 +69,23 @@ export class AuthService {
     }
   }
 
-  logout() {
+  logout(message: string) {
     this.user.next(null);
+    this.authMessage.next(message);
     this.router.navigate(['/auth'])
     localStorage.removeItem('userData')
+  }
+
+  changePassword(payload) {
+    const headers = {'Content-Type': 'application/json'}
+    return this.http.put(environment.baseURL + 'api/user/change/', JSON.stringify(payload),
+      {'headers': headers})
+  }
+
+  adminChangePassword(payload) {
+    const headers = {'Content-Type': 'application/json'}
+    return this.http.put(environment.baseURL + 'api/user/adminChange/', JSON.stringify(payload),
+      {'headers': headers})
   }
 
   private handleAuthentication(

@@ -64,6 +64,18 @@
             {{user.username}}
           </a>
           <ul class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
+            <li *ngIf="user.username != 'FLTCTRLSKED'">
+              <a class="dropdown-item"
+                 aria-current="page"
+                 routerLink="changePW"
+                 routerLinkActive="active">Change PW</a>
+            </li>
+            <li *ngIf="user.username == 'FLTCTRLSKED'">
+              <a class="dropdown-item"
+                 aria-current="page"
+                 routerLink="adminChangePW"
+                 routerLinkActive="active">Change PW</a>
+            </li>
             <li><a class="dropdown-item" style="cursor: pointer" (click)="onLogout()">Logout</a></li>
           </ul>
         </li>

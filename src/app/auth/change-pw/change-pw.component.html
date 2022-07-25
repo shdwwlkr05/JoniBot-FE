@@ -1,0 +1,56 @@
+<div class="row">
+  <div class="col-xs-12 col-md-6 col-md-offset-3">
+    <form #changePwForm="ngForm" (ngSubmit)="onSubmit(changePwForm)">
+      <div class="form-group">
+        <label for="newPW">Old Password</label>
+        <input
+          #oldPWField="ngModel"
+          type="password"
+          id="oldPW"
+          class="form-control"
+          [(ngModel)] = "oldPW"
+          name="oldPW"
+          required>
+      </div>
+      <hr>
+      <div class="form-group">
+        <label for="newPW">New Password</label>
+        <input
+          #newPWField="ngModel"
+          type="password"
+          id="newPW"
+          class="form-control"
+          [(ngModel)] = "newPW"
+          name="newPW"
+          required>
+      </div>
+      <div class="form-group">
+        <label for="confirmPW">Confirm New Password</label>
+        <input
+          #confirmPWField="ngModel"
+          type="password"
+          id="confirmPW"
+          class="form-control"
+          [(ngModel)] = "confirmPW"
+          name="confirmPW"
+          required>
+      </div>
+      <div [hidden]="newPwMatchesConfirmPw() || newPWField.pristine || confirmPWField.pristine"
+           class="alert alert-danger">
+        Passwords must match
+      </div>
+      <hr>
+      <div class="alert alert-success" *ngIf="status == 'success'">{{message}}</div>
+      <div class="alert alert-danger"
+           *ngIf="status == 'failed' &&
+           oldPWField.untouched &&
+           newPWField.untouched &&
+           confirmPWField.untouched">{{message}}</div>
+      <div>
+        <button class="btn btn-primary" type="submit" [disabled]="!newPwMatchesConfirmPw() || newPWField.pristine">
+          Change Password</button>
+      </div>
+    </form>
+  </div>
+</div>
+
