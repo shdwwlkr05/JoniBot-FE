@@ -8,7 +8,8 @@ import {
   ViewEncapsulation,
 } from '@angular/core';
 import { isSameDay, startOfDay, } from 'date-fns';
-import { Subject, Subscription } from 'rxjs';
+import {Observable, Subject, Subscription, of} from 'rxjs';
+import {map} from 'rxjs/operators';
 import {
   CalendarEvent,
   CalendarEventAction,
@@ -46,6 +47,12 @@ const colors: any = {
   },
 };
 
+interface Event {
+  title: string
+  start: string
+  color: any
+}
+
 
 @Component({
   selector: 'app-calendar',
@@ -55,11 +62,15 @@ const colors: any = {
   encapsulation: ViewEncapsulation.None,
   animations: [collapseAnimation]
 })
-export class CalendarComponent implements OnInit, OnDestroy{
+export class CalendarComponent implements OnInit, OnDestroy {
   @ViewChild('modalContent', {static: true}) modalContent: TemplateRef<any>;
 
   authSub: Subscription
   user: any
+  workgroupSub: Subscription
+  workgroup: string
+  max_off_per_day: number
+  eventList = []
 
   view: CalendarView = CalendarView.Month;
 
@@ -85,8 +96,9 @@ export class CalendarComponent implements OnInit, OnDestroy{
       cssClass: 'my-custom-action',
     },
   ];
+  // events$: Observable<CalendarEvent<{ event: Event }>[]>
   events: CalendarEvent<{ incrementsBadgeTotal: boolean }>[] =
-    this.getCalendarEvents(this.calService.getWorkdays());
+    this.getCalendarEvents(this.calService.getWorkdays(), this.calService.getCounts())
   activeDayIsOpen: boolean = false;
 
   constructor(private bidService: BidService,
@@ -99,10 +111,32 @@ export class CalendarComponent implements OnInit, OnDestroy{
     this.authSub = this.auth.user.subscribe(user => {
       this.user = user
     })
+    this.workgroupSub = this.data.userWorkgroup.subscribe(workgroup => {
+      console.log('Workgroup sub:', workgroup)
+      this.workgroup = workgroup
+      switch (true) {
+        case (workgroup == 'ssom'):
+          this.max_off_per_day = 1
+          break
+        case (workgroup == 'som'):
+          this.max_off_per_day = 5
+          break
+        case (workgroup == 'sfsd'):
+          this.max_off_per_day = 1
+          break
+        case (workgroup == 'sfsi'):
+          this.max_off_per_day = 1
+          break
+        default:
+          this.max_off_per_day = 21
+      }
+    })
+    this.getCalendarEvents(this.calService.getWorkdays(), this.calService.getCounts())
   }
 
   ngOnDestroy(): void {
     this.authSub.unsubscribe()
+    this.workgroupSub.unsubscribe()
   }
 
   beforeMonthViewRender({body}: { body: CalendarMonthViewDay[] }): void {
@@ -122,22 +156,22 @@ export class CalendarComponent implements OnInit, OnDestroy{
     // console.log(date);
   }
 
-  eventTimesChanged({
-                      event,
-                      newStart,
-                      newEnd,
-                    }: CalendarEventTimesChangedEvent): void {
-    this.events = this.events.map((iEvent) => {
-      if (iEvent === event) {
-        return {
-          ...event,
-          start: newStart,
-          end: newEnd,
-        };
-      }
-      return iEvent;
-    });
-  }
+  // eventTimesChanged({
+  //                     event,
+  //                     newStart,
+  //                     newEnd,
+  //                   }: CalendarEventTimesChangedEvent): void {
+  //   this.events = this.events.map((iEvent) => {
+  //     if (iEvent === event) {
+  //       return {
+  //         ...event,
+  //         start: newStart,
+  //         end: newEnd,
+  //       };
+  //     }
+  //     return iEvent;
+  //   });
+  // }
 
 
   onStartClick(event: CalendarEvent): void {
@@ -152,12 +186,13 @@ export class CalendarComponent implements OnInit, OnDestroy{
     this.activeDayIsOpen = false;
   }
 
-  getCalendarEvents(workdays) {
+  getCalendarEvents(workdays, awardCounts) {
     // console.log('getCalendarEvents', workdays)
-    const eventList = []
+    let eventList = []
     let formattedDate
     for (let workday_el of workdays) {
       const workday = workday_el.workday
+      // console.log('getCalendarEvents', workday)
       formattedDate = formatDate(workday, 'MMM d', 'en-us')
       eventList.push({
         start: startOfDay(new Date(workday + 'T00:00:00')),
@@ -186,68 +221,93 @@ export class CalendarComponent implements OnInit, OnDestroy{
         }
       })
     }
-    let max_off_per_day = 21
-    const counts = {}
-    const awarded = []
-    const awarded_days = this.data.fetchAwards().toPromise()
-    awarded_days.then(awards => {
-      const userName = +this.user['username'].slice(3)
-      let userGroup = 'fs'
+    for (let awardCount of awardCounts) {
+      const percent_awarded = awardCount['award_count'] / this.max_off_per_day
+      let set_color
       switch (true) {
-        case (userName > 800):
-          userGroup = 'ssom'
-          max_off_per_day = 1
+        case (percent_awarded < .75):
+          set_color = colors.green
           break
-        case (userName > 500):
-          userGroup = 'som'
-          max_off_per_day = 5
+        case (percent_awarded < .85):
+          set_color = colors.yellow
           break
-        case (userName > 300):
-          userGroup = 'afs'
-          max_off_per_day = 21
+        case (percent_awarded < 1):
+          set_color = colors.orange
           break
-        default:
-          userGroup = 'fs'
-          max_off_per_day = 21
+        case (percent_awarded == 1):
+          set_color = colors.red
+          break
       }
-      for (let award of awards) {
-        if (award['bid_group'] == userGroup && award['vac_type'] != 'adj') {
-          awarded.push(award['bid_date'])
+      // console.log('CalEventsCounts', awardCount['bid_date'])
+      eventList.push({
+        start: startOfDay(new Date(awardCount['bid_date'] + 'T00:00:00')),
+        title: `${awardCount['award_count']} slot(s) awarded out of a possible ${this.max_off_per_day}`,
+        color: set_color,
+        meta: {
+          incrementBadgeTotal: false,
         }
-      }
-      awarded.forEach(function (x) {
-        counts[x] = (counts[x] || 0) + 1;
       })
-      for (const [key, value] of Object.entries(counts)) {
-        const percent_awarded = +value / max_off_per_day
-        let set_color
-        switch (true) {
-          case (percent_awarded < .75):
-            set_color = colors.green
-            break
-          case (percent_awarded < .85):
-            set_color = colors.yellow
-            break
-          case (percent_awarded < 1):
-            set_color = colors.orange
-            break
-          case (percent_awarded == 1):
-            set_color = colors.red
-            break
-        }
-        eventList.push({
-          start: startOfDay(new Date(key + 'T00:00:00')),
-          title: `${value} slot(s) awarded out of a possible ${max_off_per_day}`,
-          color: set_color,
-          meta: {
-            incrementBadgeTotal: false,
-          }
-        })
-      }
-    })
+    }
+    // let max_off_per_day = 21
+    // const counts = {}
+    // const awarded = []
+    // const awarded_days = this.data.fetchAwards().toPromise()
+    // awarded_days.then(awards => {
+    //   const userName = +this.user['username'].slice(3)
+    //   let userGroup = 'fs'
+    //   switch (true) {
+    //     case (userName > 800):
+    //       userGroup = 'ssom'
+    //       max_off_per_day = 1
+    //       break
+    //     case (userName > 500):
+    //       userGroup = 'som'
+    //       max_off_per_day = 5
+    //       break
+    //     case (userName > 300):
+    //       userGroup = 'afs'
+    //       max_off_per_day = 21
+    //       break
+    //     default:
+    //       userGroup = 'fs'
+    //       max_off_per_day = 21
+    //   }
+    //   for (let award of awards) {
+    //     if (award['bid_group'] == userGroup && award['vac_type'] != 'adj') {
+    //       awarded.push(award['bid_date'])
+    //     }
+    //   }
+    //   awarded.forEach(function (x) {
+    //     counts[x] = (counts[x] || 0) + 1;
+    //   })
+    //   for (const [key, value] of Object.entries(counts)) {
+    //     const percent_awarded = +value / max_off_per_day
+    //     let set_color
+    //     switch (true) {
+    //       case (percent_awarded < .75):
+    //         set_color = colors.green
+    //         break
+    //       case (percent_awarded < .85):
+    //         set_color = colors.yellow
+    //         break
+    //       case (percent_awarded < 1):
+    //         set_color = colors.orange
+    //         break
+    //       case (percent_awarded == 1):
+    //         set_color = colors.red
+    //         break
+    //     }
+    //     eventList.push({
+    //       start: startOfDay(new Date(key + 'T00:00:00')),
+    //       title: `${value} slot(s) awarded out of a possible ${max_off_per_day}`,
+    //       color: set_color,
+    //       meta: {
+    //         incrementBadgeTotal: false,
+    //       }
+    //     })
+    //   }
+    // })
     return eventList
 
   }
-
-
 }

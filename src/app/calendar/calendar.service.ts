@@ -8,6 +8,7 @@ export class CalendarService {
   workdaysChanged = new BehaviorSubject<any>(null)
 
   private workdays = []
+  private awardCounts = []
 
 
   constructor() {
@@ -23,6 +24,16 @@ export class CalendarService {
 
   getWorkdays() {
     return this.workdays.slice()
+  }
 
+  setAwardCounts(awardDays) {
+    this.awardCounts = []
+    for (let d of awardDays) {
+      this.awardCounts.push({bid_date: d['bid_date'], award_count: d['award_count']})
+    }
+  }
+
+  getCounts() {
+    return this.awardCounts.slice()
   }
 }

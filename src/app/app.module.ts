@@ -25,6 +25,7 @@ import { OpenTimeComponent } from './open-time/open-time.component';
 import { DragDropModule } from '@angular/cdk/drag-drop';
 import { ChangePwComponent } from './auth/change-pw/change-pw.component';
 import { AdminChangePwComponent } from './auth/admin-change-pw/admin-change-pw.component';
+import { ReliefBidComponent } from './relief-bid/relief-bid.component';
 
 
 @NgModule({
@@ -44,6 +45,7 @@ import { AdminChangePwComponent } from './auth/admin-change-pw/admin-change-pw.c
     OpenTimeComponent,
     ChangePwComponent,
     AdminChangePwComponent,
+    ReliefBidComponent,
 
   ],
   imports: [

@@ -14,6 +14,7 @@ const bidsUpdateURL = environment.baseURL + 'api/bid/bids/update/'
 const workdayUrl = environment.baseURL + 'api/bid/workdays'
 const balanceUrl = environment.baseURL + 'api/bid/balances'
 const awardUrl = environment.baseURL + 'api/bid/awards'
+const awardCountUrl = environment.baseURL + 'api/bid/awardCount/'
 const usedHolUrl = environment.baseURL + 'api/bid/usedHol'
 const round7UsageUrl = environment.baseURL + 'api/bid/round7'
 const openTimeShiftsUrl = environment.baseURL + 'api/bid/openTimeShifts'
@@ -30,7 +31,7 @@ export class DataStorageService {
   openTimeShifts = new Subject<any>();
   openTimeBid = new Subject<any>();
   httpResponse = new Subject<any>();
-  userWorkgroup = new BehaviorSubject<any>(null);
+  userWorkgroup = new BehaviorSubject<any>('fs');
   workgroupCount = new Subject<any>();
   openTimeRank = new Subject<any>();
   shiftTimes = new Subject<any>();
@@ -119,6 +120,18 @@ export class DataStorageService {
   fetchWorkdays() {
     return this.http.get(workdayUrl).pipe(tap(workdays => {
       this.calendarService.setWorkdays(workdays)
+    }))
+  }
+
+  fetchAwardCounts(workgroup) {
+    console.log('Fetch Award Counts Group', workgroup)
+    return this.http.get(awardCountUrl,
+      {
+        params: new HttpParams()
+          .set('group', workgroup)
+      }).pipe(tap(counts => {
+        console.log('Fetch Award Counts', counts)
+        this.calendarService.setAwardCounts(counts)
     }))
   }
 

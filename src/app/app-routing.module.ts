@@ -13,9 +13,12 @@ import { MobileComponent } from './mobile/mobile.component'
 import { OpenTimeComponent } from './open-time/open-time.component'
 import { ChangePwComponent } from './auth/change-pw/change-pw.component';
 import {AdminChangePwComponent} from "./auth/admin-change-pw/admin-change-pw.component";
+import {ReliefBidComponent} from "./relief-bid/relief-bid.component";
+import {AwardCountsResolverService} from "./calendar/award-count-resolver.service";
 
 const appRoutes: Routes = [
-  {path: '', component: HomeComponent, pathMatch: 'full', canActivate: [AuthGuard], resolve: [WorkdayResolverService]},
+  {path: '', component: HomeComponent, pathMatch: 'full', canActivate: [AuthGuard],
+    resolve: [WorkdayResolverService, AwardCountsResolverService]},
   {path: 'myBids', component: BidListComponent, canActivate: [AuthGuard]},
   {path: 'myBids/edit', component: BidEditComponent, canActivate: [AuthGuard]},
   {path: 'myTime', component: MyTimeComponent, canActivate: [AuthGuard]},
@@ -23,8 +26,10 @@ const appRoutes: Routes = [
   // {path: 'mobile', component: MobileComponent, canActivate: [AuthGuard]},
   {path: 'openTime', component: OpenTimeComponent, canActivate: [AuthGuard]},
   {path: 'auth', component: AuthComponent},
-  {path: 'changePW', component: ChangePwComponent},
-  {path: 'adminChangePW', component: AdminChangePwComponent},
+  {path: 'changePW', component: ChangePwComponent, canActivate: [AuthGuard]},
+  {path: 'adminChangePW', component: AdminChangePwComponent, canActivate: [AuthGuard]},
+  {path: 'relief', component: ReliefBidComponent, canActivate: [AuthGuard],
+    resolve: [WorkdayResolverService]},
 ]
 
 @NgModule({

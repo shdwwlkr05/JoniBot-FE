@@ -4,7 +4,7 @@
 
 export const environment = {
   production: false,
-  baseURL: 'https://joni-bot-be-3xcvs.ondigitalocean.app/',
+  baseURL: 'http://0.0.0.0:8000/',
   currYear: 2022,
   nextYear: 2023,
 };
