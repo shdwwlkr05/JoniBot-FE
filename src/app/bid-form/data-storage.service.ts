@@ -23,6 +23,8 @@ const workgroupUrl = environment.baseURL + 'api/bid/workgroups/'
 const totalUrl = environment.baseURL + 'api/bid/rank/'
 const rankUrl = environment.baseURL + 'api/bid/bidTime'
 const shiftTimesUrl = environment.baseURL + 'api/bid/shifttimes/'
+const linesUrl = environment.baseURL + 'api/bid/lines/'
+const linesWorkdaysUrl = environment.baseURL + 'api/bid/lineworkdays/'
 
 @Injectable({
   providedIn: 'root'
@@ -35,6 +37,8 @@ export class DataStorageService {
   workgroupCount = new Subject<any>();
   openTimeRank = new Subject<any>();
   shiftTimes = new Subject<any>();
+  lines = new Subject<any>();
+  lineWorkdays = new Subject<any>();
 
   constructor(private http: HttpClient,
               private bidService: BidService,
@@ -275,6 +279,18 @@ export class DataStorageService {
   fetchShiftTimes() {
     return this.http.get(shiftTimesUrl).subscribe(times => {
       this.shiftTimes.next(times)
+    })
+  }
+
+  fetchLines() {
+    return this.http.get(linesUrl).subscribe(lines => {
+      this.lines.next(lines)
+    })
+  }
+
+  fetchLineWorkdays() {
+    return this.http.get(linesWorkdaysUrl).subscribe(workdays => {
+      this.lineWorkdays.next(workdays)
     })
   }
 

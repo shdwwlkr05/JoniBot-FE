@@ -1,0 +1,33 @@
+<button (click)="setMonth(-1)">&lt;</button>
+{{date | date: 'MMMM'}}
+<button (click)="setMonth(+1)">&gt;</button>
+<span class="d1" style="margin-left: 20px;">Line 1:</span>
+<select [(ngModel)]="desk1">
+  <option value="1">1</option>
+  <option value="2">2</option>
+  <option value="3">3</option>
+</select>
+<span class="d2" style="margin-left: 20px;">Line 2:</span>
+<select [(ngModel)]="desk2">
+  <option value=""></option>
+  <option value="1">1</option>
+  <option value="2">2</option>
+  <option value="3">3</option>
+</select>
+<span *ngIf="desk2!=''" style="color: blue; cursor: pointer;" (click)="clearDesk2();">Clear</span>
+<ul>
+  <li class="days" *ngFor="let day of days"> {{day}} </li>
+  <li *ngFor="let date of dates"
+      (click)="onClick(date)">
+    <span [ngClass]="isSameMonth(date) ? 'day' : 'grey'"
+      style="width: 300px">{{date | date:'d'}}:</span>
+    <span *ngIf="desk1working(date)"
+      class="d1"
+      style="margin-left: 4px">{{ desk1working(date) }}
+    </span>
+    <span *ngIf="desk2working(date)"
+          class="d2"
+          style="margin-left: 4px">{{ desk2working(date) }}
+    </span>
+  </li>
+</ul>

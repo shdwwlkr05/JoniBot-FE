@@ -1,0 +1,41 @@
+ul { margin: 0; padding: 0; list-style: none;}
+li {
+  display: inline-block;
+  border: 1px solid black;
+  padding: 2px 2px;
+  width: calc(100%/7 - 2px);
+  cursor: pointer;
+}
+li.days {
+  font-weight: bold;
+  text-align: center;
+}
+li:hover {background-color: #ccc;}
+span.day {
+  background-color: darkgray;
+  color: black;
+  padding: 2px 2px;
+  text-align: center;
+  border-radius: 3px;
+}
+span.grey {
+  background-color: lightgrey;
+  color: white;
+  padding: 2px 2px;
+  text-align: center;
+  border-radius: 3px;
+}
+span.d1 {
+  background-color: lightblue;
+  color: black;
+  padding: 2px 2px;
+  text-align: center;
+  border-radius: 3px;
+}
+span.d2 {
+  background-color: lightpink;
+  color: black;
+  padding: 2px 2px;
+  text-align: center;
+  border-radius: 3px;
+}

@@ -1,0 +1,57 @@
+body, html {
+  width: 100vw;
+  height: 100vh;
+  margin: 0;
+  padding: 0;
+}
+
+#monthView {
+  /*float: left;*/
+  max-height: calc(100vh - 150px);
+  max-width: calc(100vw - 300px);
+  /*width: 100%;*/
+  overflow: scroll;
+  margin-left: 0;
+}
+
+.line_table {
+  table-layout: auto;
+  /*overflow-x: auto;*/
+}
+
+.line_table thead tr:first-child {
+  position: -webkit-sticky;
+  position: sticky;
+  top: -1px;
+  height: 33px;
+  z-index: 20;
+}
+
+.line_table thead tr:nth-child(2) {
+  position: -webkit-sticky;
+  position: sticky;
+  top: 31px;
+  height: 33px;
+  z-index: 20;
+}
+
+.line_table td:nth-child(6) {
+  position: -webkit-sticky;
+  position: sticky;
+  left: -13px;
+  z-index: 3;
+  background-color: white;
+}
+
+.line_table thead tr th:nth-child(6) {
+  position: -webkit-sticky;
+  position: sticky;
+  background-color: white;
+  left: -13px;
+  z-index: 50;
+}
+
+td, th {
+  text-align: center;
+}
+

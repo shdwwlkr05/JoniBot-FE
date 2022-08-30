@@ -15,6 +15,8 @@ import { ChangePwComponent } from './auth/change-pw/change-pw.component';
 import {AdminChangePwComponent} from "./auth/admin-change-pw/admin-change-pw.component";
 import {ReliefBidComponent} from "./relief-bid/relief-bid.component";
 import {AwardCountsResolverService} from "./calendar/award-count-resolver.service";
+import {MyCalendarComponent} from "./my-calendar/my-calendar.component";
+import {AllLinesViewComponent} from "./all-lines-view/all-lines-view.component";
 
 const appRoutes: Routes = [
   {path: '', component: HomeComponent, pathMatch: 'full', canActivate: [AuthGuard],
@@ -28,6 +30,7 @@ const appRoutes: Routes = [
   {path: 'auth', component: AuthComponent},
   {path: 'changePW', component: ChangePwComponent, canActivate: [AuthGuard]},
   {path: 'adminChangePW', component: AdminChangePwComponent, canActivate: [AuthGuard]},
+  {path: 'shifts', component: AllLinesViewComponent, canActivate: [AuthGuard]},
   {path: 'relief', component: ReliefBidComponent, canActivate: [AuthGuard],
     resolve: [WorkdayResolverService]},
 ]

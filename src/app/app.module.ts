@@ -26,6 +26,8 @@ import { DragDropModule } from '@angular/cdk/drag-drop';
 import { ChangePwComponent } from './auth/change-pw/change-pw.component';
 import { AdminChangePwComponent } from './auth/admin-change-pw/admin-change-pw.component';
 import { ReliefBidComponent } from './relief-bid/relief-bid.component';
+import { MyCalendarComponent } from './my-calendar/my-calendar.component';
+import { AllLinesViewComponent } from './all-lines-view/all-lines-view.component';
 
 
 @NgModule({
@@ -46,6 +48,8 @@ import { ReliefBidComponent } from './relief-bid/relief-bid.component';
     ChangePwComponent,
     AdminChangePwComponent,
     ReliefBidComponent,
+    MyCalendarComponent,
+    AllLinesViewComponent,
 
   ],
   imports: [

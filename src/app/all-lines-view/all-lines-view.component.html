@@ -1,0 +1,221 @@
+<div class="container-fluid">
+  <div class="row" *ngIf="loading">
+    <div class="col-xs-12">
+      Please wait... loading lines and workdays... <br>
+      <app-loading-spinner></app-loading-spinner>
+    </div>
+  </div>
+  <div class="row" style="margin: auto; width: 50%" *ngIf="!loading">
+    <button style="width: 25px" (click)="setMonth(-1)">&lt;</button>
+    <span style="display: inline-block; width: 75px; text-align: center" (click)="clickTest()">{{date | date: 'MMM YY'}}</span>
+    <button style="width: 25px" (click)="setMonth(+1)">&gt;</button>
+  </div>
+  <div class="row" *ngIf="!loading">
+    <div class="col-xl-2" style="width: 30%">
+      <table class="table table-sm table-bordered">
+        <tr>
+          <td [ngStyle]="{'background-color': (!showAM && !showPM && !showMID && !showRLF) ? '#FFCCCB' : 'transparent'}">
+            <label class="checkbox-inline" style="margin-left: 10px; margin-right: 10px">
+              <input type="checkbox" [(ngModel)]="showAM" (change)="setHeader(date)">
+              AM
+            </label>
+          </td>
+          <td [ngStyle]="{'background-color': (!showAM && !showPM && !showMID && !showRLF) ? '#FFCCCB' : 'transparent'}">
+            <label class="checkbox-inline" style="margin-left: 10px; margin-right: 10px">
+              <input type="checkbox" [(ngModel)]="showPM" (change)="setHeader(date)">
+              PM
+            </label>
+          </td>
+        <tr>
+          <td [ngStyle]="{'background-color': (!showAM && !showPM && !showMID && !showRLF) ? '#FFCCCB' : 'transparent'}"
+              *ngIf="!(userGroup == 'ssom')">
+            <label class="checkbox-inline" style="margin-left: 10px; margin-right: 10px">
+              <input type="checkbox" [(ngModel)]="showMID" (change)="setHeader(date)">
+              MID
+            </label>
+          </td>
+          <td [ngStyle]="{'background-color': (!showAM && !showPM && !showMID && !showRLF) ? '#FFCCCB' : 'transparent'}">
+            <label class="checkbox-inline" style="margin-left: 10px; margin-right: 10px">
+              <input type="checkbox" [(ngModel)]="showRLF" (change)="setHeader(date)">
+              RLF
+            </label>
+          </td>
+        </tr>
+        <tr *ngIf="userGroup == 'fs'">
+          <td [ngStyle]="{'background-color': (!showDOM && !showINTL) ? '#FFCCCB' : 'transparent'}">
+            <label class="checkbox-inline" style="margin-left: 10px; margin-right: 10px">
+              <input type="checkbox" [(ngModel)]="showDOM" (change)="setHeader(date)">
+              DOM
+            </label>
+          </td>
+          <td [ngStyle]="{'background-color': (!showDOM && !showINTL) ? '#FFCCCB' : 'transparent'}">
+            <label class="checkbox-inline" style="margin-left: 10px; margin-right: 10px">
+              <input type="checkbox" [(ngModel)]="showINTL" (change)="setHeader(date)">
+              INTL
+            </label>
+          </td>
+        </tr>
+        <tr *ngIf="userGroup == 'som'">
+          <td [ngStyle]="{'background-color': (!showFleet && !showSPT) ? '#FFCCCB' : 'transparent'}">
+            <label class="checkbox-inline" style="margin-left: 10px; margin-right: 10px">
+              <input type="checkbox" [(ngModel)]="showFleet" (change)="setHeader(date)">
+              Fleet
+            </label>
+          </td>
+          <td [ngStyle]="{'background-color': (!showFleet && !showSPT) ? '#FFCCCB' : 'transparent'}">
+            <label class="checkbox-inline" style="margin-left: 10px; margin-right: 10px">
+              <input type="checkbox" [(ngModel)]="showSPT" (change)="setHeader(date)">
+              SPT
+            </label>
+          </td>
+        </tr>
+        <tr *ngIf="userGroup == 'fs'">
+          <td [ngStyle]="{'background-color': (!showNine && !showTen) ? '#FFCCCB' : 'transparent'}">
+            <label class="checkbox-inline" style="margin-left: 10px; margin-right: 10px">
+              <input type="checkbox" [(ngModel)]="showNine" (change)="setHeader(date)">
+              Nine Hr
+            </label>
+          </td>
+          <td [ngStyle]="{'background-color': (!showNine && !showTen) ? '#FFCCCB' : 'transparent'}">
+            <label class="checkbox-inline" style="margin-left: 10px; margin-right: 10px">
+              <input type="checkbox" [(ngModel)]="showTen" (change)="setHeader(date)">
+              Ten Hr
+            </label>
+          </td>
+        </tr>
+        <tr>
+          <td>
+            <label class="checkbox-inline">
+              <input type="checkbox" [(ngModel)]="h1off" (change)="setHeader(date)">
+              H1 Off
+            </label>
+          </td>
+          <td>
+            <label class="checkbox-inline">
+              <input type="checkbox" [(ngModel)]="h2off" (change)="setHeader(date)">
+              H2 Off
+            </label>
+          </td>
+        </tr>
+        <tr>
+          <td>
+            <label class="checkbox-inline">
+              <input type="checkbox" [(ngModel)]="h3off" (change)="setHeader(date)">
+              H3 Off
+            </label>
+          </td>
+          <td>
+            <label class="checkbox-inline">
+              <input type="checkbox" [(ngModel)]="h4off" (change)="setHeader(date)">
+              H4 Off
+            </label>
+          </td>
+        </tr>
+        <tr>
+          <td>
+            <label class="checkbox-inline">
+              <input type="checkbox" [(ngModel)]="h5off" (change)="setHeader(date)">
+              H5 Off
+            </label>
+          </td>
+          <td>
+            <label class="checkbox-inline">
+              <input type="checkbox" [(ngModel)]="h6off" (change)="setHeader(date)">
+              H6 Off
+            </label>
+          </td>
+        </tr>
+        <tr>
+          <td>
+            <label class="checkbox-inline">
+              <input type="checkbox" [(ngModel)]="h7off" (change)="setHeader(date)">
+              H7 Off
+            </label>
+          </td>
+          <td>
+            <label class="checkbox-inline">
+              <input type="checkbox" [(ngModel)]="h8off" (change)="setHeader(date)">
+              H8 Off
+            </label>
+          </td>
+        </tr>
+        <tr>
+          <td>
+            <label class="checkbox-inline">
+              <input type="checkbox" [(ngModel)]="h9off" (change)="setHeader(date)">
+              H9 Off
+            </label>
+          </td>
+          <td>
+            <label class="checkbox-inline">
+              <input type="checkbox" [(ngModel)]="h10off" (change)="setHeader(date)">
+              H10 Off
+            </label>
+          </td>
+        </tr>
+        <tr>
+          <td>My Date: </td>
+          <td rowspan="2">
+            <fa-icon [icon]="faPlusCircle"
+                     style="cursor: pointer;
+                     margin-right: 10px;
+                     color: #0d6efd;"
+                     size="lg"
+                     (click)="addUserDate()"
+            >
+            </fa-icon>
+          </td>
+        </tr>
+        <tr><input type="date" [(ngModel)]="userDate"></tr>
+        <tr *ngFor="let date of userDates">
+          {{date}}
+          <fa-icon [icon]="faTrash"
+                   style="cursor: pointer;
+                     margin-right: 10px;
+                     color: #0d6efd;"
+                   size="lg"
+                   (click)="removeUserDate(date)"
+          >
+          </fa-icon>
+        </tr>
+        <tr>
+          <td rowspan="3" style="border-right: None">
+            Rotations
+          </td>
+          <td rowspan="3" style="border-left: None">
+            <select style="margin-left: 5px" multiple [(ngModel)]="selectedRotations" (change)="setHeader(date)">
+              <option value="All">All</option>
+              <option *ngFor="let rotation of rotations" [value]="rotation">{{rotation}}</option>
+            </select>
+          </td>
+        </tr>
+      </table>
+    </div>
+    <div id="monthView" class="col-xl-10" style="width: 70%">
+      <table class="table table-sm table-bordered table-striped line_table">
+        <thead>
+          <tr>
+            <th *ngFor="let el of header1"
+                [ngStyle]="{'background-color': el.holiday ? '#FF69B4' : 'white'}"
+            >{{el.header_name}}</th>
+            <!--                class="{{el.class ? el.class : ''}}"-->
+          </tr>
+          <tr>
+            <th *ngFor="let el of header2" [ngStyle]="{'background-color': el.holiday ? '#FF69B4' : 'white'}">{{el.header_name}}</th>
+          </tr>
+        </thead>
+        <tbody>
+        <tr *ngFor="let line of lines" [hidden]="!setVisibility(line)">
+          <td (click)="getLineWorkdays(line)">{{line.desk}}</td>
+          <td>{{line.length}}</td>
+          <td>{{line.rotation}}</td>
+          <td>{{line.time_of_day.toUpperCase()}}</td>
+          <td>{{line.theater.toUpperCase()}}</td>
+          <td>{{line.line_number}}</td>
+          <td *ngFor="let day of line.workdays" [ngStyle]="{'background-color': day.holiday ? '#FF69B4' : 'transparent'}">{{day.shift_id}}</td>
+        </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
