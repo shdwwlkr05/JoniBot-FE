@@ -25,6 +25,7 @@ body, html {
   top: -1px;
   height: 33px;
   z-index: 20;
+  background-color: white;
 }
 
 .line_table thead tr:nth-child(2) {
@@ -33,25 +34,52 @@ body, html {
   top: 31px;
   height: 33px;
   z-index: 20;
+  background-color: white;
 }
 
-.line_table td:nth-child(6) {
+.line_table td:first-child {
   position: -webkit-sticky;
   position: sticky;
   left: -13px;
+  width: 22px;
   z-index: 3;
   background-color: white;
 }
 
-.line_table thead tr th:nth-child(6) {
+.line_table td:nth-child(8) {
+  position: -webkit-sticky;
+  position: sticky;
+  left: 8px;
+  z-index: 3;
+  background-color: white;
+}
+
+.line_table thead tr th:first-child {
   position: -webkit-sticky;
   position: sticky;
   background-color: white;
+  width: 22px;
   left: -13px;
+  z-index: 50;
+}
+
+.line_table thead tr th:nth-child(8) {
+  position: -webkit-sticky;
+  position: sticky;
+  background-color: white;
+  left: 8px;
   z-index: 50;
 }
 
 td, th {
   text-align: center;
+}
+
+.holiday {
+  background-color: #FF69B4
+}
+
+.userDay {
+  background-color: #a8dab5;
 }
 

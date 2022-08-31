@@ -16,6 +16,8 @@ interface line {
   workdays: any[];
   allWorkdays: any[];
   workdays_str: string[];
+  selected: boolean;
+  start_time: string;
 }
 
 interface workday {
@@ -90,6 +92,7 @@ export class AllLinesViewComponent implements OnInit, OnDestroy {
       for (let line of lines) {
         line.workdays = []
         line.allWorkdays = []
+        line.selected = false
       }
       this.lines = lines
       this.rotations = Array.from(new Set(lines.map((line:line) => line.rotation))).sort()
@@ -125,7 +128,9 @@ export class AllLinesViewComponent implements OnInit, OnDestroy {
   setHeader(date: Date): void {
     this.loading = true
     this.header1 = [
-      {holiday: false, header_name: 'Desk', class: 'fixed-column'},
+      {holiday: false, header_name: ''},
+      {holiday: false, header_name: 'Desk'},
+      {holiday: false, header_name: 'Start'},
       {holiday: false, header_name: 'Len'},
       {holiday: false, header_name: 'Rot'},
       {holiday: false, header_name: 'AM/PM'},
@@ -134,6 +139,8 @@ export class AllLinesViewComponent implements OnInit, OnDestroy {
     ]
     this.header2 = [
       {holiday: false, header_name: ''},
+      {holiday: false, header_name: ''},
+      {holiday: false, header_name: 'Time'},
       {holiday: false, header_name: ''},
       {holiday: false, header_name: ''},
       {holiday: false, header_name: 'MID'},
@@ -146,18 +153,19 @@ export class AllLinesViewComponent implements OnInit, OnDestroy {
       if (this.isSameMonth(checkDate)) {
         const date_str = checkDate.toISOString().split('T')[0]
         const isHoliday = Object.values(this.holidays).includes(date_str)
+        const isUserDay = this.userDates.includes(date_str)
         const weekday = new Intl.DateTimeFormat('en-US', {weekday: 'short'}).format(checkDate)
         const cal_day = new Intl.DateTimeFormat('en-US', {day: 'numeric'}).format(checkDate)
-        this.header1.push({holiday: isHoliday, header_name: weekday})
-        this.header2.push({holiday: isHoliday, header_name: cal_day})
+        this.header1.push({userDay: isUserDay, holiday: isHoliday, header_name: weekday})
+        this.header2.push({userDay: isUserDay, holiday: isHoliday, header_name: cal_day})
         const isWorkday = (element) => element.workday == date_str
         for (let line of this.lines) {
           if (this.setVisibility(line)) {
             if (line.allWorkdays.some(isWorkday)) {
               const workday = line.allWorkdays.find(workday => workday.workday == date_str)
-              line.workdays.push({date: new Date (checkDate), shift_id: workday.shift_id, holiday: isHoliday});
+              line.workdays.push({date: new Date (checkDate), shift_id: workday.shift_id, holiday: isHoliday, userDay: isUserDay});
             } else {
-              line.workdays.push({date: new Date(checkDate), shift_id: '--', holiday: isHoliday})
+              line.workdays.push({date: new Date(checkDate), shift_id: '--', holiday: isHoliday, userDay: isUserDay});
             }
           }
         }
@@ -217,7 +225,7 @@ export class AllLinesViewComponent implements OnInit, OnDestroy {
   }
 
   hasUserDayOff(line:line): boolean {
-    return !(line.workdays_str.some(day => this.userDates.includes(day)))
+    return line.workdays_str.some(day => this.userDates.includes(day))
   }
 
   getLineWorkdays(line:line) {
@@ -236,7 +244,7 @@ export class AllLinesViewComponent implements OnInit, OnDestroy {
     if (!showMe) {
       return false
     }
-    showMe = this.hasUserDayOff(line)
+    showMe = !this.hasUserDayOff(line)
     if (!showMe) {
       return false
     }
@@ -276,6 +284,10 @@ export class AllLinesViewComponent implements OnInit, OnDestroy {
   clickTest() {
     console.log('Lines: ', this.lines)
     console.log('Workdays: ', this.workdays)
+  }
+
+  lineClickTest(line:line) {
+    console.log('Line Clicked: ', line)
   }
 
   addUserDate() {

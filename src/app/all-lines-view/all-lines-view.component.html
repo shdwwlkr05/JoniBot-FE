@@ -1,4 +1,4 @@
-<div class="container-fluid">
+<div class="container">
   <div class="row" *ngIf="loading">
     <div class="col-xs-12">
       Please wait... loading lines and workdays... <br>
@@ -11,7 +11,7 @@
     <button style="width: 25px" (click)="setMonth(+1)">&gt;</button>
   </div>
   <div class="row" *ngIf="!loading">
-    <div class="col-xl-2" style="width: 30%">
+    <div class="col-xs-2" style="width: 30%">
       <table class="table table-sm table-bordered">
         <tr>
           <td [ngStyle]="{'background-color': (!showAM && !showPM && !showMID && !showRLF) ? '#FFCCCB' : 'transparent'}">
@@ -191,28 +191,42 @@
         </tr>
       </table>
     </div>
-    <div id="monthView" class="col-xl-10" style="width: 70%">
+    <div id="monthView" class="col-xs-10" style="width: 70%">
       <table class="table table-sm table-bordered table-striped line_table">
         <thead>
           <tr>
-            <th *ngFor="let el of header1"
-                [ngStyle]="{'background-color': el.holiday ? '#FF69B4' : 'white'}"
-            >{{el.header_name}}</th>
-            <!--                class="{{el.class ? el.class : ''}}"-->
+            <th *ngFor="let day of header1"
+                [ngClass]="{
+              'holiday': day.holiday,
+              'userDay': day.userDay
+              }"
+            >{{day.header_name}}</th>
           </tr>
           <tr>
-            <th *ngFor="let el of header2" [ngStyle]="{'background-color': el.holiday ? '#FF69B4' : 'white'}">{{el.header_name}}</th>
+            <th *ngFor="let day of header2"
+                [ngClass]="{
+              'holiday': day.holiday,
+              'userDay': day.userDay
+              }"
+            >{{day.header_name}}</th>
           </tr>
         </thead>
         <tbody>
         <tr *ngFor="let line of lines" [hidden]="!setVisibility(line)">
-          <td (click)="getLineWorkdays(line)">{{line.desk}}</td>
+          <td><input type="checkbox" [(ngModel)]="line.selected"></td>
+          <td>{{line.desk}}</td>
+          <td>{{line.start_time}}</td>
           <td>{{line.length}}</td>
           <td>{{line.rotation}}</td>
           <td>{{line.time_of_day.toUpperCase()}}</td>
           <td>{{line.theater.toUpperCase()}}</td>
-          <td>{{line.line_number}}</td>
-          <td *ngFor="let day of line.workdays" [ngStyle]="{'background-color': day.holiday ? '#FF69B4' : 'transparent'}">{{day.shift_id}}</td>
+          <td (click)="lineClickTest(line)">{{line.line_number}}</td>
+          <td *ngFor="let day of line.workdays"
+              [ngClass]="{
+              'holiday': day.holiday,
+              'userDay': day.userDay
+              }"
+          >{{day.shift_id}}</td>
         </tr>
         </tbody>
       </table>
