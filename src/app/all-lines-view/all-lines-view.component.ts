@@ -281,15 +281,6 @@ export class AllLinesViewComponent implements OnInit, OnDestroy {
     return showMe
   }
 
-  clickTest() {
-    console.log('Lines: ', this.lines)
-    console.log('Workdays: ', this.workdays)
-  }
-
-  lineClickTest(line:line) {
-    console.log('Line Clicked: ', line)
-  }
-
   addUserDate() {
     if (this.userDate) {
       this.userDates.push(this.userDate)
@@ -306,5 +297,16 @@ export class AllLinesViewComponent implements OnInit, OnDestroy {
     this.setHeader(this.date)
   }
 
+  clickTest() {
+    console.log('Lines: ', this.lines)
+    console.log('Workdays: ', this.workdays)
+  }
 
+  lineClickTest(line:line) {
+    console.log('Line Clicked: ', line)
+  }
+
+  dateClickTest() {
+    console.log('Date Clicked: ', this.userDates)
+  }
 }
