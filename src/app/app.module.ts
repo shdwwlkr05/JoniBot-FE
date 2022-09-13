@@ -28,6 +28,7 @@ import { AdminChangePwComponent } from './auth/admin-change-pw/admin-change-pw.c
 import { ReliefBidComponent } from './relief-bid/relief-bid.component';
 import { MyCalendarComponent } from './my-calendar/my-calendar.component';
 import { AllLinesViewComponent } from './all-lines-view/all-lines-view.component';
+import { LineBidComponent } from './line-bid/line-bid.component';
 
 
 @NgModule({
@@ -50,6 +51,7 @@ import { AllLinesViewComponent } from './all-lines-view/all-lines-view.component
     ReliefBidComponent,
     MyCalendarComponent,
     AllLinesViewComponent,
+    LineBidComponent,
 
   ],
   imports: [

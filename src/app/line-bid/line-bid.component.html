@@ -1,0 +1,224 @@
+<ng-template #noLine let-modal>
+  <div class="modal-header">
+    <h4 class="modal-title">Error</h4>
+  </div>
+  <div class="modal-body">
+    <p>Unable to find line. Please try again.</p>
+  </div>
+  <div class="modal-footer">
+    <button type="button" class="btn btn-light" (click)="modal.close('Close click')">Close</button>
+  </div>
+</ng-template>
+<div class="containers">
+  <div class="row">
+    <div class="col" id="left">
+      <div class="row" style="height: 35px;
+           background-color: white;
+           position: sticky;
+           top: 0;">
+        <span style="font-weight: bold" (click)="clickTest()">My Bid</span>
+      </div>
+      <div class="row" style="height: 40px;
+           background-color: white;
+           position: sticky;
+           top: 35px;">
+        <span *ngIf="!doImport">
+          <button
+            class="btn btn-secondary"
+            *ngIf="response=='none' || response=='selected success'"
+          >
+            Current Bid
+          </button>
+          <button
+            class="btn btn-primary"
+            *ngIf="response=='unsaved'"
+            (click)="onSave()"
+          >
+            Save Bid
+          </button>
+          <button
+            class="btn btn-success"
+            *ngIf="response=='success'"
+          >
+            Saved
+          </button>
+          <button
+            class="btn btn-danger"
+            style="margin-left: 20px;"
+            *ngIf="response=='unsaved'"
+            (click)="onRevert()"
+          >
+            Revert Bid
+          </button>
+          <button
+            class="btn btn-secondary"
+            style="margin-left: 20px;"
+            (click)="clickImport()"
+          >
+            Import from Bidulator
+          </button>
+        </span>
+        <span *ngIf="doImport">
+          <input type="text" [(ngModel)]="bidulatorImportInput">
+          <button
+            class="btn btn-success"
+            style="margin-left: 20px;"
+            (click)="bidulatorImport()"
+          >
+            GO!
+          </button>
+        </span>
+      </div>
+      <table style="width: 100%" class="table table-sm table-bordered table-striped">
+        <thead>
+        <tr style="position: sticky; top: 73px; background-color: white">
+          <th>Choice</th>
+          <th>Line</th>
+          <th>Desk</th>
+          <th>Start</th>
+          <th>Rot</th>
+          <th>Top</th>
+          <th>Up</th>
+          <th>Dn</th>
+          <th>Bot</th>
+          <th>Rem</th>
+        </tr>
+        </thead>
+        <tbody cdkDropList (cdkDropListDropped)="onDrop($event)">
+        <tr cdkDrag cdkDragLockAxis="y" *ngFor="let line of linesOnBid; index as i" style="cursor: pointer">
+          <td>{{i + 1}}</td>
+          <td>{{line.line_number}}</td>
+          <td>{{line.desk}}</td>
+          <td>{{line.start_time}}</td>
+          <td>{{line.rotation}}</td>
+          <td>
+            <fa-icon [icon]="faAngleDoubleUp"
+                     style="cursor: pointer;
+                     color: #0d6efd;"
+                     size="lg"
+                     (click)="moveTop(line)"
+                     *ngIf="i != 0"
+            >
+            </fa-icon>
+          </td>
+          <td>
+            <fa-icon [icon]="faAngleUp"
+                     style="cursor: pointer;
+                     color: #0d6efd;"
+                     size="lg"
+                     (click)="moveUp(line)"
+                     *ngIf="i != 0"
+            >
+            </fa-icon>
+          </td>
+          <td>
+            <fa-icon [icon]="faAngleDown"
+                     style="cursor: pointer;
+                     color: #0d6efd;"
+                     size="lg"
+                     (click)="moveDown(line)"
+                     *ngIf="i != (linesOnBid.length - 1)"
+            >
+            </fa-icon>
+          </td>
+          <td>
+            <fa-icon [icon]="faAngleDoubleDown"
+                     style="cursor: pointer;
+                     color: #0d6efd;"
+                     size="lg"
+                     (click)="moveBottom(line)"
+                     *ngIf="i != (linesOnBid.length - 1)"
+            >
+            </fa-icon>
+          </td>
+          <td>
+            <fa-icon [icon]="faAngleRight"
+                     style="cursor: pointer;
+                     color: #0d6efd;"
+                     size="lg"
+                     (click)="removeFromBid(line)"
+            >
+            </fa-icon>
+          </td>
+          <div *cdkDragPreview class="container">
+            Line {{line.line_number}}
+          </div>
+        </tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="col" id="right">
+      <div class="row"
+           style="height: 35px;
+           background-color: white;
+           position: sticky;
+           top: 0;">
+        <span style="font-weight: bold">Selected Lines</span>
+      </div>
+      <div class="row"
+           style="height: 40px;
+           background-color: white;
+           position: sticky;
+           top: 35px;">
+        <span>Add Line
+        <input type="number" id="userAdd" style="width:50px"[(ngModel)]="userAdd">
+        <fa-icon [icon]="faPlusCircle"
+                 style="cursor: pointer;
+                 margin-right: 10px;
+                 color: #0d6efd;"
+                 size="lg"
+                 (click)="addSelected(noLine)"
+        >
+        </fa-icon>
+        <button
+          class="btn btn-primary"
+          style="margin-left: 20px"
+          *ngIf="selectedChanged"
+          (click)="saveSelected()">Save Selected
+        </button>
+          <button
+            class="btn btn-success"
+            style="margin-left: 20px"
+            *ngIf="!selectedChanged"
+            (click)="saveSelected()">Saved
+        </button>
+        <button
+          class="btn btn-primary"
+          style="margin-left: 20px"
+          (click)="viewAllLines()">View All Lines
+        </button>
+        </span>
+      </div>
+      <table style="width: 100%" class="table table-sm table-bordered table-striped">
+        <thead>
+        <tr style="position: sticky; top: 73px; background-color: white">
+          <th>Line</th>
+          <th>Desk</th>
+          <th>Start</th>
+          <th>Rot</th>
+          <th>Del</th>
+        </tr>
+        </thead>
+        <tbody>
+        <ng-container *ngFor="let line of selectedLines">
+        <tr *ngIf="!isOnBid(line)" style="cursor: pointer;">
+          <td (click)="addToBid(line)">{{line.line_number}}</td>
+          <td (click)="addToBid(line)">{{line.desk}}</td>
+          <td (click)="addToBid(line)">{{line.start_time}}</td>
+          <td (click)="addToBid(line)">{{line.rotation}}</td>
+          <td>
+            <fa-icon [icon]="faTrash"
+                     style="cursor: pointer;
+                     color: #0d6efd;"
+                     size="lg"
+                     (click)="removeFromSelected(line)"
+            >
+            </fa-icon>
+          </td>
+        </tr>
+        </ng-container>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

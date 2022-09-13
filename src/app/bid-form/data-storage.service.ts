@@ -25,6 +25,7 @@ const rankUrl = environment.baseURL + 'api/bid/bidTime'
 const shiftTimesUrl = environment.baseURL + 'api/bid/shifttimes/'
 const linesUrl = environment.baseURL + 'api/bid/lines/'
 const linesWorkdaysUrl = environment.baseURL + 'api/bid/lineworkdays/'
+const lineBidUrl = environment.baseURL + 'api/bid/linebid/'
 
 @Injectable({
   providedIn: 'root'
@@ -39,6 +40,7 @@ export class DataStorageService {
   shiftTimes = new Subject<any>();
   lines = new Subject<any>();
   lineWorkdays = new Subject<any>();
+  lineBid = new Subject<any>();
 
   constructor(private http: HttpClient,
               private bidService: BidService,
@@ -293,6 +295,23 @@ export class DataStorageService {
       this.lineWorkdays.next(workdays)
     })
   }
+
+  saveLineBid(payload, saveType) {
+    const headers = {'Content-Type': 'application/json'}
+    return this.http.post(lineBidUrl, JSON.stringify(payload), {'headers': headers})
+      .subscribe(response => {
+        this.fetchLineBid()
+        this.httpResponse.next(`${saveType} ${response['status']}`)
+      })
+  }
+
+  fetchLineBid() {
+    return this.http.get(lineBidUrl).subscribe(response => {
+      this.lineBid.next(response)
+    })
+  }
+
+
 
 
 }

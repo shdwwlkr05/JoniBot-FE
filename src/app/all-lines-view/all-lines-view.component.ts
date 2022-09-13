@@ -3,6 +3,9 @@ import { Subscription } from 'rxjs';
 import {DataStorageService} from "../bid-form/data-storage.service";
 import {faPlusCircle} from "@fortawesome/free-solid-svg-icons";
 import {faTrash} from "@fortawesome/free-solid-svg-icons";
+import {faArrowCircleLeft} from "@fortawesome/free-solid-svg-icons";
+import {faArrowCircleRight} from "@fortawesome/free-solid-svg-icons";
+import {Router} from "@angular/router";
 
 interface line {
   desk: string;
@@ -34,18 +37,25 @@ interface workday {
 })
 export class AllLinesViewComponent implements OnInit, OnDestroy {
   faPlusCircle = faPlusCircle
+  faArrowCircleRight = faArrowCircleRight
+  faArrowCircleLeft = faArrowCircleLeft
   faTrash = faTrash
   header1 = []
   header2 = []
   date = new Date('2022-10-1');
   lines: line[]
   linesSubscription = new Subscription()
+  bid = []
+  selected = []
+  bidSubscription = new Subscription()
   rotations = []
   selectedRotations = ['All']
   workdays: workday[]
   workdaySubscription = new Subscription()
   userGroup = ''
   workgroupSubscription: Subscription
+  response
+  responseSubscription = new Subscription()
   loading = true
   showAM = true
   showPM = true
@@ -82,7 +92,9 @@ export class AllLinesViewComponent implements OnInit, OnDestroy {
   userDate
   userDates = []
 
-  constructor(private data: DataStorageService) { }
+  constructor(private data: DataStorageService,
+              private router: Router,
+  ) { }
 
   ngOnInit(): void {
     this.workgroupSubscription = this.data.userWorkgroup.subscribe(workgroup => {
@@ -92,7 +104,11 @@ export class AllLinesViewComponent implements OnInit, OnDestroy {
       for (let line of lines) {
         line.workdays = []
         line.allWorkdays = []
-        line.selected = false
+        if (this.selected) {
+          line.selected = this.selected.includes(line.line_number);
+        } else {
+          line.selected = false;
+        }
       }
       this.lines = lines
       this.rotations = Array.from(new Set(lines.map((line:line) => line.rotation))).sort()
@@ -108,14 +124,56 @@ export class AllLinesViewComponent implements OnInit, OnDestroy {
         this.setHeader(this.date)
       }
     })
+    this.bidSubscription = this.data.lineBid.subscribe(data => {
+      this.bid = data.bid.split(',')
+      this.selected = data.selected.split(',')
+      if (this.lines) {
+        this.lines.forEach(line => {
+          line.selected = this.selected.includes(line.line_number)
+        })
+      }
+    })
+    this.responseSubscription = this.data.httpResponse.subscribe(response => {
+      this.response = response
+    })
     this.data.fetchLines()
     this.data.fetchLineWorkdays()
+    this.data.fetchLineBid()
+    this.showAM = (localStorage.getItem('showAM')==='true')
+    this.showPM = (localStorage.getItem('showPM')==='true')
+    this.showMID = (localStorage.getItem('showMID')==='true')
+    this.showRLF = (localStorage.getItem('showRLF')==='true')
+    this.showDOM = (localStorage.getItem('showDOM')==='true')
+    this.showINTL = (localStorage.getItem('showINTL')==='true')
+    this.showFleet = (localStorage.getItem('showFleet')==='true')
+    this.showSPT = (localStorage.getItem('showSPT')==='true')
+    this.showNine = (localStorage.getItem('showNine')==='true')
+    this.showTen = (localStorage.getItem('showTen')==='true')
+    this.h1off = (localStorage.getItem('h1off')==='true')
+    this.h2off = (localStorage.getItem('h2off')==='true')
+    this.h3off = (localStorage.getItem('h3off')==='true')
+    this.h4off = (localStorage.getItem('h4off')==='true')
+    this.h5off = (localStorage.getItem('h5off')==='true')
+    this.h6off = (localStorage.getItem('h6off')==='true')
+    this.h7off = (localStorage.getItem('h7off')==='true')
+    this.h8off = (localStorage.getItem('h8off')==='true')
+    this.h9off = (localStorage.getItem('h9off')==='true')
+    this.h10off = (localStorage.getItem('h10off')==='true')
+    this.selectedRotations = localStorage.getItem('selectedRotations').split(',')
+    const userDates = localStorage.getItem('userDates').split(',')
+    if (userDates[0] === '') {
+      this.userDates = []
+    } else {
+      this.userDates = userDates
+    }
   }
 
   ngOnDestroy(): void {
     this.linesSubscription.unsubscribe()
     this.workdaySubscription.unsubscribe()
     this.workgroupSubscription.unsubscribe()
+    this.bidSubscription.unsubscribe()
+    this.responseSubscription.unsubscribe()
   }
 
   setAllWorkdays(): void {
@@ -128,7 +186,6 @@ export class AllLinesViewComponent implements OnInit, OnDestroy {
   setHeader(date: Date): void {
     this.loading = true
     this.header1 = [
-      {holiday: false, header_name: ''},
       {holiday: false, header_name: 'Desk'},
       {holiday: false, header_name: 'Start'},
       {holiday: false, header_name: 'Len'},
@@ -138,7 +195,6 @@ export class AllLinesViewComponent implements OnInit, OnDestroy {
       {holiday: false, header_name: 'Line'}
     ]
     this.header2 = [
-      {holiday: false, header_name: ''},
       {holiday: false, header_name: ''},
       {holiday: false, header_name: 'Time'},
       {holiday: false, header_name: ''},
@@ -228,17 +284,6 @@ export class AllLinesViewComponent implements OnInit, OnDestroy {
     return line.workdays_str.some(day => this.userDates.includes(day))
   }
 
-  getLineWorkdays(line:line) {
-    let workdays = []
-    for (let workday of line.workdays) {
-      if (workday.shift_id != '--') {
-        let date_str = workday.date.toISOString().split('T')[0]
-        workdays.push(date_str)
-      }
-    }
-    return workdays
-  }
-
   setVisibility(line: line) {
     let showMe = this.hasHolidayOff(line)
     if (!showMe) {
@@ -281,6 +326,22 @@ export class AllLinesViewComponent implements OnInit, OnDestroy {
     return showMe
   }
 
+  selectVisible() {
+    for (let line of this.lines) {
+      if (this.setVisibility(line)) {
+        line.selected = true
+      }
+    }
+  }
+
+  unselectVisible() {
+    for (let line of this.lines) {
+      if (this.setVisibility(line)) {
+        line.selected = false
+      }
+    }
+  }
+
   addUserDate() {
     if (this.userDate) {
       this.userDates.push(this.userDate)
@@ -298,8 +359,8 @@ export class AllLinesViewComponent implements OnInit, OnDestroy {
   }
 
   clickTest() {
-    console.log('Lines: ', this.lines)
-    console.log('Workdays: ', this.workdays)
+    console.log('Bid: ', this.bid)
+    console.log('Selected: ', this.selected)
   }
 
   lineClickTest(line:line) {
@@ -308,5 +369,52 @@ export class AllLinesViewComponent implements OnInit, OnDestroy {
 
   dateClickTest() {
     console.log('Date Clicked: ', this.userDates)
+  }
+
+  toLineBid() {
+    this.router.navigate(['lineBid'])
+  }
+
+  saveSelected() {
+    const pending_selected = []
+    this.lines.forEach((line) => {
+      if (line.selected) {
+        pending_selected.push(line.line_number)
+      }
+    })
+    if (pending_selected.length == 0) {
+      pending_selected.push(0)
+    }
+    const payload = {
+      bid: this.bid.join(','),
+      selected: pending_selected.join(',')
+    }
+    this.data.saveLineBid(payload, 'selected')
+    localStorage.setItem('showAM', String(this.showAM))
+    localStorage.setItem('showPM', String(this.showPM))
+    localStorage.setItem('showMID', String(this.showMID))
+    localStorage.setItem('showRLF', String(this.showRLF))
+    localStorage.setItem('showDOM', String(this.showDOM))
+    localStorage.setItem('showINTL', String(this.showINTL))
+    localStorage.setItem('showFleet', String(this.showFleet))
+    localStorage.setItem('showSPT', String(this.showSPT))
+    localStorage.setItem('showNine', String(this.showNine))
+    localStorage.setItem('showTen', String(this.showTen))
+    localStorage.setItem('h1off', String(this.h1off))
+    localStorage.setItem('h2off', String(this.h2off))
+    localStorage.setItem('h3off', String(this.h3off))
+    localStorage.setItem('h4off', String(this.h4off))
+    localStorage.setItem('h5off', String(this.h5off))
+    localStorage.setItem('h6off', String(this.h6off))
+    localStorage.setItem('h7off', String(this.h7off))
+    localStorage.setItem('h8off', String(this.h8off))
+    localStorage.setItem('h9off', String(this.h9off))
+    localStorage.setItem('h10off', String(this.h10off))
+    localStorage.setItem('userDates', this.userDates.join(','))
+    localStorage.setItem('selectedRotations', this.selectedRotations.join(','))
+  }
+
+  setUnsaved() {
+    this.response = 'unsaved'
   }
 }
