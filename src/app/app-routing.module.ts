@@ -18,6 +18,7 @@ import {AwardCountsResolverService} from "./calendar/award-count-resolver.servic
 import {MyCalendarComponent} from "./my-calendar/my-calendar.component";
 import {AllLinesViewComponent} from "./all-lines-view/all-lines-view.component";
 import {LineBidComponent} from "./line-bid/line-bid.component";
+import {LineAwardsComponent} from "./line-awards/line-awards.component";
 
 const appRoutes: Routes = [
   {path: '', component: HomeComponent, pathMatch: 'full', canActivate: [AuthGuard],
@@ -33,6 +34,7 @@ const appRoutes: Routes = [
   {path: 'adminChangePW', component: AdminChangePwComponent, canActivate: [AuthGuard]},
   {path: 'lines', component: AllLinesViewComponent, canActivate: [AuthGuard]},
   {path: 'lineBid', component: LineBidComponent, canActivate: [AuthGuard]},
+  {path: 'lineAwards', component: LineAwardsComponent, canActivate: [AuthGuard]},
   {path: 'relief', component: ReliefBidComponent, canActivate: [AuthGuard],
     resolve: [WorkdayResolverService]},
 ]

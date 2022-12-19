@@ -26,6 +26,41 @@ const shiftTimesUrl = environment.baseURL + 'api/bid/shifttimes/'
 const linesUrl = environment.baseURL + 'api/bid/lines/'
 const linesWorkdaysUrl = environment.baseURL + 'api/bid/lineworkdays/'
 const lineBidUrl = environment.baseURL + 'api/bid/linebid/'
+const bidTimeUrl = environment.baseURL + 'api/bid/bidTime/'
+const userListUrl = environment.baseURL + 'api/bid/userlist/'
+const shortnameUrl = environment.baseURL + 'api/bid/shortnames/'
+const lineAwardsUrl = environment.baseURL + 'api/bid/lineawards/'
+
+interface filters {
+  showAM: boolean;
+  showPM: boolean;
+  showMID: boolean;
+  showRLF: boolean;
+  showDOM: boolean;
+  showINTL: boolean;
+  showFleet: boolean;
+  showSPT: boolean;
+  showNine: boolean;
+  showTen: boolean;
+  selectedRotations: string[];
+  selectedStartTimes: string[];
+}
+
+interface line {
+  desk: string;
+  id: number;
+  length: string;
+  line_number: string;
+  rotation: string;
+  theater: string;
+  time_of_day: string;
+  workgroup: string;
+  workdays: any[];
+  allWorkdays: any[];
+  workdays_str: string[];
+  selected: boolean;
+  start_time: string;
+}
 
 @Injectable({
   providedIn: 'root'
@@ -38,9 +73,16 @@ export class DataStorageService {
   workgroupCount = new Subject<any>();
   openTimeRank = new Subject<any>();
   shiftTimes = new Subject<any>();
-  lines = new Subject<any>();
+  lines = new BehaviorSubject<any>([]);
+  userList = new BehaviorSubject<any>([]);
+  shortnames = new BehaviorSubject<any>([]);
+  // lines = new Subject<any>();
   lineWorkdays = new Subject<any>();
   lineBid = new Subject<any>();
+  lineAwards = new Subject<any>();
+  bidTime = new Subject<any>();
+  allLines
+  allWorkdays
 
   constructor(private http: HttpClient,
               private bidService: BidService,
@@ -219,30 +261,22 @@ export class DataStorageService {
 
   updateRound7Usage(usages) {
     const url = round7UsageUrl + '/' + usages.id + '/'
-    return this.http.put(url, usages).subscribe(response => {
+    return this.http.put(url, usages).subscribe(() => {
       this.fetchRound7Usage()
       location.reload()
     })
   }
 
 
-  fetchOpenTimeShifts(group) {
-    return this.http.get(openTimeShiftsUrl,
-      {
-        params: new HttpParams()
-          .set('group', group)
-      }).subscribe(shifts => {
+  fetchOpenTimeShifts() {
+    return this.http.get(openTimeShiftsUrl).subscribe(shifts => {
       this.openTimeShifts.next(shifts)
     })
   }
 
 
-  fetchWorkgroupCount(group) {
-    return this.http.get(totalUrl,
-      {
-        params: new HttpParams()
-          .set('group', group)
-      }).subscribe(count => {
+  fetchWorkgroupCount() {
+    return this.http.get(totalUrl).subscribe(count => {
       this.workgroupCount.next(count['user_count'])
     })
   }
@@ -251,6 +285,18 @@ export class DataStorageService {
   fetchOpenTimeBid() {
     return this.http.get(openTimeBidUrl).subscribe(bid => {
       this.openTimeBid.next(bid)
+    })
+  }
+
+  fetchUserList() {
+    return this.http.get(userListUrl).subscribe(users => {
+      this.userList.next(users)
+    })
+  }
+
+  fetchShortNames() {
+    return this.http.get(shortnameUrl).subscribe(names => {
+      this.shortnames.next(names)
     })
   }
 
@@ -286,14 +332,33 @@ export class DataStorageService {
 
   fetchLines() {
     return this.http.get(linesUrl).subscribe(lines => {
+      this.allLines = lines
       this.lines.next(lines)
+    })
+  }
+
+  fetchLineAwards() {
+    return this.http.get(lineAwardsUrl).subscribe(awards => {
+      this.lineAwards.next(awards)
     })
   }
 
   fetchLineWorkdays() {
     return this.http.get(linesWorkdaysUrl).subscribe(workdays => {
-      this.lineWorkdays.next(workdays)
+      this.allWorkdays = workdays
+      if (this.allLines) {
+        this.setLineWorkdays()
+      }
+      // this.lineWorkdays.next(workdays)
     })
+  }
+
+  setLineWorkdays() {
+    this.allLines.forEach((line:line) => {
+      line.allWorkdays = this.allWorkdays.filter(workday => workday.line_id == line.id)
+      line.workdays_str = line.allWorkdays.map(workday => workday.workday)
+    })
+    this.lines.next(this.allLines)
   }
 
   saveLineBid(payload, saveType) {
@@ -309,6 +374,92 @@ export class DataStorageService {
     return this.http.get(lineBidUrl).subscribe(response => {
       this.lineBid.next(response)
     })
+  }
+
+  fetchBidTime() {
+    return this.http.get(bidTimeUrl).subscribe(response => {
+      this.bidTime.next(response)
+    })
+  }
+
+  storeFilters(filters:filters) {
+    localStorage.setItem('showAM', String(filters.showAM))
+    localStorage.setItem('showPM', String(filters.showPM))
+    localStorage.setItem('showMID', String(filters.showMID))
+    localStorage.setItem('showRLF', String(filters.showRLF))
+    localStorage.setItem('showDOM', String(filters.showDOM))
+    localStorage.setItem('showINTL', String(filters.showINTL))
+    localStorage.setItem('showFleet', String(filters.showFleet))
+    localStorage.setItem('showSPT', String(filters.showSPT))
+    localStorage.setItem('showNine', String(filters.showNine))
+    localStorage.setItem('showTen', String(filters.showTen))
+    localStorage.setItem('selectedRotations', filters.selectedRotations.join(','))
+    localStorage.setItem('selectedStartTimes', filters.selectedStartTimes.join(','))
+  }
+
+  fetchFilters() {
+    let filters = <filters>{}
+    if (localStorage.getItem('showAM') === null) {
+      filters.showAM = true
+    } else {
+      filters.showAM = (localStorage.getItem('showAM')==='true')
+    }
+    if (localStorage.getItem('showPM') === null) {
+      filters.showPM = true
+    } else {
+      filters.showPM = (localStorage.getItem('showPM')==='true')
+    }
+    if (localStorage.getItem('showMID') === null) {
+      filters.showMID = true
+    } else {
+      filters.showMID = (localStorage.getItem('showMID')==='true')
+    }
+    if (localStorage.getItem('showRLF') === null) {
+      filters.showRLF = true
+    } else {
+      filters.showRLF = (localStorage.getItem('showRLF')==='true')
+    }
+    if (localStorage.getItem('showDOM') === null) {
+      filters.showDOM = true
+    } else {
+      filters.showDOM = (localStorage.getItem('showDOM')==='true')
+    }
+    if (localStorage.getItem('showINTL') === null) {
+      filters.showINTL = true
+    } else {
+      filters.showINTL = (localStorage.getItem('showINTL')==='true')
+    }
+    if (localStorage.getItem('showFleet') === null) {
+      filters.showFleet = true
+    } else {
+      filters.showFleet = (localStorage.getItem('showFleet')==='true')
+    }
+    if (localStorage.getItem('showSPT') === null) {
+      filters.showSPT = true
+    } else {
+      filters.showSPT = (localStorage.getItem('showSPT')==='true')
+    }
+    if (localStorage.getItem('showNine') === null) {
+      filters.showNine = true
+    } else {
+      filters.showNine = (localStorage.getItem('showNine')==='true')
+    }
+    if (localStorage.getItem('showTen') === null) {
+      filters.showTen = true
+    } else {
+      filters.showTen = (localStorage.getItem('showTen')==='true')
+    }
+    if (localStorage.getItem('selectedRotations') === null) {
+      filters.selectedRotations = ['All']
+    } else {
+      filters.selectedRotations = localStorage.getItem('selectedRotations').split(',')
+    }
+    if (localStorage.getItem('selectedStartTimes') === null) {
+      filters.selectedStartTimes = ['All']
+    } else {
+      filters.selectedStartTimes = localStorage.getItem('selectedStartTimes').split(',')
+    }
+    return filters
   }
 
 

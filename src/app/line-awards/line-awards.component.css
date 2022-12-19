@@ -1,0 +1,12 @@
+#left {
+  float: left;
+  max-height: calc(100vh - 100px);
+  width: 60%;
+  overflow: auto;
+}
+#right {
+  float: left;
+  max-height: calc(100vh - 100px);
+  width: 40%;
+  overflow: auto;
+}

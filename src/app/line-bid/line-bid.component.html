@@ -9,6 +9,109 @@
     <button type="button" class="btn btn-light" (click)="modal.close('Close click')">Close</button>
   </div>
 </ng-template>
+<ng-template #filtermodal let-modal>
+  <div class="modal-header">
+    <h4 class="modal-title">Filters</h4>
+  </div>
+  <div class="modal-body">
+    <table class="table table-lg table-bordered">
+      <tr>
+        <td [ngStyle]="{'background-color': (!filters.showAM && !filters.showPM && !filters.showMID && !filters.showRLF) ? '#FFCCCB' : 'transparent'}">
+          <label class="checkbox-inline" style="margin-left: 10px; margin-right: 10px">
+            <input type="checkbox" [(ngModel)]="filters.showAM">
+            AM
+          </label>
+        </td>
+        <td [ngStyle]="{'background-color': (!filters.showAM && !filters.showPM && !filters.showMID && !filters.showRLF) ? '#FFCCCB' : 'transparent'}">
+          <label class="checkbox-inline" style="margin-left: 10px; margin-right: 10px">
+            <input type="checkbox" [(ngModel)]="filters.showPM">
+            PM
+          </label>
+        </td>
+        <td [ngStyle]="{'background-color': (!filters.showAM && !filters.showPM && !filters.showMID && !filters.showRLF) ? '#FFCCCB' : 'transparent'}"
+            *ngIf="!(userGroup == 'ssom')">
+          <label class="checkbox-inline" style="margin-left: 10px; margin-right: 10px">
+            <input type="checkbox" [(ngModel)]="filters.showMID">
+            MID
+          </label>
+        </td>
+        <td [ngStyle]="{'background-color': (!filters.showAM && !filters.showPM && !filters.showMID && !filters.showRLF) ? '#FFCCCB' : 'transparent'}">
+          <label class="checkbox-inline" style="margin-left: 10px; margin-right: 10px">
+            <input type="checkbox" [(ngModel)]="filters.showRLF">
+            RLF
+          </label>
+        </td>
+      </tr>
+      <tr *ngIf="userGroup == 'fs'">
+        <td [ngStyle]="{'background-color': (!filters.showDOM && !filters.showINTL) ? '#FFCCCB' : 'transparent'}">
+          <label class="checkbox-inline" style="margin-left: 10px; margin-right: 10px">
+            <input type="checkbox" [(ngModel)]="filters.showDOM">
+            DOM
+          </label>
+        </td>
+        <td [ngStyle]="{'background-color': (!filters.showDOM && !filters.showINTL) ? '#FFCCCB' : 'transparent'}">
+          <label class="checkbox-inline" style="margin-left: 10px; margin-right: 10px">
+            <input type="checkbox" [(ngModel)]="filters.showINTL">
+            INTL
+          </label>
+        </td>
+      </tr>
+      <tr *ngIf="userGroup == 'som'">
+        <td [ngStyle]="{'background-color': (!filters.showFleet && !filters.showSPT) ? '#FFCCCB' : 'transparent'}">
+          <label class="checkbox-inline" style="margin-left: 10px; margin-right: 10px">
+            <input type="checkbox" [(ngModel)]="filters.showFleet">
+            Fleet
+          </label>
+        </td>
+        <td [ngStyle]="{'background-color': (!filters.showFleet && !filters.showSPT) ? '#FFCCCB' : 'transparent'}">
+          <label class="checkbox-inline" style="margin-left: 10px; margin-right: 10px">
+            <input type="checkbox" [(ngModel)]="filters.showSPT">
+            SPT
+          </label>
+        </td>
+      </tr>
+      <tr *ngIf="userGroup == 'fs'">
+        <td [ngStyle]="{'background-color': (!filters.showNine && !filters.showTen) ? '#FFCCCB' : 'transparent'}">
+          <label class="checkbox-inline" style="margin-left: 10px; margin-right: 10px">
+            <input type="checkbox" [(ngModel)]="filters.showNine">
+            Nine Hr
+          </label>
+        </td>
+        <td [ngStyle]="{'background-color': (!filters.showNine && !filters.showTen) ? '#FFCCCB' : 'transparent'}">
+          <label class="checkbox-inline" style="margin-left: 10px; margin-right: 10px">
+            <input type="checkbox" [(ngModel)]="filters.showTen">
+            Ten Hr
+          </label>
+        </td>
+      </tr>
+      <tr>
+        <td rowspan="3" style="border-right: None">
+          Rotations
+        </td>
+        <td rowspan="3" style="border-left: None">
+          <select style="margin-left: 5px" multiple [(ngModel)]="filters.selectedRotations">
+            <option value="All">All</option>
+            <option *ngFor="let rotation of rotations" [value]="rotation">{{rotation}}</option>
+          </select>
+        </td>
+      </tr>
+      <tr>
+        <td rowspan="3" style="border-right: None">
+          Start Times
+        </td>
+        <td rowspan="3" style="border-left: None">
+          <select style="margin-left: 5px" multiple [(ngModel)]="filters.selectedStartTimes">
+            <option value="All">All</option>
+            <option *ngFor="let startTime of startTimes" [value]="startTime">{{startTime}}</option>
+          </select>
+        </td>
+      </tr>
+    </table>
+  </div>
+  <div class="modal-footer">
+    <button type="button" class="btn btn-primary" (click)="modal.close('Close click')">Save and Close</button>
+  </div>
+</ng-template>
 <div class="containers">
   <div class="row">
     <div class="col" id="left">
@@ -22,7 +125,7 @@
            background-color: white;
            position: sticky;
            top: 35px;">
-        <span *ngIf="!doImport">
+        <span *ngIf="!(doImport || doInsert)">
           <button
             class="btn btn-secondary"
             *ngIf="response=='none' || response=='selected success'"
@@ -34,28 +137,42 @@
             *ngIf="response=='unsaved'"
             (click)="onSave()"
           >
-            Save Bid
+            Save
           </button>
           <button
             class="btn btn-success"
-            *ngIf="response=='success'"
+            *ngIf="response=='bid success'"
           >
             Saved
           </button>
           <button
             class="btn btn-danger"
-            style="margin-left: 20px;"
+            style="margin-left: 10px;"
             *ngIf="response=='unsaved'"
             (click)="onRevert()"
           >
-            Revert Bid
+            Revert
+          </button>
+<!--          <button-->
+<!--            class="btn btn-secondary"-->
+<!--            style="margin-left: 20px;"-->
+<!--            (click)="clickImport()"-->
+<!--          >-->
+<!--            Import from Bidulator-->
+<!--          </button>-->
+          <button
+            class="btn btn-secondary"
+            style="margin-left: 10px;"
+            (click)="clickInsert()"
+          >
+            Insert
           </button>
           <button
             class="btn btn-secondary"
-            style="margin-left: 20px;"
-            (click)="clickImport()"
+            style="margin-left: 10px;"
+            (click)="clickRemoveAwarded()"
           >
-            Import from Bidulator
+            Remove Awarded
           </button>
         </span>
         <span *ngIf="doImport">
@@ -67,9 +184,46 @@
           >
             GO!
           </button>
+          <button
+            class="btn btn-secondary"
+            style="margin-left: 20px;"
+            (click)="cancelBidulatorImport()"
+          >
+            Back
+          </button>
+        </span>
+        <span *ngIf="doInsert">
+          Before choice
+          <input type="number" min="1" style="width: 50px" [(ngModel)]="insertChoiceInput">
+          insert lines
+          <input type="text" [(ngModel)]="insertLinesInput">
+          <button
+            class="btn btn-success"
+            style="margin-left: 20px;"
+            (click)="insertLines()"
+          >
+            GO!
+          </button>
+          <button
+            class="btn btn-secondary"
+            style="margin-left: 20px;"
+            (click)="cancelInsert()"
+          >
+            Back
+          </button>
+          <button
+            class="btn btn-danger"
+            style="margin-left: 20px;"
+            *ngIf="response=='bad_line'"
+          >
+            Invalid line number, try again
+          </button>
         </span>
       </div>
-      <table style="width: 100%" class="table table-sm table-bordered table-striped">
+      <table style="width: 100%"
+             class="table table-sm table-bordered table-striped"
+             [ngStyle]="{'margin-top': doInsert ? '40px' : 0}"
+      >
         <thead>
         <tr style="position: sticky; top: 73px; background-color: white">
           <th>Choice</th>
@@ -81,16 +235,19 @@
           <th>Up</th>
           <th>Dn</th>
           <th>Bot</th>
-          <th>Rem</th>
+          <th>Del</th>
         </tr>
         </thead>
         <tbody cdkDropList (cdkDropListDropped)="onDrop($event)">
-        <tr cdkDrag cdkDragLockAxis="y" *ngFor="let line of linesOnBid; index as i" style="cursor: pointer">
+        <tr cdkDrag cdkDragLockAxis="y"
+            *ngFor="let line of linesOnBid; index as i"
+            [ngStyle]="{'background-color': setRowColor(line)}"
+            style="cursor: pointer">
           <td>{{i + 1}}</td>
-          <td>{{line.line_number}}</td>
-          <td>{{line.desk}}</td>
-          <td>{{line.start_time}}</td>
-          <td>{{line.rotation}}</td>
+          <td>{{line?.line_number}}</td>
+          <td>{{line?.desk}}</td>
+          <td>{{line?.start_time}}</td>
+          <td>{{line?.rotation}}</td>
           <td>
             <fa-icon [icon]="faAngleDoubleUp"
                      style="cursor: pointer;
@@ -136,7 +293,7 @@
                      style="cursor: pointer;
                      color: #0d6efd;"
                      size="lg"
-                     (click)="removeFromBid(line)"
+                     (click)="removeFromBid(i)"
             >
             </fa-icon>
           </td>
@@ -153,40 +310,48 @@
            background-color: white;
            position: sticky;
            top: 0;">
-        <span style="font-weight: bold">Selected Lines</span>
+        <span style="font-weight: bold" (click)="openFilters(filtermodal)">Lines (Bid Year 2022-2023)</span>
       </div>
       <div class="row"
            style="height: 40px;
            background-color: white;
            position: sticky;
            top: 35px;">
-        <span>Add Line
-        <input type="number" id="userAdd" style="width:50px"[(ngModel)]="userAdd">
-        <fa-icon [icon]="faPlusCircle"
-                 style="cursor: pointer;
-                 margin-right: 10px;
-                 color: #0d6efd;"
-                 size="lg"
-                 (click)="addSelected(noLine)"
-        >
-        </fa-icon>
-        <button
-          class="btn btn-primary"
-          style="margin-left: 20px"
-          *ngIf="selectedChanged"
-          (click)="saveSelected()">Save Selected
-        </button>
-          <button
-            class="btn btn-success"
-            style="margin-left: 20px"
-            *ngIf="!selectedChanged"
-            (click)="saveSelected()">Saved
-        </button>
-        <button
-          class="btn btn-primary"
-          style="margin-left: 20px"
-          (click)="viewAllLines()">View All Lines
-        </button>
+        <span>
+<!--        <input type="number" id="userAdd" style="width:50px"[(ngModel)]="userAdd">-->
+<!--        <fa-icon [icon]="faPlusCircle"-->
+<!--                 style="cursor: pointer;-->
+<!--                 margin-right: 10px;-->
+<!--                 color: #0d6efd;"-->
+<!--                 size="lg"-->
+<!--                 (click)="addSelected(noLine)"-->
+<!--        >-->
+<!--        </fa-icon>-->
+<!--        <button-->
+<!--          class="btn btn-primary"-->
+<!--          style="margin-left: 20px"-->
+<!--          *ngIf="selectedChanged"-->
+<!--          (click)="saveSelected()">Save Selected-->
+<!--        </button>-->
+<!--          <button-->
+<!--            class="btn btn-success"-->
+<!--            style="margin-left: 20px"-->
+<!--            *ngIf="!selectedChanged"-->
+<!--            (click)="saveSelected()">Saved-->
+<!--        </button>-->
+<!--        <button-->
+<!--          class="btn btn-primary"-->
+<!--          style="margin-left: 20px"-->
+<!--          (click)="viewAllLines()">View All Lines-->
+<!--        </button>-->
+          <fa-icon [icon]="faFilter"
+                   style="cursor: pointer;
+                     color: #0d6efd;
+                     margin-left: 20px;"
+                   size="lg"
+                   (click)="openFilters(filtermodal)"
+          >
+            </fa-icon>
         </span>
       </div>
       <table style="width: 100%" class="table table-sm table-bordered table-striped">
@@ -194,27 +359,19 @@
         <tr style="position: sticky; top: 73px; background-color: white">
           <th>Line</th>
           <th>Desk</th>
-          <th>Start</th>
           <th>Rot</th>
-          <th>Del</th>
+          <th>Start</th>
+          <th>Awarded</th>
         </tr>
         </thead>
         <tbody>
-        <ng-container *ngFor="let line of selectedLines">
-        <tr *ngIf="!isOnBid(line)" style="cursor: pointer;">
-          <td (click)="addToBid(line)">{{line.line_number}}</td>
-          <td (click)="addToBid(line)">{{line.desk}}</td>
-          <td (click)="addToBid(line)">{{line.start_time}}</td>
-          <td (click)="addToBid(line)">{{line.rotation}}</td>
-          <td>
-            <fa-icon [icon]="faTrash"
-                     style="cursor: pointer;
-                     color: #0d6efd;"
-                     size="lg"
-                     (click)="removeFromSelected(line)"
-            >
-            </fa-icon>
-          </td>
+        <ng-container *ngFor="let line of lines">
+        <tr *ngIf="setVisibility(line)" style="cursor: pointer;">
+          <td (click)="addToBid(line)">{{line?.line_number}}</td>
+          <td (click)="addToBid(line)">{{line?.desk}}</td>
+          <td (click)="addToBid(line)">{{line?.rotation}}</td>
+          <td (click)="addToBid(line)">{{line?.start_time}}</td>
+          <td (click)="addToBid(line)">{{lineAwardedTo(line?.line_number)}}</td>
         </tr>
         </ng-container>
         </tbody>

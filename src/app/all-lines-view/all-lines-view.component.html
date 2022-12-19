@@ -1,11 +1,11 @@
 <div class="container">
-  <div class="row" *ngIf="loading">
+  <div class="row" *ngIf="lines.length==0">
     <div class="col-xs-12">
       Please wait... loading lines and workdays... <br>
       <app-loading-spinner></app-loading-spinner>
     </div>
   </div>
-  <div class="row" *ngIf="!loading">
+  <div class="row" *ngIf="lines.length!=0">
     <div class="col-xs-2" style="width: 30%">
       <button
         *ngIf="response == 'unsaved'"
@@ -32,75 +32,75 @@
       </span>
     </div>
   </div>
-  <div class="row" *ngIf="!loading">
+  <div class="row" *ngIf="lines.length!=0">
     <div class="col-xs-2" style="width: 30%">
       <table class="table table-sm table-bordered">
         <tr>
-          <td [ngStyle]="{'background-color': (!showAM && !showPM && !showMID && !showRLF) ? '#FFCCCB' : 'transparent'}">
+          <td [ngStyle]="{'background-color': (!filters.showAM && !filters.showPM && !filters.showMID && !filters.showRLF) ? '#FFCCCB' : 'transparent'}">
             <label class="checkbox-inline" style="margin-left: 10px; margin-right: 10px">
-              <input type="checkbox" [(ngModel)]="showAM" (change)="setHeader(date); setUnsaved()">
+              <input type="checkbox" [(ngModel)]="filters.showAM" (change)="setHeader(date); setUnsaved()">
               AM
             </label>
           </td>
-          <td [ngStyle]="{'background-color': (!showAM && !showPM && !showMID && !showRLF) ? '#FFCCCB' : 'transparent'}">
+          <td [ngStyle]="{'background-color': (!filters.showAM && !filters.showPM && !filters.showMID && !filters.showRLF) ? '#FFCCCB' : 'transparent'}">
             <label class="checkbox-inline" style="margin-left: 10px; margin-right: 10px">
-              <input type="checkbox" [(ngModel)]="showPM" (change)="setHeader(date); setUnsaved()">
+              <input type="checkbox" [(ngModel)]="filters.showPM" (change)="setHeader(date); setUnsaved()">
               PM
             </label>
           </td>
         <tr>
-          <td [ngStyle]="{'background-color': (!showAM && !showPM && !showMID && !showRLF) ? '#FFCCCB' : 'transparent'}"
+          <td [ngStyle]="{'background-color': (!filters.showAM && !filters.showPM && !filters.showMID && !filters.showRLF) ? '#FFCCCB' : 'transparent'}"
               *ngIf="!(userGroup == 'ssom')">
             <label class="checkbox-inline" style="margin-left: 10px; margin-right: 10px">
-              <input type="checkbox" [(ngModel)]="showMID" (change)="setHeader(date); setUnsaved()">
+              <input type="checkbox" [(ngModel)]="filters.showMID" (change)="setHeader(date); setUnsaved()">
               MID
             </label>
           </td>
-          <td [ngStyle]="{'background-color': (!showAM && !showPM && !showMID && !showRLF) ? '#FFCCCB' : 'transparent'}">
+          <td [ngStyle]="{'background-color': (!filters.showAM && !filters.showPM && !filters.showMID && !filters.showRLF) ? '#FFCCCB' : 'transparent'}">
             <label class="checkbox-inline" style="margin-left: 10px; margin-right: 10px">
-              <input type="checkbox" [(ngModel)]="showRLF" (change)="setHeader(date); setUnsaved()">
+              <input type="checkbox" [(ngModel)]="filters.showRLF" (change)="setHeader(date); setUnsaved()">
               RLF
             </label>
           </td>
         </tr>
         <tr *ngIf="userGroup == 'fs'">
-          <td [ngStyle]="{'background-color': (!showDOM && !showINTL) ? '#FFCCCB' : 'transparent'}">
+          <td [ngStyle]="{'background-color': (!filters.showDOM && !filters.showINTL) ? '#FFCCCB' : 'transparent'}">
             <label class="checkbox-inline" style="margin-left: 10px; margin-right: 10px">
-              <input type="checkbox" [(ngModel)]="showDOM" (change)="setHeader(date); setUnsaved()">
+              <input type="checkbox" [(ngModel)]="filters.showDOM" (change)="setHeader(date); setUnsaved()">
               DOM
             </label>
           </td>
-          <td [ngStyle]="{'background-color': (!showDOM && !showINTL) ? '#FFCCCB' : 'transparent'}">
+          <td [ngStyle]="{'background-color': (!filters.showDOM && !filters.showINTL) ? '#FFCCCB' : 'transparent'}">
             <label class="checkbox-inline" style="margin-left: 10px; margin-right: 10px">
-              <input type="checkbox" [(ngModel)]="showINTL" (change)="setHeader(date); setUnsaved()">
+              <input type="checkbox" [(ngModel)]="filters.showINTL" (change)="setHeader(date); setUnsaved()">
               INTL
             </label>
           </td>
         </tr>
         <tr *ngIf="userGroup == 'som'">
-          <td [ngStyle]="{'background-color': (!showFleet && !showSPT) ? '#FFCCCB' : 'transparent'}">
+          <td [ngStyle]="{'background-color': (!filters.showFleet && !filters.showSPT) ? '#FFCCCB' : 'transparent'}">
             <label class="checkbox-inline" style="margin-left: 10px; margin-right: 10px">
-              <input type="checkbox" [(ngModel)]="showFleet" (change)="setHeader(date); setUnsaved()">
+              <input type="checkbox" [(ngModel)]="filters.showFleet" (change)="setHeader(date); setUnsaved()">
               Fleet
             </label>
           </td>
-          <td [ngStyle]="{'background-color': (!showFleet && !showSPT) ? '#FFCCCB' : 'transparent'}">
+          <td [ngStyle]="{'background-color': (!filters.showFleet && !filters.showSPT) ? '#FFCCCB' : 'transparent'}">
             <label class="checkbox-inline" style="margin-left: 10px; margin-right: 10px">
-              <input type="checkbox" [(ngModel)]="showSPT" (change)="setHeader(date); setUnsaved()">
+              <input type="checkbox" [(ngModel)]="filters.showSPT" (change)="setHeader(date); setUnsaved()">
               SPT
             </label>
           </td>
         </tr>
         <tr *ngIf="userGroup == 'fs'">
-          <td [ngStyle]="{'background-color': (!showNine && !showTen) ? '#FFCCCB' : 'transparent'}">
+          <td [ngStyle]="{'background-color': (!filters.showNine && !filters.showTen) ? '#FFCCCB' : 'transparent'}">
             <label class="checkbox-inline" style="margin-left: 10px; margin-right: 10px">
-              <input type="checkbox" [(ngModel)]="showNine" (change)="setHeader(date); setUnsaved()">
+              <input type="checkbox" [(ngModel)]="filters.showNine" (change)="setHeader(date); setUnsaved()">
               Nine Hr
             </label>
           </td>
-          <td [ngStyle]="{'background-color': (!showNine && !showTen) ? '#FFCCCB' : 'transparent'}">
+          <td [ngStyle]="{'background-color': (!filters.showNine && !filters.showTen) ? '#FFCCCB' : 'transparent'}">
             <label class="checkbox-inline" style="margin-left: 10px; margin-right: 10px">
-              <input type="checkbox" [(ngModel)]="showTen" (change)="setHeader(date); setUnsaved()">
+              <input type="checkbox" [(ngModel)]="filters.showTen" (change)="setHeader(date); setUnsaved()">
               Ten Hr
             </label>
           </td>
@@ -108,13 +108,13 @@
         <tr>
           <td>
             <label class="checkbox-inline">
-              <input type="checkbox" [(ngModel)]="h4off" (change)="setHeader(date); setUnsaved()">
+              <input type="checkbox" [(ngModel)]="filters.h4off" (change)="setHeader(date); setUnsaved()">
               H4 Off
             </label>
           </td>
           <td>
             <label class="checkbox-inline">
-              <input type="checkbox" [(ngModel)]="h5off" (change)="setHeader(date); setUnsaved()">
+              <input type="checkbox" [(ngModel)]="filters.h5off" (change)="setHeader(date); setUnsaved()">
               H5 Off
             </label>
           </td>
@@ -122,13 +122,13 @@
         <tr>
           <td>
             <label class="checkbox-inline">
-              <input type="checkbox" [(ngModel)]="h6off" (change)="setHeader(date); setUnsaved()">
+              <input type="checkbox" [(ngModel)]="filters.h6off" (change)="setHeader(date); setUnsaved()">
               H6 Off
             </label>
           </td>
           <td>
             <label class="checkbox-inline">
-              <input type="checkbox" [(ngModel)]="h7off" (change)="setHeader(date); setUnsaved()">
+              <input type="checkbox" [(ngModel)]="filters.h7off" (change)="setHeader(date); setUnsaved()">
               H7 Off
             </label>
           </td>
@@ -136,13 +136,13 @@
         <tr>
           <td>
             <label class="checkbox-inline">
-              <input type="checkbox" [(ngModel)]="h8off" (change)="setHeader(date); setUnsaved()">
+              <input type="checkbox" [(ngModel)]="filters.h8off" (change)="setHeader(date); setUnsaved()">
               H8 Off
             </label>
           </td>
           <td>
             <label class="checkbox-inline">
-              <input type="checkbox" [(ngModel)]="h9off" (change)="setHeader(date); setUnsaved()">
+              <input type="checkbox" [(ngModel)]="filters.h9off" (change)="setHeader(date); setUnsaved()">
               H9 Off
             </label>
           </td>
@@ -150,13 +150,13 @@
         <tr>
           <td>
             <label class="checkbox-inline">
-              <input type="checkbox" [(ngModel)]="h10off" (change)="setHeader(date); setUnsaved()">
+              <input type="checkbox" [(ngModel)]="filters.h10off" (change)="setHeader(date); setUnsaved()">
               H10 Off
             </label>
           </td>
           <td>
             <label class="checkbox-inline">
-              <input type="checkbox" [(ngModel)]="h1off" (change)="setHeader(date); setUnsaved()">
+              <input type="checkbox" [(ngModel)]="filters.h1off" (change)="setHeader(date); setUnsaved()">
               H1 Off
             </label>
           </td>
@@ -164,13 +164,13 @@
         <tr>
           <td>
             <label class="checkbox-inline">
-              <input type="checkbox" [(ngModel)]="h2off" (change)="setHeader(date); setUnsaved()">
+              <input type="checkbox" [(ngModel)]="filters.h2off" (change)="setHeader(date); setUnsaved()">
               H2 Off
             </label>
           </td>
           <td>
             <label class="checkbox-inline">
-              <input type="checkbox" [(ngModel)]="h3off" (change)="setHeader(date); setUnsaved()">
+              <input type="checkbox" [(ngModel)]="filters.h3off" (change)="setHeader(date); setUnsaved()">
               H3 Off
             </label>
           </td>
@@ -189,7 +189,7 @@
           </td>
         </tr>
         <tr><input type="date" [(ngModel)]="userDate"></tr>
-        <tr *ngFor="let date of userDates">
+        <tr *ngFor="let date of filters.userDates">
           {{date}}
           <fa-icon [icon]="faTrash"
                    style="cursor: pointer;
@@ -205,7 +205,7 @@
             Rotations
           </td>
           <td rowspan="3" style="border-left: None">
-            <select style="margin-left: 5px" multiple [(ngModel)]="selectedRotations" (change)="setHeader(date); setUnsaved()">
+            <select style="margin-left: 5px" multiple [(ngModel)]="filters.selectedRotations" (change)="setHeader(date); setUnsaved()">
               <option value="All">All</option>
               <option *ngFor="let rotation of rotations" [value]="rotation">{{rotation}}</option>
             </select>

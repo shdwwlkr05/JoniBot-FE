@@ -1,0 +1,56 @@
+<div class="containers">
+  <div class="row">
+    <h4>Awards</h4>
+    <h6>My Bid Time: {{bidTime.shiftbid | date :'MMMM dd, yyyy HH:mm'}}</h6>
+    <h6>Current Time: {{c_time | date :'MMMM dd, yyyy HH:mm:ss'}}</h6>
+    <h6>64 domestic lines will be blocked. Domestic lines remaining: {{domLinesRemaining - 64}}</h6>
+  </div>
+  <div class="col" id="left">
+    <table
+      style="width: 95%"
+      class="table table-sm table-bordered table-striped"
+    >
+      <thead>
+      <tr style="position: sticky; top: -1px; background-color: white">
+        <th style="width: 10%">Line</th>
+        <th style="width: 10%">Desk</th>
+        <th style="width: 15%">Rotation</th>
+        <th style="width: 20%">Start</th>
+        <th style="width: 15%">On Bid</th>
+        <th style="width: 30%">Awarded To</th>
+      </thead>
+      <tbody>
+      <tr *ngFor="let line of lines">
+        <td>{{line.line_number}}</td>
+        <td>{{line.desk}}</td>
+        <td>{{line.rotation}}</td>
+        <td>{{line.start_time}}</td>
+        <td>{{onBid(line.line_number)}}</td>
+        <td>{{lineAwardedTo(line.line_number)}}</td>
+      </tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="col" id="right">
+    <table
+      style="width: 95%"
+      class="table table-sm table-bordered table-striped"
+    >
+      <thead>
+      <tr style="position: sticky; top: -1px; background-color: white">
+        <th style="width: 20%">User</th>
+        <th style="width: 60%">Bid Time</th>
+        <th style="width: 20%">Awarded</th>
+      </thead>
+      <tbody>
+      <tr *ngFor="let user of userList"
+          [ngStyle]="{'background-color': user.user == shortnames['current_user'] ? 'green': 'transparent'}"
+      >
+        <td>{{shortnames[user.user]}}</td>
+        <td>{{user.shiftbid| date :'MMMM dd, yyyy HH:mm'}}</td>
+        <td>{{awardedLine(user.user)}}</td>
+      </tr>
+      </tbody>
+    </table>
+  </div>
+</div>

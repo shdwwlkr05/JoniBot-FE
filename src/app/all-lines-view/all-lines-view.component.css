@@ -49,7 +49,7 @@ body, html {
 .line_table td:nth-child(8) {
   position: -webkit-sticky;
   position: sticky;
-  left: 8px;
+  left: 31px;
   z-index: 3;
   background-color: white;
 }
@@ -67,7 +67,7 @@ body, html {
   position: -webkit-sticky;
   position: sticky;
   background-color: white;
-  left: 8px;
+  left: 31px;
   z-index: 50;
 }
 

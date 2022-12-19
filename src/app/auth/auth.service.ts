@@ -66,6 +66,8 @@ export class AuthService {
       this.data.fetchRound7().subscribe()
       this.data.fetchBalances()
       this.data.fetchWorkgroup()
+      this.data.fetchLines()
+      // this.data.fetchLineWorkdays()
     }
   }
 

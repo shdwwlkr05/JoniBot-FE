@@ -29,6 +29,7 @@ import { ReliefBidComponent } from './relief-bid/relief-bid.component';
 import { MyCalendarComponent } from './my-calendar/my-calendar.component';
 import { AllLinesViewComponent } from './all-lines-view/all-lines-view.component';
 import { LineBidComponent } from './line-bid/line-bid.component';
+import { LineAwardsComponent } from './line-awards/line-awards.component';
 
 
 @NgModule({
@@ -52,6 +53,7 @@ import { LineBidComponent } from './line-bid/line-bid.component';
     MyCalendarComponent,
     AllLinesViewComponent,
     LineBidComponent,
+    LineAwardsComponent,
 
   ],
   imports: [

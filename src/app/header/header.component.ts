@@ -54,4 +54,9 @@ export class HeaderComponent implements OnInit, OnDestroy{
     this.authService.logout('Thank You for using the Flight Control Bidder. Please log in to continue.');
   }
 
+  isTester(username) {
+    const testers = ['DAL110', 'DAL105', 'DAL178']
+    return testers.includes(username)
+  }
+
 }
