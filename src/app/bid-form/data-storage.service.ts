@@ -26,12 +26,14 @@ const shiftTimesUrl = environment.baseURL + 'api/bid/shifttimes/'
 const linesUrl = environment.baseURL + 'api/bid/lines/'
 const linesWorkdaysUrl = environment.baseURL + 'api/bid/lineworkdays/'
 const lineBidUrl = environment.baseURL + 'api/bid/linebid/'
+const adminLineBidUrl = environment.baseURL + 'api/bid/adminlinebid/'
 const bidTimeUrl = environment.baseURL + 'api/bid/bidTime/'
 const userListUrl = environment.baseURL + 'api/bid/userlist/'
 const shortnameUrl = environment.baseURL + 'api/bid/shortnames/'
 const lineAwardsUrl = environment.baseURL + 'api/bid/lineawards/'
 
-interface filters {
+
+export interface filters {
   showAM: boolean;
   showPM: boolean;
   showMID: boolean;
@@ -42,11 +44,12 @@ interface filters {
   showSPT: boolean;
   showNine: boolean;
   showTen: boolean;
+  showAwarded: boolean;
   selectedRotations: string[];
   selectedStartTimes: string[];
 }
 
-interface line {
+export interface line {
   desk: string;
   id: number;
   length: string;
@@ -61,6 +64,31 @@ interface line {
   selected: boolean;
   start_time: string;
 }
+
+export interface award {
+  id: number;
+  workgroup: string;
+  line_number: number;
+  user: number;
+}
+
+export interface workday {
+  id: number;
+  workday: string;
+  shift_id: string;
+  line_id: number;
+}
+
+export interface user {
+  id: number;
+  round1: string;
+  round2: string;
+  shiftbid: string;
+  opentime: number;
+  shiftbidrank: number;
+  user: number;
+}
+
 
 @Injectable({
   providedIn: 'root'
@@ -372,8 +400,25 @@ export class DataStorageService {
 
   fetchLineBid() {
     return this.http.get(lineBidUrl).subscribe(response => {
-      this.lineBid.next(response)
+      if (response['bid'] == '0') {
+        this.lineBid.next({'bid': null})
+      } else {
+        this.lineBid.next(response)
+      }
     })
+  }
+
+  adminFetchLineBid(userID) {
+    const headers = {'Content-Type': 'application/json'}
+    const payload = {'user': userID}
+    return this.http.post(adminLineBidUrl, JSON.stringify(payload), {'headers': headers})
+      .subscribe(response => {
+        if (response['bid'] == '0') {
+          this.lineBid.next({'bid': null})
+        } else {
+          this.lineBid.next(response)
+        }
+      })
   }
 
   fetchBidTime() {
@@ -393,6 +438,7 @@ export class DataStorageService {
     localStorage.setItem('showSPT', String(filters.showSPT))
     localStorage.setItem('showNine', String(filters.showNine))
     localStorage.setItem('showTen', String(filters.showTen))
+    localStorage.setItem('showAwarded', String(filters.showAwarded))
     localStorage.setItem('selectedRotations', filters.selectedRotations.join(','))
     localStorage.setItem('selectedStartTimes', filters.selectedStartTimes.join(','))
   }
@@ -448,6 +494,11 @@ export class DataStorageService {
       filters.showTen = true
     } else {
       filters.showTen = (localStorage.getItem('showTen')==='true')
+    }
+    if (localStorage.getItem('showAwarded') === null) {
+      filters.showAwarded = true
+    } else {
+      filters.showAwarded = (localStorage.getItem('showAwarded')==='true')
     }
     if (localStorage.getItem('selectedRotations') === null) {
       filters.selectedRotations = ['All']

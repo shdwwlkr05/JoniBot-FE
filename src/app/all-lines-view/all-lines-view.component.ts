@@ -1,6 +1,6 @@
 import {Component, OnDestroy, OnInit} from '@angular/core';
 import { Subscription } from 'rxjs';
-import {DataStorageService} from "../bid-form/data-storage.service";
+import {DataStorageService, filters} from "../bid-form/data-storage.service";
 import {faPlusCircle} from "@fortawesome/free-solid-svg-icons";
 import {faTrash} from "@fortawesome/free-solid-svg-icons";
 import {faArrowCircleLeft} from "@fortawesome/free-solid-svg-icons";
@@ -30,20 +30,6 @@ interface workday {
   line_id: number;
 }
 
-interface filters {
-  showAM: boolean;
-  showPM: boolean;
-  showMID: boolean;
-  showRLF: boolean;
-  showDOM: boolean;
-  showINTL: boolean;
-  showFleet: boolean;
-  showSPT: boolean;
-  showNine: boolean;
-  showTen: boolean;
-  selectedRotations: string[];
-  selectedStartTimes: string[];
-}
 
 @Component({
   selector: 'app-all-lines-view',

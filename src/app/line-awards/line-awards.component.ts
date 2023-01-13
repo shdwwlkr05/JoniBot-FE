@@ -1,39 +1,7 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import {Subscription} from "rxjs";
-import {DataStorageService} from "../bid-form/data-storage.service";
+import {award, DataStorageService, line, user} from "../bid-form/data-storage.service";
 
-interface line {
-  desk: string;
-  id: number;
-  length: string;
-  line_number: string;
-  rotation: string;
-  theater: string;
-  time_of_day: string;
-  workgroup: string;
-  workdays: any[];
-  allWorkdays: any[];
-  workdays_str: string[];
-  selected: boolean;
-  start_time: string;
-}
-
-interface user {
-  id: number;
-  round1: string;
-  round2: string;
-  shiftbid: string;
-  opentime: number;
-  shiftbidrank: number;
-  user: number;
-}
-
-interface award {
-  id: number;
-  workgroup: string;
-  line_number: number;
-  user: number;
-}
 
 @Component({
   selector: 'app-line-awards',
@@ -45,19 +13,26 @@ export class LineAwardsComponent implements OnInit, OnDestroy {
   time_interval
   lines: line[] = []
   domLines: line[] = []
-  domLinesRemaining = 64
+  intlLines: line[] = []
+  rlfLines: line[] = []
+  domLinesRemaining
+  intlLinesRemaining
+  rlfLinesRemaining
+  linesToBlock = 64
+  domLinesNotBlocked
   linesSubscription = new Subscription()
   userSubscription = new Subscription()
   userList: user[] = []
   namesSubscription = new Subscription()
   shortnames = {}
   bidTimeSubscription = new Subscription()
-  bidTime = {'shiftbid': ''}
+  bidTime = {'shiftbid': '', 'shiftbidrank': 0}
   lineAwardSubscription = new Subscription()
   lineAwards
   lineAwardsInterval
   bidSubscription = new Subscription()
   bid
+  nextBidder: user
 
   constructor(private data: DataStorageService) {
   }
@@ -69,9 +44,12 @@ export class LineAwardsComponent implements OnInit, OnDestroy {
     this.linesSubscription = this.data.lines.subscribe((lines: line[]) => {
       this.lines = lines
       this.domLines = this.lines.filter(line => line.theater == 'DOM')
+      this.intlLines = this.lines.filter(line => line.theater == 'INTL')
+      this.rlfLines = this.lines.filter(line => line.theater == 'DUAL')
     })
     this.userSubscription = this.data.userList.subscribe((users: user[]) => {
       this.userList = users
+      this.findNextBidder()
     })
     this.data.fetchUserList()
     this.namesSubscription = this.data.shortnames.subscribe(names => {
@@ -80,21 +58,30 @@ export class LineAwardsComponent implements OnInit, OnDestroy {
     this.data.fetchShortNames()
     this.bidTimeSubscription = this.data.bidTime.subscribe(bidTime => {
       this.bidTime = bidTime[0]
+      if (this.bidTime.shiftbidrank == 0) {
+        this.bidTime.shiftbid = ''
+      }
     })
     this.data.fetchBidTime()
     this.lineAwardSubscription = this.data.lineAwards.subscribe((awards: award[]) => {
       this.lineAwards = awards
+      this.findNextBidder()
       const awardedLines = this.lineAwards.map(e => e.line_number)
       this.domLinesRemaining = this.domLines.filter(line => !awardedLines.includes(line.line_number)).length
-      console.log('Dom Lines Remaining:', this.domLinesRemaining)
+      this.intlLinesRemaining = this.intlLines.filter(line => !awardedLines.includes(line.line_number)).length
+      this.rlfLinesRemaining = this.rlfLines.filter(line => !awardedLines.includes(line.line_number)).length
+      this.domLinesNotBlocked = this.domLinesRemaining - this.linesToBlock
+      if (this.domLinesNotBlocked < 0) {
+        this.domLinesNotBlocked = 0
+      }
     })
     this.data.fetchLineAwards()
     this.bidSubscription = this.data.lineBid.subscribe(data => {
       this.bid = data.bid.split(',')
     })
     this.data.fetchLineBid()
-    // this.lineAwardsInterval = setInterval(() =>
-    //   this.data.fetchLineAwards(), 5000)
+    this.lineAwardsInterval = setInterval(() =>
+      this.data.fetchLineAwards(), 30000)
   }
 
   ngOnDestroy(): void {
@@ -134,7 +121,18 @@ export class LineAwardsComponent implements OnInit, OnDestroy {
     } else {
       return null
     }
+  }
 
+  findNextBidder() {
+    if (this.userList && this.lineAwards) {
+      const awardedUsers = this.lineAwards.map(e => e.user)
+      for (let user of this.userList) {
+        if (!awardedUsers.includes(user.user) && new Date(user.shiftbid) > new Date()) {
+          this.nextBidder = user
+          break
+        }
+      }
+    }
   }
 
 }

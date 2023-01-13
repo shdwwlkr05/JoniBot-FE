@@ -1,0 +1,39 @@
+<div class="container">
+  <div class="row">
+    <h6>Admin Bid View</h6>
+    <p>Input user's database ID and click fetch</p>
+  </div>
+  <div class="row">
+    <div class="col">
+      <input style="width: 100px" type="text" [(ngModel)]="userID">
+      <button
+        class="btn btn-success"
+        style="width: 100px"
+        (click)="fetchUserBid()">Fetch</button>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col" id="bidTable">
+      <table style="width: 100%"
+             class="table table-sm table-bordered table-striped">
+        <thead>
+        <tr style="position: sticky; top: 0px; background-color: white">
+          <th>Choice</th>
+          <th>Line</th>
+          <th>Desk</th>
+          <th>Rot</th>
+          <th>Start</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr *ngFor="let line of linesOnBid; index as i">
+          <td>{{i+1}}</td>
+          <td>{{line?.line_number}}</td>
+          <td>{{line?.desk}}</td>
+          <td>{{line?.rotation}}</td>
+          <td>{{line?.start_time}}</td>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

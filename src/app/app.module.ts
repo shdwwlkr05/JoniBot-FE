@@ -9,7 +9,7 @@ import { BidFormModule } from './bid-form/bid-form.module'
 import { HTTP_INTERCEPTORS, HttpClientModule } from '@angular/common/http';
 import { AuthComponent } from './auth/auth.component'
 import { AppRoutingModule } from './app-routing.module';
-import { HomeComponent } from './home/home.component'
+import { VacBidComponent } from './vac-bid/vac-bid.component'
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { BidListComponent } from './bid-list/bid-list.component';
 import { BidItemComponent } from './bid-list/bid-item/bid-item.component'
@@ -30,6 +30,8 @@ import { MyCalendarComponent } from './my-calendar/my-calendar.component';
 import { AllLinesViewComponent } from './all-lines-view/all-lines-view.component';
 import { LineBidComponent } from './line-bid/line-bid.component';
 import { LineAwardsComponent } from './line-awards/line-awards.component';
+import { AdminLineBidComponent } from './line-bid/admin-line-bid/admin-line-bid.component';
+import { HomeComponent } from './home/home.component';
 
 
 @NgModule({
@@ -37,7 +39,7 @@ import { LineAwardsComponent } from './line-awards/line-awards.component';
     AppComponent,
     HeaderComponent,
     AuthComponent,
-    HomeComponent,
+    VacBidComponent,
     BidListComponent,
     BidItemComponent,
     BidEditComponent,
@@ -54,6 +56,8 @@ import { LineAwardsComponent } from './line-awards/line-awards.component';
     AllLinesViewComponent,
     LineBidComponent,
     LineAwardsComponent,
+    AdminLineBidComponent,
+    HomeComponent,
 
   ],
   imports: [

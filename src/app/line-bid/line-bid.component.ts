@@ -1,5 +1,5 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
-import {DataStorageService} from "../bid-form/data-storage.service";
+import {award, DataStorageService, filters, line, user, workday} from "../bid-form/data-storage.service";
 import {Subscription} from "rxjs";
 import {moveItemInArray} from "@angular/cdk/drag-drop";
 import {Router} from "@angular/router";
@@ -13,51 +13,6 @@ import {faAngleRight} from "@fortawesome/free-solid-svg-icons";
 import {faFilter} from "@fortawesome/free-solid-svg-icons"
 import {NgbModal} from "@ng-bootstrap/ng-bootstrap";
 
-
-interface line {
-  desk: string;
-  id: number;
-  length: string;
-  line_number: string;
-  rotation: string;
-  theater: string;
-  time_of_day: string;
-  workgroup: string;
-  workdays: any[];
-  allWorkdays: any[];
-  workdays_str: string[];
-  selected: boolean;
-  start_time: string;
-}
-
-interface filters {
-  showAM: boolean;
-  showPM: boolean;
-  showMID: boolean;
-  showRLF: boolean;
-  showDOM: boolean;
-  showINTL: boolean;
-  showFleet: boolean;
-  showSPT: boolean;
-  showNine: boolean;
-  showTen: boolean;
-  selectedRotations: string[];
-  selectedStartTimes: string[];
-}
-
-interface workday {
-  id: number;
-  workday: string;
-  shift_id: string;
-  line_id: number;
-}
-
-interface award {
-  id: number;
-  workgroup: string;
-  line_number: number;
-  user: number;
-}
 
 @Component({
   selector: 'app-line-bid',
@@ -76,8 +31,8 @@ export class LineBidComponent implements OnInit, OnDestroy {
   bid = []
   currentBid = []
   linesOnBid: line[] = []
-  selected = []
-  selectedLines: line[] = []
+  // selected = []
+  // selectedLines: line[] = []
   bidSubscription = new Subscription()
   lines: line[]
   rotations = []
@@ -86,7 +41,7 @@ export class LineBidComponent implements OnInit, OnDestroy {
   response = 'none'
   responseSubscription = new Subscription()
   userAdd = ''
-  selectedChanged = false
+  // selectedChanged = false
   doImport = false
   doInsert = false
   bidulatorImportInput = ''
@@ -110,12 +65,17 @@ export class LineBidComponent implements OnInit, OnDestroy {
   workdays: workday[]
   workdaySubscription = new Subscription()
   bidLineOccurence: {}
-  bidTime
+  currUser: user
   bidTimeSubscription = new Subscription()
   lineAwards
   lineAwardSubscription = new Subscription()
+  lineAwardInterval
   shortnames = {}
   namesSubscription = new Subscription()
+  userSubscription = new Subscription()
+  userList: user[] = []
+  nextBidder: user
+  bidTime
 
 
   constructor(private data: DataStorageService,
@@ -129,7 +89,7 @@ export class LineBidComponent implements OnInit, OnDestroy {
     this.bidSubscription = this.data.lineBid.subscribe(data => {
       this.bid = data.bid.split(',')
       this.currentBid = data.bid.split(',')
-      this.selected = data.selected.split(',')
+      // this.selected = data.selected.split(',')
       this.waitForInit()
     })
     this.linesSubscription = this.data.lines.subscribe((lines:line[]) => {
@@ -141,15 +101,20 @@ export class LineBidComponent implements OnInit, OnDestroy {
     this.data.fetchLineBid()
     this.responseSubscription = this.data.httpResponse.subscribe(response => {
       this.response = response
-      console.log('HTTP Response:', response)
     })
     this.filters = this.data.fetchFilters()
     this.bidTimeSubscription = this.data.bidTime.subscribe(bidTime => {
-      this.bidTime = bidTime
+      this.currUser = bidTime[0]
     })
     this.data.fetchBidTime()
+    this.userSubscription = this.data.userList.subscribe((users: user[]) => {
+      this.userList = users
+      this.findNextBidder()
+    })
+    this.data.fetchUserList()
     this.lineAwardSubscription = this.data.lineAwards.subscribe((awards: award[]) => {
       this.lineAwards = awards
+      this.findNextBidder()
     })
     this.data.fetchLineAwards()
     this.namesSubscription = this.data.shortnames.subscribe(names => {
@@ -157,6 +122,9 @@ export class LineBidComponent implements OnInit, OnDestroy {
     })
     this.data.fetchShortNames()
     this.waitForInit()
+    this.lineAwardInterval = setInterval(() =>
+      this.data.fetchLineAwards(), 30000
+    )
   }
 
   ngOnDestroy(): void {
@@ -167,14 +135,48 @@ export class LineBidComponent implements OnInit, OnDestroy {
     this.workdaySubscription.unsubscribe()
     this.bidTimeSubscription.unsubscribe()
     this.namesSubscription.unsubscribe()
+    clearInterval(this.lineAwardInterval)
   }
 
   waitForInit() {
-    if (this.lines != null && this.bid != null && this.selected != null) {
+    if (this.lines != null && this.bid != null) {
       this.setBid()
-      this.setSelected()
     } else {
       setTimeout(this.waitForInit, 250)
+    }
+  }
+
+  canExit() {
+    if (this.response == 'unsaved') {
+      return confirm('You have unsaved changes. Press Cancel to go back and save or press OK to discard changes.')
+    } else {
+      return true
+    }
+  }
+
+  findNextBidder() {
+    if (this.userList && this.lineAwards) {
+      const awardedUsers = this.lineAwards.map(e => e.user)
+      for (let user of this.userList) {
+        if (!awardedUsers.includes(user.user)) {
+          this.nextBidder = user
+          break
+        }
+      }
+    }
+  }
+
+  biddersToGo() {
+    if (this.currUser && this.nextBidder) {
+      const toGo = this.currUser.shiftbidrank - this.nextBidder.shiftbidrank
+      if (toGo >= 1) {
+        return `${toGo} bidder(s) before you`
+      } else if (toGo == 0){
+        this.bidTime = this.currUser.shiftbid
+        return 'You are up next. Submit your bid before '
+      } else {
+        return 'Your bid window has closed. Check the awards page for results'
+      }
     }
   }
 
@@ -201,34 +203,20 @@ export class LineBidComponent implements OnInit, OnDestroy {
 
   onSave() {
     const pending_bid = []
-    const pending_selected = []
     this.linesOnBid.forEach((line:line) => {
       pending_bid.push(line.line_number)
     })
-    this.selectedLines.forEach((line:line) => {
-      pending_selected.push(line.line_number)
-    })
+    let bid_payload = '0'
+    if (pending_bid.length > 0) {
+      bid_payload = pending_bid.join(',')
+    }
     const payload = {
-      bid: pending_bid.join(','),
-      selected: pending_selected.join(',')
+      bid: bid_payload,
     }
     this.data.saveLineBid(payload, 'bid')
     this.bid = pending_bid
     this.currentBid = pending_bid
 
-  }
-
-  saveSelected() {
-    const pending_selected = []
-    this.selectedLines.forEach((line:line) => {
-      pending_selected.push(line.line_number)
-    })
-    const payload = {
-      bid: this.bid.join(','),
-      selected: pending_selected.join(',')
-    }
-    this.data.saveLineBid(payload, 'selected')
-    this.selectedChanged = false
   }
 
   onRevert() {
@@ -271,36 +259,8 @@ export class LineBidComponent implements OnInit, OnDestroy {
     }
   }
 
-  setSelected() {
-    this.selectedLines = []
-    this.lines.forEach((line:line) => {
-      line.selected = this.selected.includes(line.line_number)
-      if (line.selected) {
-        this.selectedLines.push(line)
-      }
-    })
-  }
-
-  addSelected(content) {
-    const lineFound = this.lines.find((line:line) => {
-      return line.line_number === this.userAdd.toString()
-    })
-    if (lineFound) {
-      this.selected.push(lineFound.line_number)
-      this.setSelected()
-      this.selectedChanged = true
-    } else {
-      this.openError(content)
-    }
-    this.userAdd = ''
-  }
-
   isOnBid(checkLine:line) {
     return this.linesOnBid.find((line:line) => line === checkLine)
-  }
-
-  clickTest() {
-    console.log('Selected Lines: ', this.selected);
   }
 
   clickImport() {
@@ -419,6 +379,14 @@ export class LineBidComponent implements OnInit, OnDestroy {
     }
   }
 
+  addFilteredToBid() {
+    this.lines.forEach((line:line) => {
+      if (this.setVisibility(line)) {
+        this.addToBid(line)
+      }
+    })
+  }
+
   removeFromBid(index) {
     // const index = this.linesOnBid.indexOf(remLine)
     this.linesOnBid.splice(index, 1)
@@ -431,9 +399,9 @@ export class LineBidComponent implements OnInit, OnDestroy {
       let index = this.linesOnBid.map(e => e.line_number).indexOf(award.line_number.toString())
       if (index != -1) {
         this.linesOnBid.splice(index, 1)
-        this.response = 'unsaved'
       }
     })
+    this.onSave()
     this.checkOccurences()
   }
 
@@ -448,13 +416,6 @@ export class LineBidComponent implements OnInit, OnDestroy {
     }
   }
 
-  removeFromSelected(remLine:line) {
-    const index = this.selected.indexOf(remLine.line_number)
-    this.selected.splice(index, 1)
-    this.selectedChanged = true
-    this.setSelected()
-  }
-
   onSelectedRotation(line:line) {
     return this.filters.selectedRotations.some(e => e === line.rotation)
   }
@@ -465,6 +426,15 @@ export class LineBidComponent implements OnInit, OnDestroy {
 
   setVisibility(line: line) {
     let showMe = !this.isOnBid(line)
+    if (!showMe) {
+      return false
+    }
+    if (!this.filters.showAwarded) {
+      const awarded = this.lineAwardedTo(line.line_number)!=null
+      if (awarded) {
+        showMe = false
+      }
+    }
     if (!showMe) {
       return false
     }

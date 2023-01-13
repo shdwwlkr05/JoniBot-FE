@@ -84,6 +84,14 @@
           </label>
         </td>
       </tr>
+      <tr *ngIf="userGroup == 'fs'">
+        <td>
+          <label class="checkbox-inline" style="margin-left: 10px; margin-right: 10px">
+            <input type="checkbox" [(ngModel)]="filters.showAwarded">
+            Awarded
+          </label>
+        </td>
+      </tr>
       <tr>
         <td rowspan="3" style="border-right: None">
           Rotations
@@ -115,16 +123,17 @@
 <div class="containers">
   <div class="row">
     <div class="col" id="left">
-      <div class="row" style="height: 35px;
+      <div class="row" style="height: 60px;
            background-color: white;
            position: sticky;
            top: 0;">
-        <span style="font-weight: bold" (click)="clickTest()">My Bid</span>
+        <h6>My Bid</h6>
+        <h6>{{biddersToGo()}}{{bidTime | date :'HH:mm'}}</h6>
       </div>
       <div class="row" style="height: 40px;
            background-color: white;
            position: sticky;
-           top: 35px;">
+           top: 60px;">
         <span *ngIf="!(doImport || doInsert)">
           <button
             class="btn btn-secondary"
@@ -225,17 +234,17 @@
              [ngStyle]="{'margin-top': doInsert ? '40px' : 0}"
       >
         <thead>
-        <tr style="position: sticky; top: 73px; background-color: white">
+        <tr style="position: sticky; top: 100px; background-color: white">
           <th>Choice</th>
           <th>Line</th>
           <th>Desk</th>
-          <th>Start</th>
           <th>Rot</th>
-          <th>Top</th>
-          <th>Up</th>
-          <th>Dn</th>
-          <th>Bot</th>
-          <th>Del</th>
+          <th>Start</th>
+          <th style="text-align: center">Top</th>
+          <th style="text-align: center">Up</th>
+          <th style="text-align: center">Dn</th>
+          <th style="text-align: center">Bot</th>
+          <th style="text-align: center">Del</th>
         </tr>
         </thead>
         <tbody cdkDropList (cdkDropListDropped)="onDrop($event)">
@@ -246,54 +255,49 @@
           <td>{{i + 1}}</td>
           <td>{{line?.line_number}}</td>
           <td>{{line?.desk}}</td>
-          <td>{{line?.start_time}}</td>
           <td>{{line?.rotation}}</td>
-          <td>
+          <td>{{line?.start_time}}</td>
+          <td (click)="moveTop(line)" style="text-align: center">
             <fa-icon [icon]="faAngleDoubleUp"
                      style="cursor: pointer;
                      color: #0d6efd;"
                      size="lg"
-                     (click)="moveTop(line)"
                      *ngIf="i != 0"
             >
             </fa-icon>
           </td>
-          <td>
+          <td (click)="moveUp(line)" style="text-align: center">
             <fa-icon [icon]="faAngleUp"
                      style="cursor: pointer;
                      color: #0d6efd;"
                      size="lg"
-                     (click)="moveUp(line)"
                      *ngIf="i != 0"
             >
             </fa-icon>
           </td>
-          <td>
+          <td (click)="moveDown(line)" style="text-align: center">
             <fa-icon [icon]="faAngleDown"
                      style="cursor: pointer;
                      color: #0d6efd;"
                      size="lg"
-                     (click)="moveDown(line)"
                      *ngIf="i != (linesOnBid.length - 1)"
             >
             </fa-icon>
           </td>
-          <td>
+          <td (click)="moveBottom(line)" style="text-align: center">
             <fa-icon [icon]="faAngleDoubleDown"
                      style="cursor: pointer;
                      color: #0d6efd;"
                      size="lg"
-                     (click)="moveBottom(line)"
                      *ngIf="i != (linesOnBid.length - 1)"
             >
             </fa-icon>
           </td>
-          <td>
+          <td (click)="removeFromBid(i)" style="text-align: center">
             <fa-icon [icon]="faAngleRight"
                      style="cursor: pointer;
                      color: #0d6efd;"
                      size="lg"
-                     (click)="removeFromBid(i)"
             >
             </fa-icon>
           </td>
@@ -310,7 +314,7 @@
            background-color: white;
            position: sticky;
            top: 0;">
-        <span style="font-weight: bold" (click)="openFilters(filtermodal)">Lines (Bid Year 2022-2023)</span>
+        <span style="font-weight: bold">Lines</span>
       </div>
       <div class="row"
            style="height: 40px;
@@ -351,12 +355,24 @@
                    size="lg"
                    (click)="openFilters(filtermodal)"
           >
-            </fa-icon>
+          </fa-icon>
+          <button
+            class="btn btn-primary"
+            style="margin-left: 20px; float: right;"
+            (click)="addFilteredToBid()"
+          >
+          Add all filtered lines
+          </button>
         </span>
+      </div>
+      <div class="row" style="height: 26px;
+           background-color: white;
+           position: sticky;
+           top: 75px;">
       </div>
       <table style="width: 100%" class="table table-sm table-bordered table-striped">
         <thead>
-        <tr style="position: sticky; top: 73px; background-color: white">
+        <tr style="position: sticky; top: 100px; background-color: white">
           <th>Line</th>
           <th>Desk</th>
           <th>Rot</th>
@@ -366,12 +382,12 @@
         </thead>
         <tbody>
         <ng-container *ngFor="let line of lines">
-        <tr *ngIf="setVisibility(line)" style="cursor: pointer;">
-          <td (click)="addToBid(line)">{{line?.line_number}}</td>
-          <td (click)="addToBid(line)">{{line?.desk}}</td>
-          <td (click)="addToBid(line)">{{line?.rotation}}</td>
-          <td (click)="addToBid(line)">{{line?.start_time}}</td>
-          <td (click)="addToBid(line)">{{lineAwardedTo(line?.line_number)}}</td>
+        <tr *ngIf="setVisibility(line)" (click)="addToBid(line)" style="cursor: pointer;">
+          <td>{{line?.line_number}}</td>
+          <td>{{line?.desk}}</td>
+          <td>{{line?.rotation}}</td>
+          <td>{{line?.start_time}}</td>
+          <td>{{lineAwardedTo(line?.line_number)}}</td>
         </tr>
         </ng-container>
         </tbody>

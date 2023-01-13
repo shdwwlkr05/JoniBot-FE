@@ -1,9 +1,13 @@
 <div class="containers">
   <div class="row">
     <h4>Awards</h4>
-    <h6>My Bid Time: {{bidTime.shiftbid | date :'MMMM dd, yyyy HH:mm'}}</h6>
-    <h6>Current Time: {{c_time | date :'MMMM dd, yyyy HH:mm:ss'}}</h6>
-    <h6>64 domestic lines will be blocked. Domestic lines remaining: {{domLinesRemaining - 64}}</h6>
+    <h6>Your bid must be saved by {{bidTime.shiftbid | date :'MMMM dd, yyyy HH:mm'}}
+      <span style="float: right">Domestic Lines Remaining: {{domLinesRemaining}}</span></h6>
+    <h6>Current Time: {{c_time | date :'MMMM dd, yyyy HH:mm:ss'}}
+      <span style="float: right">International Lines Remaining: {{intlLinesRemaining}}</span></h6>
+    <h6>Next Bidder: {{shortnames[nextBidder?.user]}} at {{nextBidder?.shiftbid | date :'MMMM dd, yyyy HH:mm'}}
+      <span style="float: right">Relief Lines Remaining: {{rlfLinesRemaining}}</span></h6>
+    <h6>Domestic lines available for bid if you are eligible for International training: {{domLinesNotBlocked}}</h6>
   </div>
   <div class="col" id="left">
     <table
@@ -39,12 +43,12 @@
       <thead>
       <tr style="position: sticky; top: -1px; background-color: white">
         <th style="width: 20%">User</th>
-        <th style="width: 60%">Bid Time</th>
+        <th style="width: 60%">Bid Due By</th>
         <th style="width: 20%">Awarded</th>
       </thead>
       <tbody>
       <tr *ngFor="let user of userList"
-          [ngStyle]="{'background-color': user.user == shortnames['current_user'] ? 'green': 'transparent'}"
+          [ngStyle]="{'background-color': user.user == shortnames['current_user'] ? 'lightgreen': 'transparent'}"
       >
         <td>{{shortnames[user.user]}}</td>
         <td>{{user.shiftbid| date :'MMMM dd, yyyy HH:mm'}}</td>

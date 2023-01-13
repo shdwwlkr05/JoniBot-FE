@@ -55,7 +55,17 @@ export class HeaderComponent implements OnInit, OnDestroy{
   }
 
   isTester(username) {
-    const testers = ['DAL110', 'DAL105', 'DAL178']
+    const testers = [
+      'DAL110', // Corner
+      'DAL105', // Hatlee
+      'DAL178', // Bowne
+      'DAL352', // Makings
+      'DAL333', // Rinehart
+      'DAL114', // Colon
+      'DAL224', // Stout
+      'DAL131', // Birkrem
+      'DAL402', // Little
+    ]
     return testers.includes(username)
   }
 

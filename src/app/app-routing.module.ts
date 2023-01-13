@@ -2,7 +2,7 @@ import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule, Routes } from '@angular/router'
 import { AuthComponent } from './auth/auth.component'
-import { HomeComponent } from './home/home.component'
+import { VacBidComponent } from './vac-bid/vac-bid.component'
 import { BidListComponent } from './bid-list/bid-list.component'
 import { AuthGuard } from './auth/auth.guard'
 import { WorkdayResolverService } from './calendar/workday-resolver.service'
@@ -19,10 +19,14 @@ import {MyCalendarComponent} from "./my-calendar/my-calendar.component";
 import {AllLinesViewComponent} from "./all-lines-view/all-lines-view.component";
 import {LineBidComponent} from "./line-bid/line-bid.component";
 import {LineAwardsComponent} from "./line-awards/line-awards.component";
+import {CanDeactivateGuardService} from "./can-deactivate-guard.service";
+import {AdminLineBidComponent} from "./line-bid/admin-line-bid/admin-line-bid.component";
+import {HomeComponent} from "./home/home.component";
 
 const appRoutes: Routes = [
   {path: '', component: HomeComponent, pathMatch: 'full', canActivate: [AuthGuard],
     resolve: [WorkdayResolverService, AwardCountsResolverService]},
+  {path: 'vacBid', component: VacBidComponent, canActivate: [AuthGuard]},
   {path: 'myBids', component: BidListComponent, canActivate: [AuthGuard]},
   {path: 'myBids/edit', component: BidEditComponent, canActivate: [AuthGuard]},
   {path: 'myTime', component: MyTimeComponent, canActivate: [AuthGuard]},
@@ -33,7 +37,8 @@ const appRoutes: Routes = [
   {path: 'changePW', component: ChangePwComponent, canActivate: [AuthGuard]},
   {path: 'adminChangePW', component: AdminChangePwComponent, canActivate: [AuthGuard]},
   {path: 'lines', component: AllLinesViewComponent, canActivate: [AuthGuard]},
-  {path: 'lineBid', component: LineBidComponent, canActivate: [AuthGuard]},
+  {path: 'lineBid', component: LineBidComponent, canActivate: [AuthGuard], canDeactivate: [CanDeactivateGuardService]},
+  {path: 'adminLineBid', component: AdminLineBidComponent, canActivate: [AuthGuard]},
   {path: 'lineAwards', component: LineAwardsComponent, canActivate: [AuthGuard]},
   {path: 'relief', component: ReliefBidComponent, canActivate: [AuthGuard],
     resolve: [WorkdayResolverService]},
