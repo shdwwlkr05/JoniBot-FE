@@ -33,12 +33,12 @@ export class IncrementalItemComponent implements OnInit {
 
   onMoveUp(bid) {
     const new_choice = bid.choice - 1
-    this.data.updateBid(bid.round, bid.choice, new_choice)
+    // this.data.updateBid(bid.round, bid.choice, new_choice)
   }
 
   onMoveDown(bid) {
     const new_choice = bid.choice + 1
-    this.data.updateBid(bid.round, bid.choice, new_choice)
+    // this.data.updateBid(bid.round, bid.choice, new_choice)
   }
   onTestClick(bid: any) {
     console.log(bid)

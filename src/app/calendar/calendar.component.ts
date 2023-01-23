@@ -23,6 +23,7 @@ import { DataStorageService } from '../bid-form/data-storage.service'
 import { CalendarService } from './calendar.service'
 import { formatDate } from '@angular/common'
 import { AuthService } from '../auth/auth.service'
+import {ActivatedRoute} from "@angular/router";
 
 const colors: any = {
   red: {
@@ -70,7 +71,6 @@ export class CalendarComponent implements OnInit, OnDestroy {
   workgroupSub: Subscription
   workgroup: string
   max_off_per_day: number
-  eventList = []
 
   view: CalendarView = CalendarView.Month;
 
@@ -104,33 +104,16 @@ export class CalendarComponent implements OnInit, OnDestroy {
   constructor(private bidService: BidService,
               private data: DataStorageService,
               private calService: CalendarService,
-              private auth: AuthService) {
+              private auth: AuthService,
+              private activatedRoute: ActivatedRoute) {
+    this.max_off_per_day = 5
   }
 
   ngOnInit(): void {
     this.authSub = this.auth.user.subscribe(user => {
       this.user = user
     })
-    this.workgroupSub = this.data.userWorkgroup.subscribe(workgroup => {
-      console.log('Workgroup sub:', workgroup)
-      this.workgroup = workgroup
-      switch (true) {
-        case (workgroup == 'ssom'):
-          this.max_off_per_day = 1
-          break
-        case (workgroup == 'som'):
-          this.max_off_per_day = 5
-          break
-        case (workgroup == 'sfsd'):
-          this.max_off_per_day = 1
-          break
-        case (workgroup == 'sfsi'):
-          this.max_off_per_day = 1
-          break
-        default:
-          this.max_off_per_day = 21
-      }
-    })
+
     this.getCalendarEvents(this.calService.getWorkdays(), this.calService.getCounts())
   }
 
@@ -187,12 +170,29 @@ export class CalendarComponent implements OnInit, OnDestroy {
   }
 
   getCalendarEvents(workdays, awardCounts) {
-    // console.log('getCalendarEvents', workdays)
+    this.workgroupSub = this.data.userWorkgroup.subscribe(workgroup => {
+      this.workgroup = workgroup
+      switch (true) {
+        case (workgroup == 'ssom'):
+          this.max_off_per_day = 1
+          break
+        case (workgroup == 'som'):
+          this.max_off_per_day = 5
+          break
+        case (workgroup == 'sfsd'):
+          this.max_off_per_day = 1
+          break
+        case (workgroup == 'sfsi'):
+          this.max_off_per_day = 1
+          break
+        default:
+          this.max_off_per_day = 21
+      }
+    })
     let eventList = []
     let formattedDate
     for (let workday_el of workdays) {
       const workday = workday_el.workday
-      // console.log('getCalendarEvents', workday)
       formattedDate = formatDate(workday, 'MMM d', 'en-us')
       eventList.push({
         start: startOfDay(new Date(workday + 'T00:00:00')),

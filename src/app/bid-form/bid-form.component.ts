@@ -2,21 +2,12 @@ import { Component, Input, OnDestroy, OnInit } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms'
 import { BidService } from './bid.service'
 import { Subscription } from 'rxjs'
-import { DataStorageService } from './data-storage.service'
+import {DataStorageService, vacBid} from './data-storage.service'
 import { formatDate } from '@angular/common'
 import { Router } from '@angular/router'
 import { CalendarService } from '../calendar/calendar.service'
+import {environment} from "../../environments/environment";
 
-interface bidChoice {
-  awardOpt: string
-  bids: any
-  endDate: string
-  startDate: string
-  useHol: boolean
-  vacType: string
-  round: string
-  choice: string
-}
 
 @Component({
   selector: 'app-bid-form',
@@ -24,14 +15,18 @@ interface bidChoice {
   styleUrls: ['./bid-form.component.css']
 })
 export class BidFormComponent implements OnInit, OnDestroy {
-  @Input() editChoice: bidChoice
-  rounds = ['1', '2', '3', '4', '5', '6', '7']
+  @Input() editChoice: vacBid
+  @Input() roundEdit: vacBid[]
+  rounds = [1, 2, 3, 4, 5, 6, 7]
   bidForm: FormGroup
   editing = false
   updating = false
   daysAvailable = true
   dateSubscription: Subscription
   bidSubscription: Subscription
+  bids = {1: [], 2: [], 3: [], 4: [], 5: [], 6: []}
+  roundsWithBid = []
+  roundChoicePairs = []
   incrementalSubscription: Subscription
   workdaySubscription: Subscription
   balancesSubscription: Subscription
@@ -40,8 +35,8 @@ export class BidFormComponent implements OnInit, OnDestroy {
   error: string
   existingBids: any = {}
   incrementalBids: any = {}
-  defaultRound: string = '1'
-  defaultChoice: string = '1'
+  defaultRound: number = 1
+  defaultChoice: number = 1
   defaultStart: any = null
   defaultEnd: any = null
   defaultType: string = 'vac'
@@ -50,9 +45,9 @@ export class BidFormComponent implements OnInit, OnDestroy {
   workdays = []
   balances = {}
   awards
-  round7
-  bidStart = new Date(2022, 3, 1)
-  bidEnd = new Date(2023, 2, 31)
+  round7 = true
+  bidStart = new Date(environment.currYear, 3, 1) // Zero indexed month
+  bidEnd = new Date(environment.nextYear, 2, 31) // Zero indexed month
 
   constructor(private bidService: BidService,
               private data: DataStorageService,
@@ -74,12 +69,34 @@ export class BidFormComponent implements OnInit, OnDestroy {
       }
     })
 
-    this.bidSubscription = this.bidService.bidsChanged.subscribe(bids => {
-      this.existingBids = bids
-      if (!!bids) {
-        this.defaultChoice = String(Object.keys(this.existingBids['Round 1']).length + 1)
+    if (this.router.url.includes('/edit') && !!this.editChoice) {
+      this.editing = true
+      this.defaultRound = this.editChoice.round
+      this.round7 = (this.editChoice.round == 7)
+      this.defaultChoice = this.editChoice.choice
+      this.defaultStart = this.editChoice.bid_start_date
+      this.defaultEnd = this.editChoice.bid_end_date
+      this.defaultType = this.editChoice.vac_type
+      this.defaultOption = this.editChoice.award_opt
+      this.defaultHol = this.editChoice.use_hol
+    } else {
+      this.editing = false
+    }
+
+    this.bidSubscription = this.data.vacBid.subscribe((bids:vacBid[]) => {
+      this.roundsWithBid = Array.from(new Set(bids.map((bid) => bid.round)))
+      for (let round of this.roundsWithBid) {
+        this.bids[round] = bids.filter((bid:vacBid) => bid.round == round)
+      }
+      this.roundChoicePairs = []
+      bids.forEach((bid: vacBid) => {
+        this.roundChoicePairs.push(`${bid.round}${bid.choice}`)
+      })
+      if (!this.editing) {
+        this.roundChange(this.bidForm.value['bid-round'])
       }
     })
+    this.data.fetchBids()
 
     this.incrementalSubscription = this.bidService.round7Bids.subscribe(bids => {
       this.incrementalBids = bids
@@ -89,37 +106,20 @@ export class BidFormComponent implements OnInit, OnDestroy {
       this.workdays = workdays
     })
 
-    this.data.fetchBalances()
-
     this.balancesSubscription = this.bidService.balances.subscribe(balances => {
       this.balances = balances
     })
 
+    this.data.fetchBalances()
+
     this.httpResponse = this.bidService.httpResponse.subscribe(response => {
       this.response = response
-    })
-
-
-    if (this.router.url.includes('/edit') && !!this.editChoice) {
-      this.editing = true
-      if (this.editChoice.round >= '7') {
-        this.round7 = true
-        this.defaultRound = '7'
-        this.defaultChoice = this.editChoice.choice
-        this.defaultStart = this.editChoice['bid_date']
-        this.defaultType = this.editChoice['vac_type']
-      } else {
-        this.defaultRound = this.editChoice.round
-        this.defaultChoice = this.editChoice.choice
-        this.defaultStart = this.editChoice.startDate
-        this.defaultEnd = this.editChoice.endDate
-        this.defaultType = this.editChoice.vacType
-        this.defaultOption = this.editChoice.awardOpt
-        this.defaultHol = this.editChoice.useHol
+      if (response == 'update-success') {
+        this.updating = false
+        this.router.navigate(['myBids'])
       }
-    } else {
-      this.editing = false
-    }
+
+    })
 
     this.bidForm = new FormGroup({
       'bid-round': new FormControl({value: this.defaultRound, disabled: this.editing}),
@@ -130,6 +130,7 @@ export class BidFormComponent implements OnInit, OnDestroy {
       'award-option': new FormControl(this.defaultOption),
       'use-holiday': new FormControl(this.defaultHol),
     })
+
   }
 
   ngOnDestroy() {
@@ -140,12 +141,7 @@ export class BidFormComponent implements OnInit, OnDestroy {
     this.incrementalSubscription.unsubscribe()
   }
 
-  onSubmit() {
-    const checkWorkdays = false
-    this.response = null
-    this.error = null
-    this.daysAvailable = true
-    console.log(this.editChoice)
+  buildBid() {
     const start = new Date(this.bidForm.value['start-vac'] + 'T00:00:00')
     let end
     if (!this.bidForm.value['end-vac']) {
@@ -153,6 +149,24 @@ export class BidFormComponent implements OnInit, OnDestroy {
     } else {
       end = new Date(this.bidForm.value['end-vac'] + 'T00:00:00')
     }
+
+    const bid = {
+      'round': null,
+      'choice': null,
+      'bid_start_date': start.toISOString().split('T')[0],
+      'bid_end_date': end.toISOString().split('T')[0],
+      'vac_type': this.bidForm.value['vac-type'],
+      'award_opt': this.bidForm.value['award-option'],
+      'use_hol': this.bidForm.value['use-holiday']
+    }
+    this.editChoice ? bid.round = this.editChoice['round'] : bid.round = this.bidForm.value['bid-round']
+    this.editChoice ? bid.choice = this.editChoice['choice'] : bid.choice = this.bidForm.value['bid-choice']
+
+    return [bid, start, end]
+  }
+
+  validBid(bid, start, end) {
+    this.error = null
     if (end < start) {
       this.error = `Start date is after end date.
       Please check your dates and try again.`
@@ -170,162 +184,56 @@ export class BidFormComponent implements OnInit, OnDestroy {
       this.error = `Check end date. Date is after bid ends
       Date must be between ${this.bidStart.toLocaleDateString("en-US")} and ${this.bidEnd.toLocaleDateString("en-US")}.`
     }
-    const bid = {
-      'round': null,
-      'choice': null,
-      'award_order': null,
-      'bid_date': null,
-      'vac_type': this.bidForm.value['vac-type'],
-      'award_opt': this.bidForm.value['award-option'],
-      'use_hol': this.bidForm.value['use-holiday']
-    }
-    this.editChoice ? bid.round = this.editChoice['round'] : bid.round = this.bidForm.value['bid-round']
-    this.editChoice ? bid.choice = this.editChoice['choice'] : bid.choice = this.bidForm.value['bid-choice']
     if (bid.choice < 0) {
       this.error = `Choice must be greater than 0.`
     }
     if (!this.bidForm.value['start-vac']) {
       this.error = `You must request at least one day to submit a bid`
     }
-    const bids = []
-    let order = 1
-    let vac_remaining = this.balances['vac_remaining']
-    let ppt_remaining = this.balances['ppt_remaining']
-    let prior_to_incremental_remaining = this.balances['prior_to_incremental_allowance']
-    console.log('Set - PriorToIncrementalRemaining: ', prior_to_incremental_remaining)
-    let loop = new Date(start)
-    // Loop through all days in range submitted on bid form
-    while (loop <= end && this.daysAvailable && !this.error) {
-      let formattedDate = formatDate(loop, 'yyyy-MM-dd', 'en-us')
+  }
 
-      // Check to see if day has already been bid for Round and Choice
-      let round
-      let vacType
-      if (bid.round >= 7) {
-        switch (bid['vac_type']) {
-          case 'vac':
-            bid.round = 7
-            vacType = 'Vacation'
-            break
-          case 'ppt':
-            bid.round = 8
-            vacType = 'PPT'
-            break
-          case 'hol':
-            bid.round = 9
-            vacType = 'Holiday'
-            break
-          case 'adj':
-            bid.round = 10
-            vacType = 'Adjustment Day'
-            break
-          case 'any':
-            bid.round = 11
-            vacType = 'Any available'
-            break
-        }
-      } else {
-        round = 'Round ' + bid.round
-      }
-      let choice = 'Choice ' + bid.choice
-      console.log('Round? ', bid.round)
-      console.log('Incremental Bids: ', this.incrementalBids)
-      console.log('Vacation Type: ', bid['vac_type'])
-      console.log('PriorToIncrementalRemaining: ', prior_to_incremental_remaining)
-      if (+bid.round >= 7) {
-        const foundChoice = this.incrementalBids[bid['vac_type']].some(
-          el => el.choice == bid.choice
-        )
-        if (foundChoice) {
-          this.error = `Bid for ${vacType} - ${choice} already exists.
-              Please select different choice option or edit the existing one.`
-          break
-        }
-        const foundDay = this.incrementalBids[bid['vac_type']].some(
-          el => el['bid_date'] == formattedDate
-        )
-        if (foundDay) {
-          this.error = `A bid for ${formattedDate} using ${vacType} already exists.
-              Please select a different day.`
-          break
-        }
-      } else {
-        if (round in this.existingBids) {
-          if (choice in this.existingBids[round]) {
-            this.error = `Bid for ${round} - ${choice} already exists.
-              Please select different choice option or edit the existing one.`
-            break
-          }
-        }
-      }
+  onSubmit() {
+    this.response = null
 
-      // Loop through days checking to see if they are a scheduled workday
-      if (checkWorkdays) {
-        console.log('Formatted Date:', formattedDate)
-        if (this.workdays.some(workday => workday.workday == formattedDate)) {
-          bid.award_order = order
-          order++
-          bid.bid_date = formattedDate
-          // Check if vac or PPT was used and remove from remaining balance
-          const shift_hours = this.getShiftHours(formattedDate)
-          if (bid.round < 7) {
-            prior_to_incremental_remaining -= shift_hours
-            if (prior_to_incremental_remaining <= 0) {
-              this.daysAvailable = false
-            }
-          }
-          if (bid.vac_type == 'vac') {
-            vac_remaining -= shift_hours
-            if (vac_remaining < 0) {
-              ppt_remaining += vac_remaining
-              vac_remaining = 0
-            }
-          } else {
-            ppt_remaining -= shift_hours
-            if (ppt_remaining < 0) {
-              vac_remaining += ppt_remaining
-              ppt_remaining = 0
-            }
-          }
-          if (vac_remaining + ppt_remaining < shift_hours) {
-            this.daysAvailable = false
-          }
-          bids.push(Object.assign({}, bid))
-        }
-        let newDate = loop.setDate(loop.getDate() + 1)
-        loop = new Date(newDate)
-      } else {
-        bid.award_order = order
-        order++
-        bid.bid_date = formattedDate
-        bids.push(Object.assign({}, bid))
-        let newDate = loop.setDate(loop.getDate() + 1)
-        loop = new Date(newDate)
-      }
+    const [bid, start, end] = this.buildBid()
 
+    this.validBid(bid, start, end)
+
+    // Check to see if day has already been bid for Round and Choice
+    let round = 'Round ' + bid.round
+    let choice = 'Choice ' + bid.choice
+
+    const roundChoicePair = `${bid.round}${bid.choice}`
+    if (this.roundChoicePairs.includes(roundChoicePair)) {
+      this.error = `Bid for ${round} - ${choice} already exists.
+        Please select different choice option or edit the existing one.`
     }
+    // TODO: If choice exists insert into list and shift other choices down
+
     if (!this.error) {
-      console.log('Submitted bid: ', bids)
-      this.data.submitBid(bids)
+      console.log('Submitted bid: ', bid)
+      this.data.submitBid([bid])
     }
   }
 
 
   onUpdate() {
-    this.updating = true
-    this.data.deleteBid(this.editChoice.round, this.editChoice.choice)
-    setTimeout(() => {
-      this.onSubmit()
-      this.updating = false
-      this.router.navigate(['myBids'])
-    }, 1000)
-
+    const [bid, start, end] = this.buildBid()
+    this.validBid(bid, start, end)
+    bid.id = this.editChoice.id
+    if (!this.error) {
+      this.data.updateBid([bid])
+    }
   }
 
   onDelete() {
     if (confirm('Are you sure you want to delete the bid?')) {
-      this.data.deleteBid(this.editChoice.round, this.editChoice.choice)
-      this.router.navigate(['myBids'])
+      const [bid, start, end] = this.buildBid()
+      bid.id = this.editChoice.id
+      this.roundEdit.splice(bid.choice - 1, 1)
+      this.roundEdit.forEach((bid, index) => {bid.choice = index + 1})
+      this.data.deleteBid([bid])
+      this.data.updateBid(this.roundEdit)
     }
   }
 
@@ -334,28 +242,17 @@ export class BidFormComponent implements OnInit, OnDestroy {
   }
 
   onTest() {
-    // console.log('Existing bids:', this.existingBids)
-    // console.log('Incremental bids:', this.incrementalBids)
-    // console.log('Bid form round:', this.bidForm.controls['vac-type'].value)
-    // console.log('Round Length:', Object.keys(this.existingBids['Round 1']).length)
-    this.data.fetchUserAwards()
+    console.log('Edited Round:', this.roundEdit)
   }
 
   roundChange(event) {
     let numChoices
-    if (event == 7) {
-      this.round7 = true
-      const selectedVacType = this.bidForm.controls['vac-type'].value
-      numChoices = this.incrementalBids[selectedVacType].length + 1
+    this.round7 = (event == 7)
+    const roundObject = this.bids[event]
+    if (roundObject) {
+      numChoices = Object.keys(roundObject).length + 1
     } else {
-      this.round7 = false
-      const selectedRound = 'Round ' + event
-      const roundObject = this.existingBids[selectedRound]
-      if (roundObject) {
-        numChoices = Object.keys(roundObject).length + 1
-      } else {
-        numChoices = 1
-      }
+      numChoices = 1
     }
     this.bidForm.controls['bid-choice'].setValue(numChoices)
 

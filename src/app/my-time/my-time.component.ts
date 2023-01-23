@@ -54,7 +54,6 @@ export class MyTimeComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
-    this.dataSubscription = this.data.fetchBalances()
     this.balancesSubscription = this.bidService.balances.subscribe(balances => {
       if (!!balances) {
         this.balances = balances
@@ -62,8 +61,7 @@ export class MyTimeComponent implements OnInit, OnDestroy {
         this.maxPpt = balances['ppt_remaining']
       }
     })
-    this.data.fetchUsedHolidays()
-    this.data.fetchRound7Usage()
+    this.dataSubscription = this.data.fetchBalances()
     this.usedHolSubscription = this.bidService.usedHol.subscribe(usedHol => {
       this.usedHolidaysCurrYear = []
       this.usedHolidaysNextYear = []
@@ -75,9 +73,11 @@ export class MyTimeComponent implements OnInit, OnDestroy {
         }
       }
     })
+    this.data.fetchUsedHolidays()
     this.round7UsageSubscription = this.bidService.round7Usage.subscribe(usage => {
       this.maxUsage = usage
     })
+    this.data.fetchRound7Usage()
   }
 
   ngOnDestroy(): void {

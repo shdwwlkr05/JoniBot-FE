@@ -1,17 +1,21 @@
 <li>
-  <span (click)="onClick()" style="cursor: pointer"><b>{{choice.key}}: </b>
-    {{choice.value.startDate | date:'MMM dd, yyyy'}} -
-    {{choice.value.endDate | date:'MMM dd, yyyy'}}
-  </span>
-  <ul>Type - {{vacType}} / Award - {{awardOpt}}{{useHol}}</ul>
+  <span (click)="onClick(bid)" style="cursor: pointer"><b>Choice {{bid.choice}}: </b>
+    <span *ngIf="bid.bid_start_date != bid.bid_end_date">
+      {{bid.bid_start_date | date:'MMM dd, yyyy'}} -
+      {{bid.bid_end_date | date:'MMM dd, yyyy'}}
+    </span>
+    <span *ngIf="bid.bid_start_date == bid.bid_end_date">
+      {{bid.bid_start_date | date:'MMM dd, yyyy'}}
+    </span></span>
+  <ul (click)="onClick(bid)" style="cursor: pointer">Type - {{vacType}} / Award - {{awardOpt}}{{useHol}}</ul>
   <ul>
     <fa-icon [icon]="faArrowCircleUp"
              style="cursor: pointer;
              margin-right: 10px;
              color: #0d6efd;"
              size="lg"
-             *ngIf="choice.value.choice != 1"
-             (click)="onMoveUp(choice.value)"
+             *ngIf="bid.choice != 1"
+             (click)="onMoveUp(bid)"
     >
     </fa-icon>
     <fa-icon [icon]="faArrowCircleDown"
@@ -19,8 +23,16 @@
              margin-right: 10px;
              color: #0d6efd;"
              size="lg"
-             *ngIf="choice.value.choice != lastEl"
-             (click)="onMoveDown(choice.value)"
+             *ngIf="bid.choice != lastEl"
+             (click)="onMoveDown(bid)"
+    >
+    </fa-icon>
+    <fa-icon [icon]="faTrash"
+             style="cursor: pointer;
+             margin-right: 10px;
+             color: #0d6efd;"
+             size="lg"
+             (click)="onDelete(bid)"
     >
     </fa-icon>
   </ul>

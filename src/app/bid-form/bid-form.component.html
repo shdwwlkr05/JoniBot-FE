@@ -17,7 +17,7 @@
   <div class="row" *ngIf="!updating">
     <div class="col-xs-12 col-sm-10 col-md-8 col-sm-offset-1 col-md-offset-2">
       <h4 *ngIf="!editing; else elseBlock">Bid Sheet</h4>
-      <ng-template #elseBlock><h4>Edit Bid Sheet</h4></ng-template>
+      <ng-template #elseBlock><h4 (click)="onTest()">Edit Bid Sheet</h4></ng-template>
       <form [formGroup]="bidForm" (ngSubmit)="onSubmit()">
         <div class="form-group">
           <label for="bid-round">Round</label>
@@ -42,15 +42,14 @@
             pattern="^[1-9]+[0-9]*$">
         </div>
         <div class="form-group">
-          <label for="start-vac" *ngIf="!round7">Start of Vacation</label>
-          <label for="start-vac" *ngIf="round7">Date Requested</label>
+          <label for="start-vac">Start of Vacation</label>
           <input type="date"
                  id="start-vac"
                  name="start-vac"
                  class="form-control"
                  formControlName="start-vac">
         </div>
-        <div class="form-group" *ngIf="!round7">
+        <div class="form-group">
           <label for="end-vac">End of Vacation</label>
           <input type="date"
                  id="end-vac"
@@ -58,14 +57,13 @@
                  class="form-control"
                  formControlName="end-vac">
         </div>
-        <div class="form-group" *ngIf="!(round7 && editing)">
+        <div class="form-group">
           <label for="vac-type">Vacation Type</label>
           <select
             name="vac-type"
             id="vac-type"
             class="form-select"
-            formControlName="vac-type"
-            (change)="vacTypeChange($event.target.value)">
+            formControlName="vac-type">
             <option value="vac">Vacation</option>
             <option value="ppt">PPT</option>
             <option value="hol" *ngIf="round7">Holiday</option>
@@ -73,7 +71,7 @@
             <option value="any" *ngIf="round7">Any time I have available</option>
           </select>
         </div>
-        <div class="form-group" *ngIf="!round7">
+        <div class="form-group">
           <label for="award-option">Award if...</label>
           <select
             name="award-option"
@@ -86,7 +84,7 @@
           </select>
         </div>
         <br>
-        <div class="form-group" *ngIf="!round7">
+        <div class="form-group">
           <input
             type="checkbox"
             id="use-holiday"

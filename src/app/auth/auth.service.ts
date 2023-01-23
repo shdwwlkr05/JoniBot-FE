@@ -62,7 +62,7 @@ export class AuthService {
 
     if (loadedUser.token) {
       this.user.next(loadedUser)
-      this.data.fetchBids().subscribe()
+      this.data.fetchBids()
       this.data.fetchRound7().subscribe()
       this.data.fetchBalances()
       this.data.fetchWorkgroup()
@@ -97,10 +97,10 @@ export class AuthService {
     const user = new User(username, token);
     this.user.next(user);
     localStorage.setItem('userData', JSON.stringify(user));
-    this.data.fetchBids().subscribe()
+    this.data.fetchBids()
     this.data.fetchBalances()
     this.data.fetchWorkgroup()
-    this.router.navigate(['/lineBid'])
+    this.router.navigate(['/'])
   }
 
   private handleError(errorRes: HttpErrorResponse) {

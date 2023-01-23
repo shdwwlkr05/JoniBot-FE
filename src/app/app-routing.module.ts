@@ -24,9 +24,9 @@ import {AdminLineBidComponent} from "./line-bid/admin-line-bid/admin-line-bid.co
 import {HomeComponent} from "./home/home.component";
 
 const appRoutes: Routes = [
-  {path: '', component: HomeComponent, pathMatch: 'full', canActivate: [AuthGuard],
+  {path: '', component: HomeComponent, pathMatch: 'full', canActivate: [AuthGuard]},
+  {path: 'vacBid', component: VacBidComponent, canActivate: [AuthGuard],
     resolve: [WorkdayResolverService, AwardCountsResolverService]},
-  {path: 'vacBid', component: VacBidComponent, canActivate: [AuthGuard]},
   {path: 'myBids', component: BidListComponent, canActivate: [AuthGuard]},
   {path: 'myBids/edit', component: BidEditComponent, canActivate: [AuthGuard]},
   {path: 'myTime', component: MyTimeComponent, canActivate: [AuthGuard]},

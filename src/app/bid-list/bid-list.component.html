@@ -1,6 +1,9 @@
 <div class="row">
   <div class="col-xs-12">
     <h5>My Bids - Click on bid to edit or delete</h5>
+    Round 1 must be saved/submitted by: {{bidTimes?.round1 | date :'MM/dd/yy HH:mm'}}
+    <br>
+    Round 2 must be saved/submitted by: {{bidTimes?.round2 | date :'MM/dd/yy HH:mm'}}
     <hr>
   </div>
 </div>
@@ -12,63 +15,67 @@
 </div>
 <div class="row" *ngIf="!loading">
   <div class="col">
-    <div *ngFor="let round of bids | keyvalue">
-      <h5>{{round.key}}</h5>
-      <ul>
-        <app-bid-item
-          *ngFor="let choice of round.value | keyvalue: returnZero"
-          [choice]="choice"
-          [round]="round.value">
-        </app-bid-item>
-      </ul>
-
-  <!--    <app-bid-item-->
-  <!--    *ngFor="let round of rounds"-->
-  <!--    [bid]="bidEl"></app-bid-item>-->
+    <div *ngFor="let round of roundsWithBid">
+      <div *ngIf="round < 7">
+        <span>
+          <h5>
+            Round {{round}}
+          </h5>
+          <span
+            style="
+            margin-left: 15px;
+            cursor: pointer;
+            border: 1px solid black;
+            border-radius: 4px;
+            padding: 2px;
+            background: lightgrey;"
+            *ngIf="round < 6"
+            (click)="onCopy(bids[round], bids[round + 1])"
+          >
+          Copy to Round {{round + 1}}
+          </span>
+          <span
+            style="
+            margin-left: 15px;
+            cursor: pointer;
+            border: 1px solid black;
+            border-radius: 4px;
+            padding: 2px;
+            background: lightpink;"
+            (click)="onClear(bids[round])"
+          >
+          Clear Round {{round}}
+          </span>
+        </span>
+        <ul *ngFor="let bid of bids[round]">
+          <app-bid-item
+            [bid]="bid"
+            [round]="bids[round]">
+          </app-bid-item>
+        </ul>
+      </div>
     </div>
   </div>
   <div class="col" *ngIf="round7bids">
     <div>
       <h5>Round 7</h5>
-      <ul *ngIf="vacLen > 0"><b>Vacation</b>
-        <app-incremental-item
-         *ngFor="let bid of incrementalBids['vac']"
-         [bid]="bid"
-         [len] = vacLen
-        >
-        </app-incremental-item>
-      </ul>
-      <ul *ngIf="pptLen > 0"><b>PPT</b>
-        <app-incremental-item
-          *ngFor="let bid of incrementalBids['ppt']"
+      <span
+        style="
+            margin-left: 15px;
+            cursor: pointer;
+            border: 1px solid black;
+            border-radius: 4px;
+            padding: 2px;
+            background: lightpink;"
+        (click)="onClear(bids[7])"
+      >
+          Clear Round 7
+          </span>
+      <ul *ngFor="let bid of bids[7]">
+        <app-bid-item
           [bid]="bid"
-          [len] = pptLen
-        >
-        </app-incremental-item>
-      </ul>
-      <ul *ngIf="holLen > 0"><b>Holidays</b>
-        <app-incremental-item
-          *ngFor="let bid of incrementalBids['hol']"
-          [bid]="bid"
-          [len] = holLen
-        >
-        </app-incremental-item>
-      </ul>
-      <ul *ngIf="adjLen > 0"><b>Adjustment Days</b>
-        <app-incremental-item
-          *ngFor="let bid of incrementalBids['adj']"
-          [bid]="bid"
-          [len] = holLen
-        >
-        </app-incremental-item>
-      </ul>
-      <ul *ngIf="anyLen > 0"><b>Any time I have available</b>
-        <app-incremental-item
-          *ngFor="let bid of incrementalBids['any']"
-          [bid]="bid"
-          [len] = holLen
-        >
-        </app-incremental-item>
+          [round]="bids[7]">
+        </app-bid-item>
       </ul>
     </div>
   </div>

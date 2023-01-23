@@ -1,15 +1,8 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { BidService } from '../../bid-form/bid.service'
 import { Subscription } from 'rxjs'
+import {vacBid} from "../../bid-form/data-storage.service";
 
-interface bidChoice {
-  awardOpt: string
-  bids: any
-  endDate: string
-  startDate: string
-  useHol: boolean
-  vacType: string
-}
 
 @Component({
   selector: 'app-bid-edit',
@@ -18,8 +11,10 @@ interface bidChoice {
 })
 
 export class BidEditComponent implements OnInit, OnDestroy {
-  editChoice: bidChoice
+  editChoice: vacBid
+  roundEdit: vacBid[]
   choiceSubscription: Subscription
+  roundSubscription: Subscription
 
   constructor(private bidService: BidService) {
   }
@@ -28,10 +23,14 @@ export class BidEditComponent implements OnInit, OnDestroy {
     this.choiceSubscription = this.bidService.editChoice.subscribe(editChoice => {
       this.editChoice = editChoice
     })
+    this.roundSubscription = this.bidService.roundEdit.subscribe(roundEdit => {
+      this.roundEdit = roundEdit
+    })
   }
 
   ngOnDestroy(): void {
     this.choiceSubscription.unsubscribe()
+    this.roundSubscription.unsubscribe()
   }
 
 }

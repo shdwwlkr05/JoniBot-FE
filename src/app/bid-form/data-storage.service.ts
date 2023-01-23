@@ -7,6 +7,7 @@ import { BidService } from './bid.service'
 import { CalendarService } from '../calendar/calendar.service'
 import { environment } from '../../environments/environment'
 import { BehaviorSubject, Subject } from 'rxjs'
+import {Router} from "@angular/router";
 
 
 const bidsURL = environment.baseURL + 'api/bid/bids/'
@@ -89,6 +90,18 @@ export interface user {
   user: number;
 }
 
+export interface vacBid {
+  id: number;
+  round: number;
+  choice: number;
+  bid_start_date: string;
+  bid_end_date: string;
+  vac_type: string;
+  award_opt: string;
+  use_hol: boolean;
+  user: number;
+}
+
 
 @Injectable({
   providedIn: 'root'
@@ -111,6 +124,7 @@ export class DataStorageService {
   bidTime = new Subject<any>();
   allLines
   allWorkdays
+  vacBid = new Subject<any>()
 
   constructor(private http: HttpClient,
               private bidService: BidService,
@@ -118,55 +132,9 @@ export class DataStorageService {
   }
 
   fetchBids() {
-    const groupedBids = {}
-    return this.http.get<Bid[]>(bidsURL).pipe(
-      map(bids => {
-        for (let bid of bids) {
-          let round = 'Round ' + bid.round
-          let choice = 'Choice ' + bid.choice
-          if (round in groupedBids) {
-            if (!(choice in groupedBids[round])) {
-              groupedBids[round][choice] = {
-                'round': bid.round,
-                'choice': bid.choice,
-                'vacType': bid.vac_type,
-                'awardOpt': bid.award_opt,
-                'useHol': bid.use_hol,
-                'startDate': bid.bid_date,
-                'endDate': bid.bid_date,
-                'bids': [],
-                'dates': []
-              }
-            }
-          } else {
-            groupedBids[round] = {}
-            groupedBids[round][choice] = {
-              'round': bid.round,
-              'choice': bid.choice,
-              'vacType': bid.vac_type,
-              'awardOpt': bid.award_opt,
-              'useHol': bid.use_hol,
-              'startDate': bid.bid_date,
-              'endDate': bid.bid_date,
-              'bids': [],
-              'dates': []
-            }
-          }
-          if (bid.bid_date < groupedBids[round][choice].startDate) {
-            groupedBids[round][choice].startDate = bid.bid_date
-          }
-          if (bid.bid_date > groupedBids[round][choice].endDate) {
-            groupedBids[round][choice].endDate = bid.bid_date
-          }
-          groupedBids[round][choice].bids.push(bid)
-          groupedBids[round][choice].dates.push(bid.bid_date)
-        }
-        return groupedBids
-      }),
-      tap(bids => {
-        this.bidService.setBids(bids);
-      })
-    )
+    return this.http.get(bidsURL).subscribe((response:vacBid[]) => {
+      this.vacBid.next(response)
+    })
   }
 
   fetchRound7() {
@@ -199,52 +167,40 @@ export class DataStorageService {
     }))
   }
 
-  fetchAwardCounts(workgroup) {
-    console.log('Fetch Award Counts Group', workgroup)
-    return this.http.get(awardCountUrl,
-      {
-        params: new HttpParams()
-          .set('group', workgroup)
-      }).pipe(tap(counts => {
-        console.log('Fetch Award Counts', counts)
+  fetchAwardCounts() {
+    return this.http.get(awardCountUrl).pipe(tap(counts => {
         this.calendarService.setAwardCounts(counts)
     }))
   }
 
-  submitBid(bids) {
-    this.http.post(bidsURL, bids)
+  submitBid(bid: vacBid[]) {
+    const headers = {'Content-Type': 'application/json',
+      'access-control-allow-origin': 'https://flightcontrolbidder.web.app'}
+    this.http.post(bidsURL, JSON.stringify(bid), {'headers': headers})
       .subscribe(res => {
-        this.fetchBids().subscribe()
-        this.fetchRound7().subscribe()
+        this.fetchBids()
         this.bidService.httpResponse.next(res['status'])
       })
   }
 
-  deleteBid(round, choice) {
-    this.http
-      .delete(bidsURL,
-        {
-          params: new HttpParams()
-            .set('round', round.toString())
-            .set('choice', choice.toString())
-        })
-      .subscribe(() => {
-        this.fetchBids().subscribe()
-        this.fetchRound7().subscribe()
-      })
+  deleteBid(bid:vacBid[]) {
+    const bid_ids = bid.map(bid => bid.id)
+    const options = {
+      headers: {'Content-Type': 'application/json',
+        'access-control-allow-origin': 'https://flightcontrolbidder.web.app'
+      },
+      body: {id: bid_ids}
+    }
+    this.http.delete(bidsURL, options).subscribe(() => this.fetchBids())
   }
 
-  updateBid(round, choice, newChoice) {
+  updateBid(bid) {
+    const headers = {'Content-Type': 'application/json',
+      'access-control-allow-origin': 'https://flightcontrolbidder.web.app'}
     this.http
-      .get(bidsUpdateURL,
-        {
-          params: new HttpParams()
-            .set('currentRound', round.toString())
-            .set('currentChoice', choice.toString())
-            .set('newChoice', newChoice.toString())
-        }).subscribe(() => {
-      this.fetchBids().subscribe()
-      this.fetchRound7().subscribe()
+      .put(bidsURL, JSON.stringify(bid), {'headers': headers}).subscribe(res => {
+      this.fetchBids()
+      this.bidService.httpResponse.next(res['status'])
     })
   }
 
@@ -358,6 +314,7 @@ export class DataStorageService {
     })
   }
 
+  // TODO: Create a service for this
   fetchLines() {
     return this.http.get(linesUrl).subscribe(lines => {
       this.allLines = lines

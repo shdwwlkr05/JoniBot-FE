@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Subject } from 'rxjs'
+import {vacBid} from "./data-storage.service";
 
 interface dateInfo {
   date: Date;
@@ -13,7 +14,8 @@ export class BidService {
   dateEmitter = new Subject<dateInfo>();
   bidsChanged = new BehaviorSubject<any>(null)
   round7Bids = new BehaviorSubject<any>(null)
-  editChoice = new BehaviorSubject<any>(null)
+  editChoice = new BehaviorSubject<vacBid>(null)
+  roundEdit = new BehaviorSubject<vacBid[]>(null)
   balances = new BehaviorSubject<any>(null)
   httpResponse = new Subject<string>();
   usedHol = new Subject<any>()
