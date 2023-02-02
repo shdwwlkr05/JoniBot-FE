@@ -17,8 +17,7 @@ export class MyTimeComponent implements OnInit, OnDestroy {
   usedHolSubscription: Subscription
   round7UsageSubscription: Subscription
   balances: any = {}
-  maxVac
-  maxPpt
+
   currYear = environment.currYear
   nextYear = environment.nextYear
   holidays = ['H1', 'H2', 'H3', 'H4', 'H5', 'H6', 'H7', 'H8', 'H9', 'H10']
@@ -27,6 +26,7 @@ export class MyTimeComponent implements OnInit, OnDestroy {
   maxUsage = {
     'vac': 0,
     'ppt': 0,
+    'adj': 0,
     'currH1': false,
     'currH2': false,
     'currH3': false,
@@ -57,8 +57,6 @@ export class MyTimeComponent implements OnInit, OnDestroy {
     this.balancesSubscription = this.bidService.balances.subscribe(balances => {
       if (!!balances) {
         this.balances = balances
-        this.maxVac = balances['vac_remaining']
-        this.maxPpt = balances['ppt_remaining']
       }
     })
     this.dataSubscription = this.data.fetchBalances()
@@ -88,7 +86,6 @@ export class MyTimeComponent implements OnInit, OnDestroy {
 
 
   onSave() {
-    console.log(this.maxUsage)
     this.data.updateRound7Usage(this.maxUsage)
   }
 
@@ -119,6 +116,10 @@ export class MyTimeComponent implements OnInit, OnDestroy {
       return 'An unknown error as occurred'
     }
     return `${hol} was used on ${formattedDate}`
+  }
+
+  test() {
+    console.log(this.maxUsage)
   }
 
 
