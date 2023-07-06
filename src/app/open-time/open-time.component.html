@@ -9,7 +9,7 @@
       <h6>Your Bid - Open Time Rank: {{openTimeRank}} of {{totalInGroup}}</h6>
     </div>
     <div class="col">
-      <h6>Available Shifts</h6>
+      <h6 (click)="test()">Available Shifts</h6>
     </div>
   </div>
   <div class="row">
@@ -102,7 +102,11 @@
           </td>
           <td [ngStyle]="{'background-color': (!showDOM && !showINTL) ? '#FFCCCB' : 'transparent'}">
             <label class="checkbox-inline" style="margin-left: 10px; margin-right: 10px">
-              <input type="checkbox" [(ngModel)]="showINTL" (change)="shiftsToShow()">
+              <input
+                type="checkbox"
+                [disabled]="!intlQual"
+                [(ngModel)]="showINTL"
+                (change)="shiftsToShow()">
               INTL
             </label>
           </td>
@@ -116,7 +120,11 @@
           </td>
           <td [ngStyle]="{'background-color': (!showFleet && !showSPT) ? '#FFCCCB' : 'transparent'}">
             <label class="checkbox-inline" style="margin-left: 10px; margin-right: 10px">
-              <input type="checkbox" [(ngModel)]="showSPT" (change)="shiftsToShow()">
+              <input
+                type="checkbox"
+                [disabled]="!sptQual"
+                [(ngModel)]="showSPT"
+                (change)="shiftsToShow()">
               SPT
             </label>
           </td>

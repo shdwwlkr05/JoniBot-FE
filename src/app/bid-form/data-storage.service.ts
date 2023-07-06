@@ -32,6 +32,7 @@ const bidTimeUrl = environment.baseURL + 'api/bid/bidTime/'
 const userListUrl = environment.baseURL + 'api/bid/userlist/'
 const shortnameUrl = environment.baseURL + 'api/bid/shortnames/'
 const lineAwardsUrl = environment.baseURL + 'api/bid/lineawards/'
+const userQualUrl = environment.baseURL + 'api/bid/userqual/'
 
 
 export interface filters {
@@ -125,6 +126,7 @@ export class DataStorageService {
   allLines
   allWorkdays
   vacBid = new Subject<any>()
+  userQuals = new Subject<any>()
 
   constructor(private http: HttpClient,
               private bidService: BidService,
@@ -221,6 +223,17 @@ export class DataStorageService {
   fetchUserAwards() {
     return this.http.get<[]>(awardUrl + '/user').subscribe(awards => {
       this.bidService.setAwards(awards)
+    })
+  }
+
+
+  fetchUserQualifications() {
+    return this.http.get<[]>(userQualUrl).subscribe(qualifications => {
+      let quals = []
+      for (let qual of qualifications) {
+        quals.push(qual['qualification'])
+      }
+      this.userQuals.next(quals)
     })
   }
 

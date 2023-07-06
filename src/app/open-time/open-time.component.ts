@@ -20,9 +20,9 @@ export class OpenTimeComponent implements OnInit {
   faArrowCircleDown = faArrowCircleDown
   faTrash = faTrash
   // TODO: Auto populate date for title
-  title: string = 'Open Time for February 2023 - Closes January 25nd at 0700'
+  title: string = 'Open Time for July 2023 - Closes June 22nd at 0600'
   // TODO: Use actual shift date (will require database change)
-  shiftDate = new Date('February 1, 2023')
+  shiftDate = new Date('July 1, 2023')
   bids = []
   numberOfBids: number = 0
   received_ids = []
@@ -62,6 +62,7 @@ export class OpenTimeComponent implements OnInit {
   workgroupCountSubscription: Subscription
   openTimeRankSubscription: Subscription
   shiftTimesSubscription: Subscription
+  userQualSubscription: Subscription
   limitAwards = false
   receivedLimit = false
   maxAward: number = 1
@@ -73,6 +74,9 @@ export class OpenTimeComponent implements OnInit {
   openTimeRank = ''
   totalInGroup = ''
   shiftTimes
+  userQuals
+  intlQual = true
+  sptQual = true
 
   constructor(private data: DataStorageService) {
 
@@ -119,6 +123,18 @@ export class OpenTimeComponent implements OnInit {
       this.shiftTimes = times
     })
     this.check_shifts()
+    this.userQualSubscription = this.data.userQuals.subscribe(quals => {
+      this.userQuals = quals
+      if (!quals.includes('INTL')) {
+        this.showINTL = false
+        this.intlQual = false
+      }
+      if (!quals.includes('SPT')) {
+        this.showSPT = false
+        this.sptQual = false
+      }
+    })
+    this.data.fetchUserQualifications()
 
   }
 
@@ -129,6 +145,7 @@ export class OpenTimeComponent implements OnInit {
     this.workgroupCountSubscription.unsubscribe()
     this.openTimeRankSubscription.unsubscribe()
     this.shiftTimesSubscription.unsubscribe()
+    this.userQualSubscription.unsubscribe()
   }
 
   add_shift(shift: shift) {
@@ -279,7 +296,7 @@ export class OpenTimeComponent implements OnInit {
   }
 
   test() {
-    this.showWe = !this.showWe
+    console.log(this.userQuals)
   }
 
   onDrop(event) {
