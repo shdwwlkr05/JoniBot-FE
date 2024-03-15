@@ -40,6 +40,7 @@ export class BidListComponent implements OnInit, OnDestroy {
     this.data.fetchBids()
     this.timeSubscription = this.data.bidTime.subscribe((times:user[]) => {
       this.bidTimes = times[0]
+      console.log(this.bidTimes)
     })
     this.data.fetchBidTime()
   }

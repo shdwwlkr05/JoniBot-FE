@@ -30,6 +30,7 @@ export class AwardListComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.awardSubscription = this.bidService.awards.subscribe(data => {
       this.awards = data
+      console.log(this.awards)
     })
     this.data.fetchUserAwards()
   }

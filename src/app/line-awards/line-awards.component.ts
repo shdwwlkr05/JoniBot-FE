@@ -14,11 +14,13 @@ export class LineAwardsComponent implements OnInit, OnDestroy {
   lines: line[] = []
   domLines: line[] = []
   intlLines: line[] = []
-  rlfLines: line[] = []
+  domRlfLines: line[] = []
+  dualRlfLines: line[] = []
   domLinesRemaining
   intlLinesRemaining
-  rlfLinesRemaining
-  linesToBlock = 64
+  domRlfLinesRemaining
+  dualRlfLinesRemaining
+  linesToBlock = 36
   domLinesNotBlocked
   linesSubscription = new Subscription()
   userSubscription = new Subscription()
@@ -43,9 +45,10 @@ export class LineAwardsComponent implements OnInit, OnDestroy {
     }, 1000)
     this.linesSubscription = this.data.lines.subscribe((lines: line[]) => {
       this.lines = lines
-      this.domLines = this.lines.filter(line => line.theater == 'DOM')
+      this.domLines = this.lines.filter(line => line.theater == 'DOM' && line.time_of_day != 'RLF')
       this.intlLines = this.lines.filter(line => line.theater == 'INTL')
-      this.rlfLines = this.lines.filter(line => line.theater == 'DUAL')
+      this.domRlfLines = this.lines.filter(line => line.theater == 'DOM' && line.time_of_day == 'RLF')
+      this.dualRlfLines = this.lines.filter(line => line.theater == 'DUAL')
     })
     this.userSubscription = this.data.userList.subscribe((users: user[]) => {
       this.userList = users
@@ -69,8 +72,9 @@ export class LineAwardsComponent implements OnInit, OnDestroy {
       const awardedLines = this.lineAwards.map(e => e.line_number)
       this.domLinesRemaining = this.domLines.filter(line => !awardedLines.includes(line.line_number)).length
       this.intlLinesRemaining = this.intlLines.filter(line => !awardedLines.includes(line.line_number)).length
-      this.rlfLinesRemaining = this.rlfLines.filter(line => !awardedLines.includes(line.line_number)).length
-      this.domLinesNotBlocked = this.domLinesRemaining - this.linesToBlock
+      this.domRlfLinesRemaining = this.domRlfLines.filter(line => !awardedLines.includes(line.line_number)).length
+      this.dualRlfLinesRemaining = this.dualRlfLines.filter(line => !awardedLines.includes(line.line_number)).length
+      this.domLinesNotBlocked = this.domLinesRemaining + this.domRlfLinesRemaining - this.linesToBlock
       if (this.domLinesNotBlocked < 0) {
         this.domLinesNotBlocked = 0
       }

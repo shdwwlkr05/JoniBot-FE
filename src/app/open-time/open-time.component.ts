@@ -3,11 +3,24 @@ import { faArrowCircleDown, faArrowCircleUp, faTrash } from '@fortawesome/free-s
 import { DataStorageService } from '../bid-form/data-storage.service'
 import { Subscription } from 'rxjs'
 import { moveItemInArray } from '@angular/cdk/drag-drop'
+import {environment} from "../../environments/environment";
+import {DatePipe} from "@angular/common";
 
 interface shift {
   id: string
   day: string
   shift: string
+}
+
+interface parameters {
+  id: number
+  start_date: string
+  close_date: string
+  fs_skip: number[]
+  sfsd_skip: number[]
+  sfsi_skip: number[]
+  som_skip: number[]
+  ssom_skip: number[]
 }
 
 @Component({
@@ -19,10 +32,7 @@ export class OpenTimeComponent implements OnInit {
   faArrowCircleUp = faArrowCircleUp
   faArrowCircleDown = faArrowCircleDown
   faTrash = faTrash
-  // TODO: Auto populate date for title
-  title: string = 'Open Time for July 2023 - Closes June 22nd at 0600'
-  // TODO: Use actual shift date (will require database change)
-  shiftDate = new Date('July 1, 2023')
+  shiftDate
   bids = []
   numberOfBids: number = 0
   received_ids = []
@@ -52,7 +62,7 @@ export class OpenTimeComponent implements OnInit {
   openDesks = []
   openDays = []
   sptDesks = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'J', 'K']
-  fleetDesks = ['Q', 'R', 'S', 'V', 'W', 'X', 'Y', 'Z']
+  fleetDesks = ['N', 'O', 'Q', 'R', 'S', 'V', 'W', 'X', 'Y', 'Z']
   selectedDesks = ['All']
   selectedDays = ['All']
   shiftSubscription: Subscription
@@ -77,6 +87,12 @@ export class OpenTimeComponent implements OnInit {
   userQuals
   intlQual = true
   sptQual = true
+  parameterSubscription: Subscription
+  parameters: parameters
+  selected_start_date
+  formatted_start_date
+  selected_close_date
+  formatted_close_date
 
   constructor(private data: DataStorageService) {
 
@@ -135,6 +151,17 @@ export class OpenTimeComponent implements OnInit {
       }
     })
     this.data.fetchUserQualifications()
+    this.parameterSubscription = this.data.openTimeParams.subscribe(params => {
+      this.parameters = params
+      const start_date = new Date(this.parameters.start_date + 'T06:00:00.000')
+      this.shiftDate = new Date(this.parameters.start_date + 'T06:00:00.000')
+      this.selected_start_date = params.start_date
+      this.formatted_start_date = new DatePipe('en-US').transform(start_date, 'MMMM yyyy')
+      const close_date = new Date(this.parameters.close_date + 'T06:00:00.000')
+      this.formatted_close_date = new DatePipe('en-US').transform(close_date, 'MMMM dd')
+      this.selected_close_date = params.close_date
+    })
+    this.data.fetchOpenTimeParameters()
 
   }
 
@@ -146,6 +173,7 @@ export class OpenTimeComponent implements OnInit {
     this.openTimeRankSubscription.unsubscribe()
     this.shiftTimesSubscription.unsubscribe()
     this.userQualSubscription.unsubscribe()
+    this.parameterSubscription.unsubscribe()
   }
 
   add_shift(shift: shift) {

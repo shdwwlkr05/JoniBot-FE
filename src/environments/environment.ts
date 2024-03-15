@@ -5,8 +5,8 @@
 export const environment = {
   production: false,
   baseURL: 'http://0.0.0.0:8000/',
-  currYear: 2023,
-  nextYear: 2024,
+  currYear: 2024,
+  nextYear: 2025,
 };
 
 /*

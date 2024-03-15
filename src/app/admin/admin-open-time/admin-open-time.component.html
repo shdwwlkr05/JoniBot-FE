@@ -1,0 +1,113 @@
+<div class="container">
+  <div class="row">
+    <div class="col-xs-12">
+      <h5>Open Time for {{formatted_start_date}} - Closes {{formatted_close_date}} at 0600</h5>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-xs-12" style="width: 50%">
+      <h6>Number of shifts per workgroup</h6>
+      <table class="table table-sm table-bordered">
+        <thead>
+        <th>Workgroup</th>
+        <th>Number of shifts</th>
+        <th>Shifts Skipped</th>
+        </thead>
+        <tr (click)="onGroupChange('fs')">
+          <td style="width: 33%">
+            FS
+          </td>
+          <td>
+            {{getCountOfShifts('fs')}}
+          </td>
+          <td>
+            {{parameters?.fs_skip.length}}
+          </td>
+        </tr>
+        <tr (click)="onGroupChange('sfsd')">
+          <td style="width: 60px">
+            SFSD
+          </td>
+          <td>
+            {{getCountOfShifts('sfsd')}}
+          </td>
+          <td>
+            {{parameters?.sfsd_skip.length}}
+          </td>
+        </tr>
+        <tr (click)="onGroupChange('sfsi')">
+          <td style="width: 60px">
+            SFSI
+          </td>
+          <td>
+            {{getCountOfShifts('sfsi')}}
+          </td>
+          <td>
+            {{parameters?.sfsi_skip.length}}
+          </td>
+        </tr>
+        <tr (click)="onGroupChange('som')">
+          <td style="width: 60px">
+            SOM
+          </td>
+          <td>
+            {{getCountOfShifts('som')}}
+          </td>
+          <td>
+            {{parameters?.som_skip.length}}
+          </td>
+        </tr>
+        <tr (click)="onGroupChange('ssom')">
+          <td style="width: 60px">
+            SSOM
+          </td>
+          <td>
+            {{getCountOfShifts('ssom')}}
+          </td>
+          <td>
+            {{parameters?.ssom_skip.length}}
+          </td>
+        </tr>
+      </table>
+    </div>
+    <div class="col-xs-12" style="width: 50%">
+      <h6>Open Time Parameters</h6>
+      <label for="shiftCSV">Open Work Period CSV:</label>
+      <input type="file" id="shiftCSV" (change)="onFileSelected($event)">
+      <br>
+      <button (click)="setShifts()">{{ processing ? 'Processing' : 'Upload Shifts' }}
+        <span *ngIf="processing" class="spinner"></span>
+      </button>
+      <hr>
+      <label for="selectedStartDate">Start Date: </label>
+      <input type="date" id="selectedStartDate" [(ngModel)]="selected_start_date">
+      <br>
+      <label for="selectedCloseDate">Close Date: </label>
+      <input type="date" id="selectedCloseDate" [(ngModel)]="selected_close_date">
+      <br>
+      <button (click)="setDates()">Set Dates</button>
+    </div>
+  </div>
+  <hr>
+  <div class="row">
+    <div class="col-xs-12" id="left">
+      <h5>Selected Work Group: {{selectedGroup}}</h5>
+      <button (click)="setDates()">Set Skipped Shifts</button>
+      <table class="table table-sm table-bordered">
+        <thead>
+          <th>Day</th>
+          <th>Shift</th>
+        </thead>
+        <tbody>
+        <ng-container *ngFor="let shift of filtered_shifts">
+          <tr (click)="toggleShift(shift)"
+              [ngStyle]="{'background-color': (onSkipList(shift)) ? 'Red' : 'Transparent'}">
+            <td>{{shift.day}}</td>
+            <td>{{shift.shift}}</td>
+          </tr>
+        </ng-container>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

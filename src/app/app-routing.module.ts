@@ -22,6 +22,8 @@ import {LineAwardsComponent} from "./line-awards/line-awards.component";
 import {CanDeactivateGuardService} from "./can-deactivate-guard.service";
 import {AdminLineBidComponent} from "./line-bid/admin-line-bid/admin-line-bid.component";
 import {HomeComponent} from "./home/home.component";
+import {AdminOpenTimeComponent} from "./admin/admin-open-time/admin-open-time.component";
+import {AppConfigComponent} from "./admin/app-config/app-config.component";
 
 const appRoutes: Routes = [
   {path: '', component: HomeComponent, pathMatch: 'full', canActivate: [AuthGuard]},
@@ -33,9 +35,11 @@ const appRoutes: Routes = [
   {path: 'myAwards', component: AwardListComponent, canActivate: [AuthGuard]},
   // {path: 'mobile', component: MobileComponent, canActivate: [AuthGuard]},
   {path: 'openTime', component: OpenTimeComponent, canActivate: [AuthGuard]},
+  {path: 'adminOpenTime', component: AdminOpenTimeComponent, canActivate: [AuthGuard]},
+  {path: 'adminChangePW', component: AdminChangePwComponent, canActivate: [AuthGuard]},
+  {path: 'appConfig', component: AppConfigComponent, canActivate: [AuthGuard]},
   {path: 'auth', component: AuthComponent},
   {path: 'changePW', component: ChangePwComponent, canActivate: [AuthGuard]},
-  {path: 'adminChangePW', component: AdminChangePwComponent, canActivate: [AuthGuard]},
   {path: 'lines', component: AllLinesViewComponent, canActivate: [AuthGuard]},
   {path: 'lineBid', component: LineBidComponent, canActivate: [AuthGuard], canDeactivate: [CanDeactivateGuardService]},
   {path: 'adminLineBid', component: AdminLineBidComponent, canActivate: [AuthGuard]},

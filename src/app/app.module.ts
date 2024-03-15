@@ -32,6 +32,9 @@ import { LineBidComponent } from './line-bid/line-bid.component';
 import { LineAwardsComponent } from './line-awards/line-awards.component';
 import { AdminLineBidComponent } from './line-bid/admin-line-bid/admin-line-bid.component';
 import { HomeComponent } from './home/home.component';
+import { AdminOpenTimeComponent } from './admin/admin-open-time/admin-open-time.component';
+import {MatSnackBar, MatSnackBarModule} from "@angular/material/snack-bar";
+import { AppConfigComponent } from './admin/app-config/app-config.component';
 
 
 @NgModule({
@@ -58,6 +61,8 @@ import { HomeComponent } from './home/home.component';
     LineAwardsComponent,
     AdminLineBidComponent,
     HomeComponent,
+    AdminOpenTimeComponent,
+    AppConfigComponent,
 
   ],
   imports: [
@@ -70,7 +75,8 @@ import { HomeComponent } from './home/home.component';
     FormsModule,
     ReactiveFormsModule,
     FontAwesomeModule,
-    DragDropModule
+    DragDropModule,
+    MatSnackBarModule
   ],
   providers: [{provide: HTTP_INTERCEPTORS, useClass: AuthInterceptorService, multi: true}],
   exports: [],

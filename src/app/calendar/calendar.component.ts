@@ -177,7 +177,7 @@ export class CalendarComponent implements OnInit, OnDestroy {
           this.max_off_per_day = 1
           break
         case (workgroup == 'som'):
-          this.max_off_per_day = 5
+          this.max_off_per_day = 6
           break
         case (workgroup == 'sfsd'):
           this.max_off_per_day = 1
@@ -186,7 +186,7 @@ export class CalendarComponent implements OnInit, OnDestroy {
           this.max_off_per_day = 1
           break
         default:
-          this.max_off_per_day = 21
+          this.max_off_per_day = 25
       }
     })
     let eventList = []

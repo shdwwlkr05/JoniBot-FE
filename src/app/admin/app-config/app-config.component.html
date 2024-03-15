@@ -1,0 +1,39 @@
+<div class="container">
+  <div class="row">
+    <h5>App Config Options</h5>
+    <hr>
+    <div class="col-xs-12">
+      <h6>Nav Bar Links</h6>
+      <label for="lineBid">Line Bid</label>
+      <input style= "margin-left: 10px" type="checkbox" id="lineBid" [(ngModel)]="lineBid">
+      <br>
+      <label for="vacBid">Vac Bid</label>
+      <input style= "margin-left: 10px" type="checkbox" id="vacBid" [(ngModel)]="vacBid">
+      <br>
+      <label for="openTime">Open Time</label>
+      <input style= "margin-left: 10px" type="checkbox" id="openTime" [(ngModel)]="openTime">
+      <br>
+      <button (click)="setLinks()" style="margin-bottom: 15px">Save</button>
+      <br>
+    </div>
+    <hr>
+    <hr>
+    <div class="col-xs-12">
+      <h6>User Qualifications</h6>
+      <label for="dbID">User DB ID</label>
+      <input style= "margin-left: 10px" type="text" id="dbID" [(ngModel)]="dbID">
+      <button (click)="getQuals()">Get Quals</button>
+      {{message}}
+      <br>
+      <label for="intlQual">INTL</label>
+      <input style= "margin-left: 10px" type="checkbox" id="intlQual" [(ngModel)]="intlQual">
+      <span style="margin-left: 10px">/</span>
+      <label for="sptQual" style="margin-left: 10px">SPT</label>
+      <input style= "margin-left: 10px" type="checkbox" id="sptQual" [(ngModel)]="sptQual">
+      <br>
+      <button (click)="setQuals()">Save</button>
+      {{httpResponse}}
+    </div>
+  </div>
+</div>
+

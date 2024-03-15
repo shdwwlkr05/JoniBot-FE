@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpParams } from '@angular/common/http'
+import {HttpClient, HttpHeaders, HttpParams} from '@angular/common/http'
 
 import { Bid } from './bid.model'
 import { map, tap } from 'rxjs/operators'
@@ -19,6 +19,9 @@ const awardCountUrl = environment.baseURL + 'api/bid/awardCount/'
 const usedHolUrl = environment.baseURL + 'api/bid/usedHol'
 const round7UsageUrl = environment.baseURL + 'api/bid/round7'
 const openTimeShiftsUrl = environment.baseURL + 'api/bid/openTimeShifts'
+const adminOpenTimeShiftsUrl = environment.baseURL + 'api/bid/openTimeShifts/admin/'
+const openTimeParamsUrl = environment.baseURL + 'api/bid/openTimeParams/'
+const openTimeCSVUrl = environment.baseURL + 'api/bid/opentimeCSV/'
 const openTimeBidUrl = environment.baseURL + 'api/bid/openTimeBid/'
 const workgroupUrl = environment.baseURL + 'api/bid/workgroups/'
 const totalUrl = environment.baseURL + 'api/bid/rank/'
@@ -33,6 +36,8 @@ const userListUrl = environment.baseURL + 'api/bid/userlist/'
 const shortnameUrl = environment.baseURL + 'api/bid/shortnames/'
 const lineAwardsUrl = environment.baseURL + 'api/bid/lineawards/'
 const userQualUrl = environment.baseURL + 'api/bid/userqual/'
+const adminUserQualUrl = environment.baseURL + 'api/bid/adminuserqual/'
+const navBarUrl = environment.baseURL + 'api/bid/navbar/'
 
 
 export interface filters {
@@ -103,17 +108,43 @@ export interface vacBid {
   user: number;
 }
 
+export interface links {
+  id: number
+  vac_bid: boolean
+  open_time: boolean
+  line_bid: boolean
+}
+
+export interface userQuals {
+  id: number
+  qualification: string
+  user: number
+}
+
+interface parameters {
+  id: number
+  start_date: string
+  close_date: string
+  fs_skip
+  sfsd_skip
+  sfsi_skip
+  som_skip
+  ssom_skip
+}
+
 
 @Injectable({
   providedIn: 'root'
 })
 export class DataStorageService {
   openTimeShifts = new Subject<any>();
+  adminOpenTimeShifts = new Subject<any>();
   openTimeBid = new Subject<any>();
   httpResponse = new Subject<any>();
   userWorkgroup = new BehaviorSubject<any>('fs');
   workgroupCount = new Subject<any>();
   openTimeRank = new Subject<any>();
+  openTimeParams = new Subject<any>();
   shiftTimes = new Subject<any>();
   lines = new BehaviorSubject<any>([]);
   userList = new BehaviorSubject<any>([]);
@@ -127,10 +158,42 @@ export class DataStorageService {
   allWorkdays
   vacBid = new Subject<any>()
   userQuals = new Subject<any>()
+  adminUserQuals = new Subject<any>()
+  navBarLinks = new Subject<links>()
 
   constructor(private http: HttpClient,
               private bidService: BidService,
               private calendarService: CalendarService) {
+  }
+
+  fetchNavBarLinks() {
+    this.http.get(navBarUrl).subscribe((response: links) => {
+      this.navBarLinks.next(response[0])
+    })
+  }
+
+  setNavBarLinks(links: links) {
+    return this.http.put(navBarUrl, links).subscribe(res => {
+      this.fetchNavBarLinks()
+    })
+  }
+
+  fetchAdminUserQuals(request) {
+    let queryParams = new HttpParams()
+    Object.keys(request).forEach(key => queryParams = queryParams.append(key, request[key]))
+    return this.http.get(adminUserQualUrl, {params: queryParams})
+  }
+
+  setAdminUserQuals(request) {
+   return this.http.post(adminUserQualUrl, request).subscribe(res => {
+     this.httpResponse.next(res['status'])
+    })
+  }
+
+  updateAdminUserQuals(request) {
+    return this.http.put(adminUserQualUrl, request).subscribe(res => {
+      this.httpResponse.next(res['status'])
+    })
   }
 
   fetchBids() {
@@ -206,7 +269,6 @@ export class DataStorageService {
     })
   }
 
-
   fetchBalances() {
     return this.http.get(balanceUrl).subscribe(balances => {
       this.bidService.setBalances(balances[0])
@@ -214,18 +276,15 @@ export class DataStorageService {
 
   }
 
-
   fetchAwards() {
     return this.http.get<[]>(awardUrl)
   }
-
 
   fetchUserAwards() {
     return this.http.get<[]>(awardUrl + '/user').subscribe(awards => {
       this.bidService.setAwards(awards)
     })
   }
-
 
   fetchUserQualifications() {
     return this.http.get<[]>(userQualUrl).subscribe(qualifications => {
@@ -237,7 +296,6 @@ export class DataStorageService {
     })
   }
 
-
   fetchUsedHolidays() {
     return this.http.get<[]>(usedHolUrl).subscribe(holidays => {
       if (!!holidays) {
@@ -245,7 +303,6 @@ export class DataStorageService {
       }
     })
   }
-
 
   fetchRound7Usage() {
     return this.http.get(round7UsageUrl).subscribe(usage => {
@@ -255,7 +312,6 @@ export class DataStorageService {
     })
   }
 
-
   updateRound7Usage(usages) {
     const url = round7UsageUrl + '/' + usages.id + '/'
     return this.http.put(url, usages).subscribe(() => {
@@ -264,20 +320,99 @@ export class DataStorageService {
     })
   }
 
-
   fetchOpenTimeShifts() {
     return this.http.get(openTimeShiftsUrl).subscribe(shifts => {
       this.openTimeShifts.next(shifts)
     })
   }
 
+  adminFetchOpenTimeShifts() {
+    return this.http.get(adminOpenTimeShiftsUrl).subscribe(shifts => {
+      this.adminOpenTimeShifts.next(shifts)
+    })
+  }
+
+  setOpenTimeShifts(shiftsCSV:FormData, filename:string) {
+
+    const headers = new HttpHeaders({
+      'Content-Disposition': `attachment; filename="${filename}"`,
+    })
+    this.http.post(openTimeCSVUrl, shiftsCSV, {headers}).subscribe((response) => {
+      this.bidService.httpResponse.next(response['status'])
+      // console.log('File uploaded successfully', response)
+    },
+      (error) => {
+        // console.error('Error uploading file', error)
+      })
+  }
+
+  fetchOpenTimeParameters() {
+    return this.http.get(openTimeParamsUrl).subscribe((params: parameters) => {
+      if (params.fs_skip == '0') {
+        params.fs_skip = []
+      } else {
+        params.fs_skip = params.fs_skip.split(',').map(Number)
+      }
+      if (params.sfsd_skip == '0') {
+        params.sfsd_skip = []
+      } else {
+        params.sfsd_skip = params.sfsd_skip.split(',').map(Number)
+      }
+      if (params.sfsi_skip == '0') {
+        params.sfsi_skip = []
+      } else {
+        params.sfsi_skip = params.sfsi_skip.split(',').map(Number)
+      }
+      if (params.som_skip == '0') {
+        params.som_skip = []
+      } else {
+        params.som_skip = params.som_skip.split(',').map(Number)
+      }
+      if (params.ssom_skip == '0') {
+        params.ssom_skip = []
+      } else {
+        params.ssom_skip = params.ssom_skip.split(',').map(Number)
+      }
+      this.openTimeParams.next(params)
+    })
+  }
+
+  setOpenTimeParameters(params) {
+    if (params.fs_skip.length == 0) {
+      params.fs_skip = '0'
+    } else {
+      params.fs_skip = params.fs_skip.join(',')
+    }
+    if (params.sfsd_skip.length == 0) {
+      params.sfsd_skip = '0'
+    } else {
+      params.sfsd_skip = params.sfsd_skip.join(',')
+    }
+    if (params.sfsi_skip.length == 0) {
+      params.sfsi_skip = '0'
+    } else {
+      params.sfsi_skip = params.sfsi_skip.join(',')
+    }
+    if (params.som_skip.length == 0) {
+      params.som_skip = '0'
+    } else {
+      params.som_skip = params.som_skip.join(',')
+    }
+    if (params.ssom_skip.length == 0) {
+      params.ssom_skip = '0'
+    } else {
+      params.ssom_skip = params.ssom_skip.join(',')
+    }
+    return this.http.put(openTimeParamsUrl, params).subscribe(res => {
+      this.fetchOpenTimeParameters()
+    })
+  }
 
   fetchWorkgroupCount() {
     return this.http.get(totalUrl).subscribe(count => {
       this.workgroupCount.next(count['user_count'])
     })
   }
-
 
   fetchOpenTimeBid() {
     return this.http.get(openTimeBidUrl).subscribe(bid => {
@@ -297,20 +432,17 @@ export class DataStorageService {
     })
   }
 
-
   fetchOpenTimeRank() {
     return this.http.get(rankUrl).subscribe(rank => {
       this.openTimeRank.next(rank[0]['opentime'])
     })
   }
 
-
   fetchWorkgroup() {
     return this.http.get(workgroupUrl).subscribe(workgroup => {
       this.userWorkgroup.next(workgroup[0].group)
     })
   }
-
 
   submitOpenTimeBid(payload) {
     const headers = {'Content-Type': 'application/json'}

@@ -6,8 +6,9 @@
     <h6>Current Time: {{c_time | date :'MMMM dd, yyyy HH:mm:ss'}}
       <span style="float: right">International Lines Remaining: {{intlLinesRemaining}}</span></h6>
     <h6>Next Bidder: {{shortnames[nextBidder?.user]}} at {{nextBidder?.shiftbid | date :'MMMM dd, yyyy HH:mm'}}
-      <span style="float: right">Relief Lines Remaining: {{rlfLinesRemaining}}</span></h6>
-    <h6>Domestic lines available for bid if you are eligible for International training: {{domLinesNotBlocked}}</h6>
+      <span style="float: right">Domestic Relief Lines Remaining: {{domRlfLinesRemaining}}</span></h6>
+    <h6>Domestic lines available for bid if you are eligible for International training: {{domLinesNotBlocked}}
+      <span style="float: right">Dual Relief Lines Remaining: {{dualRlfLinesRemaining}}</span></h6>
   </div>
   <div class="col" id="left">
     <table
