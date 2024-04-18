@@ -1,12 +1,17 @@
 <nav class="navbar navbar-expand-md navbar-dark bg-primary">
   <div class="container-fluid">
-    <a class="navbar-brand">Flight Control Bidder</a>
+    <a class="navbar-brand" (click)="showLinks()">Flight Control Bidder</a>
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
             aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
       <span class="navbar-toggler-icon"></span>
     </button>
     <div class="collapse navbar-collapse" id="navbarSupportedContent">
       <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+        <li class="nav-item" *ngIf="isAuthenticated && !links">
+          <a class="nav-link"
+             aria-current="page"
+             (click)="refreshPage()">If links not visible, click here to refresh</a>
+        </li>
         <li class="nav-item" *ngIf="isAuthenticated && links?.vac_bid">
           <a class="nav-link"
              aria-current="page"
@@ -75,6 +80,13 @@
              routerLink="lineAwards"
              routerLinkActive="active"
              [routerLinkActiveOptions]="{exact: true}">Shift Bid Awards</a>
+        </li>
+        <li class="nav-item" *ngIf="isAuthenticated && isTester(user.username)">
+          <a class="nav-link"
+             aria-current="page"
+             routerLink="relief"
+             routerLinkActive="active"
+             [routerLinkActiveOptions]="{exact: true}">Relief</a>
         </li>
       </ul>
       <ul class="navbar-nav ms-auto mb-2 mb-lg-0">

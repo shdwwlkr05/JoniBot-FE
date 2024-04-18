@@ -67,10 +67,10 @@
           "builder": "@angular-devkit/build-angular:dev-server",
           "configurations": {
             "production": {
-              "browserTarget": "JoniBot-FE:build:production"
+              "buildTarget": "JoniBot-FE:build:production"
             },
             "development": {
-              "browserTarget": "JoniBot-FE:build:development"
+              "buildTarget": "JoniBot-FE:build:development"
             }
           },
           "defaultConfiguration": "development"
@@ -78,7 +78,7 @@
         "extract-i18n": {
           "builder": "@angular-devkit/build-angular:extract-i18n",
           "options": {
-            "browserTarget": "JoniBot-FE:build"
+            "buildTarget": "JoniBot-FE:build"
           }
         },
         "test": {
@@ -102,6 +102,5 @@
         }
       }
     }
-  },
-  "defaultProject": "JoniBot-FE"
+  }
 }

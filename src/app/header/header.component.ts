@@ -13,7 +13,7 @@ export class HeaderComponent implements OnInit, OnDestroy{
   private userSub: Subscription;
   user
   links: links
-  linksSub: Subscription;
+  linksSub: Subscription
 
 
   constructor(
@@ -21,7 +21,7 @@ export class HeaderComponent implements OnInit, OnDestroy{
     private data:DataStorageService,
   ) { }
 
-  ngOnInit(): void {
+  ngOnInit() {
     this.userSub = this.authService.user.subscribe(user => {
       this.isAuthenticated = !!user
       this.user = user;
@@ -52,4 +52,11 @@ export class HeaderComponent implements OnInit, OnDestroy{
     return testers.includes(username)
   }
 
+  refreshPage() {
+    window.location.reload()
+  }
+
+  showLinks() {
+    console.log(this.links)
+  }
 }

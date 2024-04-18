@@ -35,6 +35,7 @@ import { HomeComponent } from './home/home.component';
 import { AdminOpenTimeComponent } from './admin/admin-open-time/admin-open-time.component';
 import {MatSnackBar, MatSnackBarModule} from "@angular/material/snack-bar";
 import { AppConfigComponent } from './admin/app-config/app-config.component';
+import { ReliefBidDayComponent } from './relief-bid/relief-bid-day/relief-bid-day.component';
 
 
 @NgModule({
@@ -63,6 +64,7 @@ import { AppConfigComponent } from './admin/app-config/app-config.component';
     HomeComponent,
     AdminOpenTimeComponent,
     AppConfigComponent,
+    ReliefBidDayComponent,
 
   ],
   imports: [

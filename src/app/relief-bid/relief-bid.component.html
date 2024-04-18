@@ -1,2 +1,24 @@
-<app-calendar></app-calendar>
+<div class="container">
+  <div class="row">
+    <div class="col-xs-12">
+      <h5>{{formattedStartDate}} Relief Bid</h5>
+    </div>
+  </div>
+  <div class="row">
+    <table class="table table-sm table-bordered table-striped">
+      <thead>
+      <tr>
+        <th style="width: 10%">Day</th>
+        <th>Bid</th>
+      </tr>
+      </thead>
+      <tbody>
+      <tr *ngFor="let day of reliefDays" (click)="dayBidClick(day)" style="cursor: pointer">
+        <td>{{ day }}</td>
+        <td>{{ reliefBidList[day] }}</td>
+      </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
 

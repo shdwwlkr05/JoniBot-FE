@@ -98,15 +98,10 @@ export class OpenTimeComponent implements OnInit {
 
   }
 
-  ngOnInit(): void {
+  async ngOnInit() {
     this.workgroupSubscription = this.data.userWorkgroup.subscribe(workgroup => {
       this.userGroup = workgroup
-      this.data.fetchOpenTimeShifts()
-      this.data.fetchWorkgroupCount()
     })
-    this.data.fetchOpenTimeBid()
-    this.data.fetchOpenTimeRank()
-    this.data.fetchShiftTimes()
     this.responseSubscription = this.data.httpResponse.subscribe(response => {
       this.response = response
     })
@@ -150,7 +145,7 @@ export class OpenTimeComponent implements OnInit {
         this.sptQual = false
       }
     })
-    this.data.fetchUserQualifications()
+
     this.parameterSubscription = this.data.openTimeParams.subscribe(params => {
       this.parameters = params
       const start_date = new Date(this.parameters.start_date + 'T06:00:00.000')
@@ -161,7 +156,13 @@ export class OpenTimeComponent implements OnInit {
       this.formatted_close_date = new DatePipe('en-US').transform(close_date, 'MMMM dd')
       this.selected_close_date = params.close_date
     })
-    this.data.fetchOpenTimeParameters()
+    await this.data.fetchWorkgroupCount()
+    await this.data.fetchOpenTimeBid()
+    await this.data.fetchOpenTimeRank()
+    await this.data.fetchShiftTimes()
+    await this.data.fetchUserQualifications()
+    await this.data.fetchOpenTimeParameters()
+    await this.data.fetchOpenTimeShifts()
 
   }
 

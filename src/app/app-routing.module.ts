@@ -24,6 +24,7 @@ import {AdminLineBidComponent} from "./line-bid/admin-line-bid/admin-line-bid.co
 import {HomeComponent} from "./home/home.component";
 import {AdminOpenTimeComponent} from "./admin/admin-open-time/admin-open-time.component";
 import {AppConfigComponent} from "./admin/app-config/app-config.component";
+import {ReliefBidDayComponent} from "./relief-bid/relief-bid-day/relief-bid-day.component";
 
 const appRoutes: Routes = [
   {path: '', component: HomeComponent, pathMatch: 'full', canActivate: [AuthGuard]},
@@ -44,8 +45,8 @@ const appRoutes: Routes = [
   {path: 'lineBid', component: LineBidComponent, canActivate: [AuthGuard], canDeactivate: [CanDeactivateGuardService]},
   {path: 'adminLineBid', component: AdminLineBidComponent, canActivate: [AuthGuard]},
   {path: 'lineAwards', component: LineAwardsComponent, canActivate: [AuthGuard]},
-  {path: 'relief', component: ReliefBidComponent, canActivate: [AuthGuard],
-    resolve: [WorkdayResolverService]},
+  {path: 'relief', component: ReliefBidComponent, canActivate: [AuthGuard]},
+  {path: 'relief/:day', component: ReliefBidDayComponent, canActivate: [AuthGuard]}
 ]
 
 @NgModule({

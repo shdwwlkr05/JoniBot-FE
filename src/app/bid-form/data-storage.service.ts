@@ -6,7 +6,7 @@ import { map, tap } from 'rxjs/operators'
 import { BidService } from './bid.service'
 import { CalendarService } from '../calendar/calendar.service'
 import { environment } from '../../environments/environment'
-import { BehaviorSubject, Subject } from 'rxjs'
+import {BehaviorSubject, ReplaySubject, Subject} from 'rxjs'
 import {Router} from "@angular/router";
 
 
@@ -38,6 +38,7 @@ const lineAwardsUrl = environment.baseURL + 'api/bid/lineawards/'
 const userQualUrl = environment.baseURL + 'api/bid/userqual/'
 const adminUserQualUrl = environment.baseURL + 'api/bid/adminuserqual/'
 const navBarUrl = environment.baseURL + 'api/bid/navbar/'
+
 
 
 export interface filters {
@@ -141,7 +142,7 @@ export class DataStorageService {
   adminOpenTimeShifts = new Subject<any>();
   openTimeBid = new Subject<any>();
   httpResponse = new Subject<any>();
-  userWorkgroup = new BehaviorSubject<any>('fs');
+  userWorkgroup = new ReplaySubject<any>();
   workgroupCount = new Subject<any>();
   openTimeRank = new Subject<any>();
   openTimeParams = new Subject<any>();

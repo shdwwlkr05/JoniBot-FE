@@ -1,0 +1,16 @@
+@keyframes flash {
+  0% { opacity: 1; }
+  50% { opacity: 0; }
+  100% { opacity: 1; }
+}
+
+.flash {
+  animation: flash 1s infinite;
+}
+
+#left, #right {
+  float: left;
+  max-height: calc(100vh - 350px);
+  width: 50%;
+  overflow: auto;
+}
