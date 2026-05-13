@@ -1,0 +1,42 @@
+<div class="shift-grid">
+  <div class="week-header">
+    <div class="header-cell" *ngFor="let h of dayHeaders">{{ h }}</div>
+  </div>
+
+  <div class="week-row" *ngFor="let week of weeks">
+    <div class="day-cell" *ngFor="let day of week" [class.empty]="!day" [class.rlf-workday]="day && isRlfDay(day)">
+      <ng-container *ngIf="day">
+        <div class="day-header">
+          <span class="day-number clickable" (click)="toggleBidders(day.dayNumber)">{{ day.dayNumber }}</span>
+          <span class="day-counts">
+            <span class="count-open">{{ day.openCount }}</span>
+            <span class="count-sep">/</span>
+            <span class="count-relief">{{ day.reliefCount }}</span>
+            <span class="count-sep">/</span>
+            <span class="count-extra" [class.positive]="day.reliefCount - day.openCount >= 1" [class.negative]="day.reliefCount - day.openCount < 1">{{ day.reliefCount - day.openCount }}</span>
+          </span>
+        </div>
+        <div class="bidder-names" *ngIf="isBiddersExpanded(day.dayNumber) && day.bidderNames.length > 0">
+          {{ day.bidderNames.join(', ') }}
+        </div>
+        <div class="shifts-scroll-area" *ngIf="!workdaysOnly || isRlfDay(day)">
+          <div class="scroll-fade-top"></div>
+          <div class="shifts-container" (scroll)="onShiftsScroll($event)">
+            <ng-container *ngFor="let s of day.shifts">
+              <button
+                *ngIf="!isSelected(s) && isShiftVisible(s)"
+                type="button"
+                class="shift-tag"
+                [ngClass]="s.cssClass"
+                (click)="onShiftClick(s)"
+                [title]="getShiftTooltip(s)">
+                {{ s.shift }}
+              </button>
+            </ng-container>
+          </div>
+          <div class="scroll-fade-bottom"></div>
+        </div>
+      </ng-container>
+    </div>
+  </div>
+</div>

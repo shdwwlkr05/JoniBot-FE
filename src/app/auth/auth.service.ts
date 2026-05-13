@@ -1,9 +1,9 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http'
-import { catchError, tap } from 'rxjs/operators'
+import { catchError, map, tap } from 'rxjs/operators'
 
 import { User } from './user.model';
-import {BehaviorSubject, Subject, throwError} from 'rxjs'
+import {BehaviorSubject, of, Subject, throwError} from 'rxjs'
 import { Router } from '@angular/router'
 import { DataStorageService } from '../bid-form/data-storage.service'
 import { environment } from '../../environments/environment'
@@ -20,6 +20,21 @@ export interface AuthResponseData {
 export class AuthService {
   user = new BehaviorSubject<User>(null);
   authMessage = new BehaviorSubject<any>('');
+  private static TESTERS = ['DAL110', 'DAL545'];
+  private readonly isReliefSubject = new BehaviorSubject<boolean>(false);
+  readonly isRelief$ = this.isReliefSubject.asObservable();
+
+  isTester(username: string): boolean {
+    return AuthService.TESTERS.includes(username)
+  }
+
+  checkReliefBidder(): void {
+    this.http.get<{ is_relief_bidder: boolean }>(environment.baseURL + 'api/bid/isReliefBidder/')
+      .pipe(catchError(() => of({ is_relief_bidder: false })))
+      .subscribe(res => {
+        this.isReliefSubject.next(res.is_relief_bidder);
+      });
+  }
 
   constructor(private http: HttpClient,
               private router: Router,
@@ -67,12 +82,14 @@ export class AuthService {
       this.data.fetchBalances()
       this.data.fetchWorkgroup()
       this.data.fetchLines()
+      this.checkReliefBidder()
       // this.data.fetchLineWorkdays()
     }
   }
 
   logout(message: string) {
     this.user.next(null);
+    this.isReliefSubject.next(false);
     this.authMessage.next(message);
     this.router.navigate(['/auth'])
     localStorage.removeItem('userData')
@@ -100,6 +117,7 @@ export class AuthService {
     this.data.fetchBids()
     this.data.fetchBalances()
     this.data.fetchWorkgroup()
+    this.checkReliefBidder()
     this.router.navigate(['/'])
   }
 

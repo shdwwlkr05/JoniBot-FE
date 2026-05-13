@@ -1,0 +1,36 @@
+<div class="shift-grid">
+  <div class="week-header">
+    <div class="header-cell" *ngFor="let h of dayHeaders">{{ h }}</div>
+  </div>
+
+  <div class="week-row" *ngFor="let week of weeks">
+    <div class="day-cell" *ngFor="let day of week"
+         [class.empty]="!day"
+         [class.workday]="day && isWorkday(day)">
+      <ng-container *ngIf="day">
+        <div class="day-header">
+          <span class="day-number">{{ day.dayNumber }}</span>
+        </div>
+        <span class="workday-shift" *ngIf="getWorkdayShift(day) as ws">{{ ws }}</span>
+        <span class="workday-times" *ngIf="getWorkdayTimes(day) as times">{{ times }}</span>
+        <div class="shifts-scroll-area" *ngIf="!isDayHidden(day)">
+          <div class="scroll-fade-top"></div>
+          <div class="shifts-container" (scroll)="onShiftsScroll($event)">
+            <ng-container *ngFor="let s of day.shifts">
+              <button
+                *ngIf="!isSelected(s) && isShiftVisible(s)"
+                type="button"
+                class="shift-tag"
+                [ngClass]="s.cssClass"
+                (click)="onShiftClick(s)"
+                [title]="getShiftTooltip(s)">
+                {{ s.shift }}
+              </button>
+            </ng-container>
+          </div>
+          <div class="scroll-fade-bottom"></div>
+        </div>
+      </ng-container>
+    </div>
+  </div>
+</div>

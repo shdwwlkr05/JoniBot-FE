@@ -20,7 +20,8 @@ export class LineAwardsComponent implements OnInit, OnDestroy {
   intlLinesRemaining
   domRlfLinesRemaining
   dualRlfLinesRemaining
-  linesToBlock = 36
+  lineBidParamsSubscription = new Subscription()
+  linesToBlock
   domLinesNotBlocked
   linesSubscription = new Subscription()
   userSubscription = new Subscription()
@@ -79,13 +80,17 @@ export class LineAwardsComponent implements OnInit, OnDestroy {
         this.domLinesNotBlocked = 0
       }
     })
-    this.data.fetchLineAwards()
     this.bidSubscription = this.data.lineBid.subscribe(data => {
       this.bid = data.bid.split(',')
     })
     this.data.fetchLineBid()
+    this.lineBidParamsSubscription = this.data.lineBidParams.subscribe(params => {
+      this.linesToBlock = params.domBlock
+    })
+    this.data.fetchLineBidParams()
     this.lineAwardsInterval = setInterval(() =>
       this.data.fetchLineAwards(), 30000)
+    this.data.fetchLineAwards()
   }
 
   ngOnDestroy(): void {
@@ -94,6 +99,7 @@ export class LineAwardsComponent implements OnInit, OnDestroy {
     this.userSubscription.unsubscribe();
     this.lineAwardSubscription.unsubscribe()
     this.bidSubscription.unsubscribe()
+    this.lineBidParamsSubscription.unsubscribe()
   }
 
   lineAwardedTo(line_number: string) {

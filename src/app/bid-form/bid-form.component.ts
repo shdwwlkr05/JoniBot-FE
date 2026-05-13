@@ -6,6 +6,7 @@ import {DataStorageService, vacBid} from './data-storage.service'
 import { formatDate } from '@angular/common'
 import { Router } from '@angular/router'
 import { CalendarService } from '../calendar/calendar.service'
+import { AuthService } from '../auth/auth.service'
 import {environment} from "../../environments/environment";
 
 
@@ -17,7 +18,7 @@ import {environment} from "../../environments/environment";
 export class BidFormComponent implements OnInit, OnDestroy {
   @Input() editChoice: vacBid
   @Input() roundEdit: vacBid[]
-  rounds = [1, 2, 3, 4, 5, 6, 7]
+  rounds = [1, 2, 3, 4, 5, 6, 7, 8]
   bidForm: FormGroup
   editing = false
   updating = false
@@ -46,17 +47,24 @@ export class BidFormComponent implements OnInit, OnDestroy {
   balances = {}
   awards
   round7 = true
+  round8 = false
   bidStart = new Date(environment.currYear, 3, 1) // Zero indexed month
   bidEnd = new Date(environment.nextYear, 2, 31) // Zero indexed month
 
   constructor(private bidService: BidService,
               private data: DataStorageService,
               private router: Router,
-              private calService: CalendarService) {
+              private calService: CalendarService,
+              private authService: AuthService) {
   }
 
 
   ngOnInit() {
+    const user = this.authService.user.getValue()
+    if (!user || !this.authService.isTester(user.username)) {
+      this.rounds = [1, 2, 3, 4, 5, 6, 7]
+    }
+
     this.dateSubscription = this.bidService.dateEmitter.subscribe(dateInfo => {
       if (dateInfo.location === 'start') {
         this.bidForm.patchValue({
@@ -73,6 +81,7 @@ export class BidFormComponent implements OnInit, OnDestroy {
       this.editing = true
       this.defaultRound = this.editChoice.round
       this.round7 = (this.editChoice.round == 7)
+      this.round8 = (this.editChoice.round == 8)
       this.defaultChoice = this.editChoice.choice
       this.defaultStart = this.editChoice.bid_start_date
       this.defaultEnd = this.editChoice.bid_end_date
@@ -131,6 +140,14 @@ export class BidFormComponent implements OnInit, OnDestroy {
       'use-holiday': new FormControl(this.defaultHol),
     })
 
+    if (this.editing) {
+      // Ensure vac-type is set after form creation so Angular's
+      // select binding picks it up once the options are rendered
+      setTimeout(() => {
+        this.bidForm.controls['vac-type'].setValue(this.defaultType)
+      })
+    }
+
   }
 
   ngOnDestroy() {
@@ -142,12 +159,13 @@ export class BidFormComponent implements OnInit, OnDestroy {
   }
 
   buildBid() {
-    const start = new Date(this.bidForm.value['start-vac'] + 'T00:00:00')
+    const formValues = this.bidForm.getRawValue()
+    const start = new Date(formValues['start-vac'] + 'T00:00:00')
     let end
-    if (!this.bidForm.value['end-vac']) {
+    if (!formValues['end-vac']) {
       end = start
     } else {
-      end = new Date(this.bidForm.value['end-vac'] + 'T00:00:00')
+      end = new Date(formValues['end-vac'] + 'T00:00:00')
     }
 
     const bid = {
@@ -155,12 +173,12 @@ export class BidFormComponent implements OnInit, OnDestroy {
       'choice': null,
       'bid_start_date': start.toISOString().split('T')[0],
       'bid_end_date': end.toISOString().split('T')[0],
-      'vac_type': this.bidForm.value['vac-type'],
-      'award_opt': this.bidForm.value['award-option'],
-      'use_hol': this.bidForm.value['use-holiday']
+      'vac_type': formValues['vac-type'],
+      'award_opt': formValues['award-option'],
+      'use_hol': formValues['use-holiday']
     }
-    this.editChoice ? bid.round = this.editChoice['round'] : bid.round = this.bidForm.value['bid-round']
-    this.editChoice ? bid.choice = this.editChoice['choice'] : bid.choice = this.bidForm.value['bid-choice']
+    this.editChoice ? bid.round = this.editChoice['round'] : bid.round = formValues['bid-round']
+    this.editChoice ? bid.choice = this.editChoice['choice'] : bid.choice = formValues['bid-choice']
 
     return [bid, start, end]
   }
@@ -248,6 +266,7 @@ export class BidFormComponent implements OnInit, OnDestroy {
   roundChange(event) {
     let numChoices
     this.round7 = (event == 7)
+    this.round8 = (event == 8)
     const roundObject = this.bids[event]
     if (roundObject) {
       numChoices = Object.keys(roundObject).length + 1
@@ -256,6 +275,19 @@ export class BidFormComponent implements OnInit, OnDestroy {
     }
     this.bidForm.controls['bid-choice'].setValue(numChoices)
 
+    if (this.round8) {
+      this.bidForm.controls['vac-type'].setValue('ptd')
+      this.bidForm.controls['award-option'].disable()
+      this.bidForm.controls['use-holiday'].disable()
+    } else if (this.round7) {
+      this.bidForm.controls['vac-type'].setValue('any')
+      this.bidForm.controls['award-option'].enable()
+      this.bidForm.controls['use-holiday'].enable()
+    } else {
+      this.bidForm.controls['vac-type'].setValue('vac')
+      this.bidForm.controls['award-option'].enable()
+      this.bidForm.controls['use-holiday'].enable()
+    }
   }
 
   vacTypeChange(vacType: string) {

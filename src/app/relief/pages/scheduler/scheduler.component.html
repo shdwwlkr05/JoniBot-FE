@@ -1,0 +1,129 @@
+<div class="scheduler">
+  <div class="row">
+    <div class="col-xs-12">
+      <h5>Relief Bid for {{formattedStartDate}} - Closes {{formattedCloseDate}}</h5>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-xs-12" style="width: 50%">
+      <h6>Number of shifts per workgroup</h6>
+      <table class="table table-sm table-bordered">
+        <thead>
+          <th>Workgroup</th>
+          <th>Number of shifts</th>
+        </thead>
+        <tr (click)="onGroupChange('fs')">
+          <td style="width: 50%">FS</td>
+          <td>{{getCountOfShifts('fs')}}</td>
+        </tr>
+        <tr (click)="onGroupChange('sfsd')">
+          <td>SFSD</td>
+          <td>{{getCountOfShifts('sfsd')}}</td>
+        </tr>
+        <tr (click)="onGroupChange('sfsi')">
+          <td>SFSI</td>
+          <td>{{getCountOfShifts('sfsi')}}</td>
+        </tr>
+        <tr (click)="onGroupChange('som')">
+          <td>SOM</td>
+          <td>{{getCountOfShifts('som')}}</td>
+        </tr>
+        <tr (click)="onGroupChange('ssom')">
+          <td>SSOM</td>
+          <td>{{getCountOfShifts('ssom')}}</td>
+        </tr>
+      </table>
+      <h6>Number of bidders per workgroup</h6>
+      <table class="table table-sm table-bordered">
+        <thead>
+          <th>Workgroup</th>
+          <th>Number of bidders</th>
+        </thead>
+        <tr (click)="onBidderGroupChange('fs')">
+          <td style="width: 50%">FS</td>
+          <td>{{getCountOfBidders('fs')}}</td>
+        </tr>
+        <tr (click)="onBidderGroupChange('sfsd')">
+          <td>SFSD</td>
+          <td>{{getCountOfBidders('sfsd')}}</td>
+        </tr>
+        <tr (click)="onBidderGroupChange('sfsi')">
+          <td>SFSI</td>
+          <td>{{getCountOfBidders('sfsi')}}</td>
+        </tr>
+        <tr (click)="onBidderGroupChange('som')">
+          <td>SOM</td>
+          <td>{{getCountOfBidders('som')}}</td>
+        </tr>
+        <tr (click)="onBidderGroupChange('ssom')">
+          <td>SSOM</td>
+          <td>{{getCountOfBidders('ssom')}}</td>
+        </tr>
+      </table>
+    </div>
+    <div class="col-xs-12" style="width: 50%">
+      <h6>Relief Bid Parameters</h6>
+      <label for="reliefCSV">Relief Shifts CSV:</label>
+      <input type="file" id="reliefCSV" (change)="onFileSelected($event)">
+      <br>
+      <button (click)="uploadShifts()">{{ processing ? 'Processing' : 'Upload Shifts' }}
+        <span *ngIf="processing" class="spinner"></span>
+      </button>
+      <hr>
+      <label for="reliefStartDate">Start Date: </label>
+      <input type="date" id="reliefStartDate" [(ngModel)]="selectedStartDate">
+      <br>
+      <label for="reliefCloseDate">Close Date: </label>
+      <input type="date" id="reliefCloseDate" [(ngModel)]="selectedCloseDate">
+      <br>
+      <button (click)="setDates()">Set Dates</button>
+      <span style="margin-left: 10px">{{httpResponse}}</span>
+      <hr>
+      <h6>Export Bids</h6>
+      <button (click)="exportBids('fs')" [disabled]="exporting">Export FS Bids
+        <span *ngIf="exporting" class="spinner"></span>
+      </button>
+      <button (click)="exportBids('som')" [disabled]="exporting" style="margin-left: 10px">Export SOM Bids
+        <span *ngIf="exporting" class="spinner"></span>
+      </button>
+    </div>
+  </div>
+  <hr *ngIf="selectedBidderGroup">
+  <div class="row" *ngIf="selectedBidderGroup" style="margin-bottom: 16px">
+    <div class="col-xs-12" id="bidder-list">
+      <h5>{{selectedBidderGroup}} Bidders</h5>
+      <table class="table table-sm table-bordered">
+        <thead>
+          <th>Bid Order</th>
+          <th>Short Name</th>
+        </thead>
+        <tbody>
+          <tr *ngFor="let bidder of filteredBidders">
+            <td>{{bidder.bid_order}}</td>
+            <td>{{bidder.shortname}}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <hr>
+  <div class="row" *ngIf="selectedGroup">
+    <div class="col-xs-12" id="shift-list">
+      <h5>Selected Work Group: {{selectedGroup}}</h5>
+      <table class="table table-sm table-bordered">
+        <thead>
+          <th>Day</th>
+          <th>Shift</th>
+          <th>Group</th>
+        </thead>
+        <tbody>
+          <tr *ngFor="let shift of filteredShifts">
+            <td>{{shift.day}}</td>
+            <td>{{shift.shift}}</td>
+            <td>{{shift.group}}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

@@ -13,7 +13,6 @@ import { MobileComponent } from './mobile/mobile.component'
 import { OpenTimeComponent } from './open-time/open-time.component'
 import { ChangePwComponent } from './auth/change-pw/change-pw.component';
 import {AdminChangePwComponent} from "./auth/admin-change-pw/admin-change-pw.component";
-import {ReliefBidComponent} from "./relief-bid/relief-bid.component";
 import {AwardCountsResolverService} from "./calendar/award-count-resolver.service";
 import {MyCalendarComponent} from "./my-calendar/my-calendar.component";
 import {AllLinesViewComponent} from "./all-lines-view/all-lines-view.component";
@@ -24,7 +23,6 @@ import {AdminLineBidComponent} from "./line-bid/admin-line-bid/admin-line-bid.co
 import {HomeComponent} from "./home/home.component";
 import {AdminOpenTimeComponent} from "./admin/admin-open-time/admin-open-time.component";
 import {AppConfigComponent} from "./admin/app-config/app-config.component";
-import {ReliefBidDayComponent} from "./relief-bid/relief-bid-day/relief-bid-day.component";
 
 const appRoutes: Routes = [
   {path: '', component: HomeComponent, pathMatch: 'full', canActivate: [AuthGuard]},
@@ -45,8 +43,9 @@ const appRoutes: Routes = [
   {path: 'lineBid', component: LineBidComponent, canActivate: [AuthGuard], canDeactivate: [CanDeactivateGuardService]},
   {path: 'adminLineBid', component: AdminLineBidComponent, canActivate: [AuthGuard]},
   {path: 'lineAwards', component: LineAwardsComponent, canActivate: [AuthGuard]},
-  {path: 'relief', component: ReliefBidComponent, canActivate: [AuthGuard]},
-  {path: 'relief/:day', component: ReliefBidDayComponent, canActivate: [AuthGuard]}
+  { path: 'relief', loadChildren: () => import('./relief/relief.module').then(m => m.ReliefModule) },
+  { path: 'openTime2', loadChildren: () => import('./open-time-v2/open-time-v2.module').then(m => m.OpenTimeV2Module) },
+  { path: 'vacBidV2', loadChildren: () => import('./vac-bid-v2/vac-bid-v2.module').then(m => m.VacBidV2Module) }
 ]
 
 @NgModule({

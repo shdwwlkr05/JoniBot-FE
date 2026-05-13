@@ -64,11 +64,12 @@
             id="vac-type"
             class="form-select"
             formControlName="vac-type">
-            <option value="vac">Vacation</option>
-            <option value="ppt">PPT</option>
+            <option value="vac" *ngIf="!round8">Vacation</option>
+            <option value="ppt" *ngIf="!round8">PPT</option>
             <option value="hol" *ngIf="round7">Holiday</option>
-            <option value="adj" *ngIf="round7">Adjustment Day</option>
+<!--            <option value="adj" *ngIf="round7">Adjustment Day</option>-->
             <option value="any" *ngIf="round7">Any time I have available</option>
+            <option value="ptd" *ngIf="round8">Paid Trade Day</option>
           </select>
         </div>
         <div class="form-group">

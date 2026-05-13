@@ -1,17 +1,29 @@
 <div class="row">
   <div class="col-xs-12">
     <h5>My Bids - Click on bid to edit or delete</h5>
-<!--    Round 1 must be saved/submitted by: {{bidTimes?.round1| date :'MMMM dd, yyyy HH:mm'}}-->
-<!--    <br>-->
-<!--    Round 2 must be saved/submitted by: {{bidTimes?.round2| date :'MMMM dd, yyyy HH:mm'}}-->
-<!--    <br>-->
-    Round 4 must be saved/submitted by: 01/30/24 06:00
-    <br>
-    Round 5 must be saved/submitted by: 02/01/24 06:00
-    <br>
-    Round 6 must be saved/submitted by: 02/06/24 06:00
-    <br>
-    Incremental round must be saved/submitted by: 02/08/24 06:00
+    <span *ngIf="vacBidDates?.round1_display">Round 1 must be saved/submitted by:
+      {{bidTimes?.round1| date :'MM/dd/yy HH:mm'}}</span>
+    <br *ngIf="vacBidDates?.round1_display">
+    <span *ngIf="vacBidDates?.round2_display">Round 2 must be saved/submitted by:
+      {{bidTimes?.round2| date :'MM/dd/yy HH:mm'}}</span>
+    <br *ngIf="vacBidDates?.round2_display">
+    <span *ngIf="vacBidDates?.round3_display">Round 3 must be saved/submitted by:
+      {{vacBidDates.round3_due_date| date :'MM/dd/yy HH:mm'}}</span>
+    <br *ngIf="vacBidDates?.round3_display">
+    <span *ngIf="vacBidDates?.round4_display">Round 4 must be saved/submitted by:
+      {{vacBidDates.round4_due_date| date :'MM/dd/yy HH:mm'}}</span>
+    <br *ngIf="vacBidDates?.round4_display">
+    <span *ngIf="vacBidDates?.round5_display">Round 5 must be saved/submitted by:
+      {{vacBidDates.round5_due_date| date :'MM/dd/yy HH:mm'}}</span>
+    <br *ngIf="vacBidDates?.round5_display">
+    <span *ngIf="vacBidDates?.round6_display">Round 6 must be saved/submitted by:
+      {{vacBidDates.round6_due_date| date :'MM/dd/yy HH:mm'}}</span>
+    <br *ngIf="vacBidDates?.round6_display">
+    <span *ngIf="vacBidDates?.round7_display">Incremental round must be saved/submitted by:
+      {{vacBidDates.round7_due_date| date :'MM/dd/yy HH:mm'}}</span>
+    <br *ngIf="vacBidDates?.round7_display">
+    <span *ngIf="vacBidDates?.round8_display">PTD round must be saved/submitted by:
+      {{vacBidDates.round8_due_date| date :'MM/dd/yy HH:mm'}}</span>
     <hr>
   </div>
 </div>
@@ -83,6 +95,29 @@
         <app-bid-item
           [bid]="bid"
           [round]="bids[7]">
+        </app-bid-item>
+      </ul>
+    </div>
+  </div>
+  <div class="col" *ngIf="round8bids">
+    <div>
+      <h5>Round 8 (PTD)</h5>
+      <span
+        style="
+            margin-left: 15px;
+            cursor: pointer;
+            border: 1px solid black;
+            border-radius: 4px;
+            padding: 2px;
+            background: lightpink;"
+        (click)="onClear(bids[8])"
+      >
+          Clear Round 8
+          </span>
+      <ul *ngFor="let bid of bids[8]">
+        <app-bid-item
+          [bid]="bid"
+          [round]="bids[8]">
         </app-bid-item>
       </ul>
     </div>

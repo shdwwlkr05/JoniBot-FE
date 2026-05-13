@@ -1,0 +1,8 @@
+<div class="relief-shell">
+  <h2>{{ title }}</h2>
+  <h5 *ngIf="closeDate">Bids must be submitted by {{ closeDate }}</h5>
+
+  <section class="relief-content">
+    <router-outlet></router-outlet>
+  </section>
+</div>

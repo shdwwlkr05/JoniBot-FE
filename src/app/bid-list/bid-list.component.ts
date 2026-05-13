@@ -1,6 +1,6 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { Subscription } from 'rxjs'
-import {DataStorageService, user, vacBid} from '../bid-form/data-storage.service'
+import {DataStorageService, user, vacBid, vacBidDates} from '../bid-form/data-storage.service'
 import { BidService } from '../bid-form/bid.service'
 import { KeyValue } from '@angular/common'
 
@@ -11,7 +11,7 @@ import { KeyValue } from '@angular/common'
   styleUrls: ['./bid-list.component.css']
 })
 export class BidListComponent implements OnInit, OnDestroy {
-  bids = {1: [], 2: [], 3: [], 4: [], 5: [], 6: [], 7: []}
+  bids = {1: [], 2: [], 3: [], 4: [], 5: [], 6: [], 7: [], 8: []}
   roundsWithBid = []
   incrementalBids = {'vac': [], 'ppt': [], 'hol': [], 'adj': [], 'any': []}
   vacLen: number
@@ -21,9 +21,12 @@ export class BidListComponent implements OnInit, OnDestroy {
   anyLen: number
   loading = false
   round7bids: boolean = false
+  round8bids: boolean = false
   bidTimes: user
   private bidSubscription: Subscription
   private timeSubscription: Subscription
+  vacBidDates: vacBidDates
+  vacBidDatesSubscription = new Subscription()
 
   constructor(private data: DataStorageService,
               private bidService: BidService) {
@@ -36,18 +39,25 @@ export class BidListComponent implements OnInit, OnDestroy {
         this.bids[round] = bids.filter((bid:vacBid) => bid.round == round)
       }
       this.round7bids = !(this.bids[7].length == 0)
+      this.round8bids = !(this.bids[8].length == 0)
     })
     this.data.fetchBids()
     this.timeSubscription = this.data.bidTime.subscribe((times:user[]) => {
       this.bidTimes = times[0]
-      console.log(this.bidTimes)
+      // console.log(this.bidTimes)
     })
     this.data.fetchBidTime()
+    this.data.vacBidDates.subscribe((dates: vacBidDates) => {
+      this.vacBidDates = dates
+      // console.log(this.vacBidDates)
+    })
+    this.data.fetchVacBidDates()
   }
 
   ngOnDestroy(): void {
     this.bidSubscription.unsubscribe()
     this.timeSubscription.unsubscribe()
+    this.vacBidDatesSubscription.unsubscribe()
   }
 
   returnZero() {

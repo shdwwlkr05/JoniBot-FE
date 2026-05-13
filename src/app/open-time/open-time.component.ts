@@ -10,6 +10,7 @@ interface shift {
   id: string
   day: string
   shift: string
+  start_time: string
 }
 
 interface parameters {
@@ -71,7 +72,6 @@ export class OpenTimeComponent implements OnInit {
   workgroupSubscription: Subscription
   workgroupCountSubscription: Subscription
   openTimeRankSubscription: Subscription
-  shiftTimesSubscription: Subscription
   userQualSubscription: Subscription
   limitAwards = false
   receivedLimit = false
@@ -83,7 +83,6 @@ export class OpenTimeComponent implements OnInit {
   userGroup = ''
   openTimeRank = ''
   totalInGroup = ''
-  shiftTimes
   userQuals
   intlQual = true
   sptQual = true
@@ -98,7 +97,7 @@ export class OpenTimeComponent implements OnInit {
 
   }
 
-  async ngOnInit() {
+  ngOnInit() {
     this.workgroupSubscription = this.data.userWorkgroup.subscribe(workgroup => {
       this.userGroup = workgroup
     })
@@ -130,9 +129,6 @@ export class OpenTimeComponent implements OnInit {
     this.openTimeRankSubscription = this.data.openTimeRank.subscribe(rank => {
       this.openTimeRank = rank
     })
-    this.shiftTimesSubscription = this.data.shiftTimes.subscribe(times => {
-      this.shiftTimes = times
-    })
     this.check_shifts()
     this.userQualSubscription = this.data.userQuals.subscribe(quals => {
       this.userQuals = quals
@@ -156,13 +152,16 @@ export class OpenTimeComponent implements OnInit {
       this.formatted_close_date = new DatePipe('en-US').transform(close_date, 'MMMM dd')
       this.selected_close_date = params.close_date
     })
-    await this.data.fetchWorkgroupCount()
-    await this.data.fetchOpenTimeBid()
-    await this.data.fetchOpenTimeRank()
-    await this.data.fetchShiftTimes()
-    await this.data.fetchUserQualifications()
-    await this.data.fetchOpenTimeParameters()
-    await this.data.fetchOpenTimeShifts()
+    this.data.fetchWorkgroupCount()
+    this.data.fetchOpenTimeBid()
+    this.data.fetchOpenTimeRank()
+    this.data.fetchUserQualifications()
+    this.data.fetchOpenTimeParameters()
+    this.data.fetchOpenTimeShifts()
+
+    setTimeout(() => {
+      this.shiftsToShow();
+    }, 2000);
 
   }
 
@@ -172,7 +171,6 @@ export class OpenTimeComponent implements OnInit {
     this.responseSubscription.unsubscribe()
     this.workgroupCountSubscription.unsubscribe()
     this.openTimeRankSubscription.unsubscribe()
-    this.shiftTimesSubscription.unsubscribe()
     this.userQualSubscription.unsubscribe()
     this.parameterSubscription.unsubscribe()
   }
@@ -338,6 +336,13 @@ export class OpenTimeComponent implements OnInit {
   }
 
   shiftOnDayOfWeek(shift: shift) {
+    if (this.shiftDate === undefined) {
+      // Pause execution for 100 milliseconds if shiftDate is undefined
+      setTimeout(() => {
+        this.shiftOnDayOfWeek(shift);
+      }, 100);
+      return;
+    }
     this.shiftDate.setDate(+shift.day)
     switch (+this.shiftDate.getDay()) {
       case 0:

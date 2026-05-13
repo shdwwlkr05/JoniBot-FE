@@ -1,0 +1,165 @@
+<div class="vac-bidder container-fluid">
+  <h3 class="mb-3">Vacation Bid Sheet 2.0</h3>
+
+  <ng-container *ngIf="draft$ | async as draft">
+    <!-- Bid Controls Panel -->
+    <div class="card mb-3">
+      <div class="card-body">
+        <div class="row g-3 align-items-end">
+          <!-- Round -->
+          <div class="col-auto">
+            <label class="form-label fw-bold">Round</label>
+            <select class="form-select form-select-sm"
+                    [ngModel]="draft.round"
+                    (ngModelChange)="onRoundChange($event)">
+              <option *ngFor="let r of rounds" [value]="r">{{ r }}</option>
+            </select>
+          </div>
+
+          <!-- Choice (auto) -->
+          <div class="col-auto">
+            <label class="form-label fw-bold">Choice</label>
+            <input class="form-control form-control-sm" [value]="draft.choice" disabled style="width:60px">
+          </div>
+
+          <!-- Vac Type -->
+          <div class="col-auto" *ngIf="draft.round <= 6">
+            <label class="form-label fw-bold">Type</label>
+            <select class="form-select form-select-sm"
+                    [ngModel]="draft.vacType"
+                    (ngModelChange)="onVacTypeChange($event)">
+              <option value="vac">Vacation</option>
+              <option value="ppt">PPT</option>
+            </select>
+          </div>
+          <div class="col-auto" *ngIf="draft.round === 7">
+            <label class="form-label fw-bold">Type</label>
+            <select class="form-select form-select-sm"
+                    [ngModel]="draft.vacType"
+                    (ngModelChange)="onVacTypeChange($event)">
+              <option value="vac">Vacation</option>
+              <option value="ppt">PPT</option>
+              <option value="hol">Holiday</option>
+              <option value="any">Any</option>
+            </select>
+          </div>
+          <div class="col-auto" *ngIf="draft.round === 8">
+            <label class="form-label fw-bold">Type</label>
+            <input class="form-control form-control-sm" value="PTD" disabled style="width:80px">
+          </div>
+
+          <!-- Award Option -->
+          <div class="col-auto">
+            <label class="form-label fw-bold">Award Option</label>
+            <select class="form-select form-select-sm"
+                    [ngModel]="draft.awardOpt"
+                    (ngModelChange)="onAwardOptChange($event)"
+                    [disabled]="draft.round === 8">
+              <option value="50p">50% or more</option>
+              <option value="all">All or Nothing</option>
+              <option value="any">Any Available</option>
+            </select>
+          </div>
+
+          <!-- Use Holiday -->
+          <div class="col-auto">
+            <label class="form-label fw-bold d-block">Use Holiday</label>
+            <div class="d-flex align-items-center" style="height: calc(1.3125rem + 0.5rem + 2px);">
+              <input type="checkbox"
+                     class="form-check-input m-0"
+                     [ngModel]="draft.useHol"
+                     (ngModelChange)="onUseHolChange($event)"
+                     [disabled]="draft.round === 8">
+            </div>
+          </div>
+
+          <!-- Date Range Display -->
+          <div class="col-auto">
+            <label class="form-label fw-bold">Date Range</label>
+            <div class="form-control form-control-sm bg-light" style="min-width:200px">
+              <span *ngIf="draft.startDate; else noRange">
+                {{ draft.startDate }}
+                <span *ngIf="draft.endDate && draft.endDate !== draft.startDate">
+                  &rarr; {{ draft.endDate }}
+                </span>
+              </span>
+              <ng-template #noRange><span class="text-muted">Click calendar days</span></ng-template>
+            </div>
+          </div>
+
+          <!-- Buttons -->
+          <div class="col-auto">
+            <button class="btn btn-sm btn-outline-secondary me-2" (click)="onClear()">Clear</button>
+            <button class="btn btn-sm btn-primary"
+                    [disabled]="!(canSubmit$ | async)"
+                    (click)="onSubmit()">Submit Bid</button>
+          </div>
+        </div>
+
+        <!-- Response messages -->
+        <div *ngIf="response$ | async as resp" class="mt-2">
+          <div class="alert alert-info alert-sm py-1 mb-0">{{ resp }}</div>
+        </div>
+      </div>
+    </div>
+  </ng-container>
+
+  <!-- View Controls -->
+  <div class="d-flex align-items-center mb-3 gap-2" *ngIf="viewMode$ | async as vm">
+    <div class="btn-group btn-group-sm">
+      <button class="btn" [class.btn-primary]="vm === 'month'" [class.btn-outline-primary]="vm !== 'month'"
+              (click)="onViewToggle('month')">Month</button>
+      <button class="btn" [class.btn-primary]="vm === 'year'" [class.btn-outline-primary]="vm !== 'year'"
+              (click)="onViewToggle('year')">Year</button>
+    </div>
+    <ng-container *ngIf="vm === 'month'">
+      <button class="btn btn-sm btn-outline-secondary" (click)="onPrev()">&laquo; Prev</button>
+      <span *ngIf="month$ | async as m" class="fw-bold">{{ m.label }}</span>
+      <button class="btn btn-sm btn-outline-secondary" (click)="onNext()">Next &raquo;</button>
+    </ng-container>
+  </div>
+
+  <!-- Balances -->
+  <div class="row mb-3" *ngIf="balances$ | async as bal">
+    <div class="col-auto" *ngIf="bal.vacation !== undefined">
+      <span class="badge bg-primary me-1">Vac: {{ bal.vacation }}h</span>
+    </div>
+    <div class="col-auto" *ngIf="bal.ppt !== undefined">
+      <span class="badge bg-success me-1">PPT: {{ bal.ppt }}h</span>
+    </div>
+    <div class="col-auto" *ngIf="bal.holiday !== undefined">
+      <span class="badge bg-warning text-dark me-1">Hol: {{ bal.holiday }}h</span>
+    </div>
+  </div>
+
+  <!-- Award Legend -->
+  <div class="legend mb-3">
+    <span class="legend-item"><span class="swatch award-green"></span> &lt;75%</span>
+    <span class="legend-item"><span class="swatch award-yellow"></span> 75-85%</span>
+    <span class="legend-item"><span class="swatch award-orange"></span> 85-99%</span>
+    <span class="legend-item"><span class="swatch award-red"></span> 100%</span>
+    <span class="legend-item"><span class="swatch workday-swatch"></span> Workday</span>
+  </div>
+
+  <!-- Month View -->
+  <ng-container *ngIf="(viewMode$ | async) === 'month'">
+    <app-vac-calendar-grid
+      *ngIf="month$ | async as m"
+      [monthVm]="m"
+      [compact]="false"
+      (dayClicked)="onDayClicked($event)">
+    </app-vac-calendar-grid>
+  </ng-container>
+
+  <!-- Year View -->
+  <ng-container *ngIf="(viewMode$ | async) === 'year'">
+    <div class="year-grid" *ngIf="year$ | async as months">
+      <app-vac-mini-month
+        *ngFor="let m of months"
+        [monthVm]="m"
+        (dayClicked)="onDayClicked($event)"
+        (zoomToMonth)="onZoomToMonth($event)">
+      </app-vac-mini-month>
+    </div>
+  </ng-container>
+</div>

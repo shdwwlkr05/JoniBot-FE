@@ -1,0 +1,41 @@
+<div class="calendar-grid" [class.compact]="compact">
+  <!-- Month label (compact mode) -->
+  <div *ngIf="compact" class="month-label clickable"
+       (click)="monthLabelClicked.emit({ year: monthVm.year, month: monthVm.month })">
+    {{ monthVm.label }}
+  </div>
+
+  <!-- Day headers -->
+  <div class="header-row">
+    <div *ngFor="let h of dayHeaders" class="header-cell">{{ compact ? h.charAt(0) : h }}</div>
+  </div>
+
+  <!-- Week rows -->
+  <div *ngFor="let week of monthVm.weeks" class="week-row">
+    <div *ngFor="let cell of week"
+         class="day-cell"
+         [class.empty]="!cell"
+         [class.disabled]="cell?.isDisabled"
+         [class.in-range]="cell?.isInRange"
+         [class.range-start]="cell?.isRangeStart"
+         [class.range-end]="cell?.isRangeEnd"
+         [class.has-workday]="cell?.workdayShift"
+         (click)="cell && onDayClick(cell)">
+      <ng-container *ngIf="cell">
+        <!-- Normal mode -->
+        <ng-container *ngIf="!compact">
+          <div class="day-number">{{ cell.dayNumber }}</div>
+          <div *ngIf="cell.awardCount > 0" class="award-badge" [ngClass]="cell.colorClass">
+            {{ cell.awardCount }}/{{ cell.maxOff }}
+          </div>
+          <div *ngIf="cell.workdayShift" class="workday-badge">{{ cell.workdayShift }}</div>
+        </ng-container>
+        <!-- Compact mode -->
+        <ng-container *ngIf="compact">
+          <span class="compact-day">{{ cell.dayNumber }}</span>
+          <span *ngIf="cell.awardCount > 0" class="compact-dot" [ngClass]="cell.colorClass"></span>
+        </ng-container>
+      </ng-container>
+    </div>
+  </div>
+</div>

@@ -61,6 +61,7 @@ export class MyTimeComponent implements OnInit, OnDestroy {
     })
     this.dataSubscription = this.data.fetchBalances()
     this.usedHolSubscription = this.bidService.usedHol.subscribe(usedHol => {
+      console.log('usedHol', usedHol)
       this.usedHolidaysCurrYear = []
       this.usedHolidaysNextYear = []
       for (let hol of usedHol) {

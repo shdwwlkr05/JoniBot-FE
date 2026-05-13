@@ -17,6 +17,7 @@ const balanceUrl = environment.baseURL + 'api/bid/balances'
 const awardUrl = environment.baseURL + 'api/bid/awards'
 const awardCountUrl = environment.baseURL + 'api/bid/awardCount/'
 const usedHolUrl = environment.baseURL + 'api/bid/usedHol'
+const adminUsedHolUrl = environment.baseURL + 'api/bid/adminUsedHol'
 const round7UsageUrl = environment.baseURL + 'api/bid/round7'
 const openTimeShiftsUrl = environment.baseURL + 'api/bid/openTimeShifts'
 const adminOpenTimeShiftsUrl = environment.baseURL + 'api/bid/openTimeShifts/admin/'
@@ -26,7 +27,6 @@ const openTimeBidUrl = environment.baseURL + 'api/bid/openTimeBid/'
 const workgroupUrl = environment.baseURL + 'api/bid/workgroups/'
 const totalUrl = environment.baseURL + 'api/bid/rank/'
 const rankUrl = environment.baseURL + 'api/bid/bidTime'
-const shiftTimesUrl = environment.baseURL + 'api/bid/shifttimes/'
 const linesUrl = environment.baseURL + 'api/bid/lines/'
 const linesWorkdaysUrl = environment.baseURL + 'api/bid/lineworkdays/'
 const lineBidUrl = environment.baseURL + 'api/bid/linebid/'
@@ -38,6 +38,8 @@ const lineAwardsUrl = environment.baseURL + 'api/bid/lineawards/'
 const userQualUrl = environment.baseURL + 'api/bid/userqual/'
 const adminUserQualUrl = environment.baseURL + 'api/bid/adminuserqual/'
 const navBarUrl = environment.baseURL + 'api/bid/navbar/'
+const vacBidDatesUrl = environment.baseURL + 'api/bid/vacBidDates/'
+const LineBidParamsUrl = environment.baseURL + 'api/bid/lineBidParams/'
 
 
 
@@ -114,12 +116,46 @@ export interface links {
   vac_bid: boolean
   open_time: boolean
   line_bid: boolean
+  relief_bid: boolean
+}
+
+export interface vacBidDates {
+  id: number
+  start_of_bid: string
+  end_of_bid: string
+  round1_display: boolean
+  round2_display: boolean
+  round3_display: boolean
+  round3_due_date: string
+  round4_display: boolean
+  round4_due_date: string
+  round5_display: boolean
+  round5_due_date: string
+  round6_display: boolean
+  round6_due_date: string
+  round7_display: boolean
+  round7_due_date: string
+  round8_display: boolean
+  round8_due_date: string
 }
 
 export interface userQuals {
   id: number
   qualification: string
   user: number
+}
+
+export interface holidayUsed {
+  id: number
+  year: number
+  hol_used: string
+  date_used: string
+  user: number
+}
+
+export interface lineBidParams {
+  id: number
+  domBlock: number
 }
 
 interface parameters {
@@ -146,7 +182,6 @@ export class DataStorageService {
   workgroupCount = new Subject<any>();
   openTimeRank = new Subject<any>();
   openTimeParams = new Subject<any>();
-  shiftTimes = new Subject<any>();
   lines = new BehaviorSubject<any>([]);
   userList = new BehaviorSubject<any>([]);
   shortnames = new BehaviorSubject<any>([]);
@@ -154,13 +189,16 @@ export class DataStorageService {
   lineWorkdays = new Subject<any>();
   lineBid = new Subject<any>();
   lineAwards = new Subject<any>();
+  lineBidParams: Subject<lineBidParams> = new Subject<lineBidParams>();
   bidTime = new Subject<any>();
   allLines
   allWorkdays
   vacBid = new Subject<any>()
   userQuals = new Subject<any>()
   adminUserQuals = new Subject<any>()
+  adminUsedHolidays = new Subject<holidayUsed[]>()
   navBarLinks = new Subject<links>()
+  vacBidDates = new Subject<any>()
 
   constructor(private http: HttpClient,
               private bidService: BidService,
@@ -176,6 +214,19 @@ export class DataStorageService {
   setNavBarLinks(links: links) {
     return this.http.put(navBarUrl, links).subscribe(res => {
       this.fetchNavBarLinks()
+    })
+  }
+
+  fetchLineBidParams() {
+    return this.http.get(LineBidParamsUrl).subscribe((response: lineBidParams) => {
+      this.lineBidParams.next(response)
+    })
+  }
+
+  setLineBidParams(params: lineBidParams) {
+    return this.http.put(LineBidParamsUrl, params).subscribe(res => {
+      this.fetchLineBidParams()
+      this.httpResponse.next(res['status'])
     })
   }
 
@@ -196,6 +247,21 @@ export class DataStorageService {
       this.httpResponse.next(res['status'])
     })
   }
+
+
+  fetchVacBidDates() {
+    return this.http.get(vacBidDatesUrl).subscribe((response: vacBidDates) => {
+      this.vacBidDates.next(response[0])
+    })
+  }
+
+  setVacBidDates(data: vacBidDates) {
+    return this.http.put(vacBidDatesUrl, data).subscribe(res => {
+      this.fetchVacBidDates()
+      this.httpResponse.next(res['status'])
+    })
+  }
+
 
   fetchBids() {
     return this.http.get(bidsURL).subscribe((response:vacBid[]) => {
@@ -301,6 +367,35 @@ export class DataStorageService {
     return this.http.get<[]>(usedHolUrl).subscribe(holidays => {
       if (!!holidays) {
         this.bidService.setUsedHol(holidays)
+      }
+    })
+  }
+
+  fetchAdminUsedHolidays(request) {
+    let queryParams = new HttpParams()
+    Object.keys(request).forEach(key => queryParams = queryParams.append(key, request[key]))
+    return this.http.get(adminUsedHolUrl, {params: queryParams})
+  }
+
+  addUsedHoliday(holiday) {
+    const headers = {'Content-Type': 'application/json',
+      'access-control-allow-origin': 'https://flightcontrolbidder.web.app'}
+    console.log('add', holiday.user)
+    return this.http.post(adminUsedHolUrl + '/', JSON.stringify(holiday), {'headers': headers}).subscribe((res) => {
+      console.log('res', res)
+      this.fetchAdminUsedHolidays({"user": holiday.user})
+      this.httpResponse.next(res['status'])
+    })
+  }
+
+  removeUsedHoliday(holiday) {
+    let queryParams = new HttpParams()
+    Object.keys(holiday).forEach(key => queryParams = queryParams.append(key, holiday[key]))
+    return this.http.delete(adminUsedHolUrl + '/', {params: queryParams}).subscribe(
+      (response) => {
+      if (response === 204) {
+        this.httpResponse.next('Successfully removed used holiday')
+        this.fetchAdminUsedHolidays({"user": holiday.user})
       }
     })
   }
@@ -452,12 +547,6 @@ export class DataStorageService {
         this.fetchOpenTimeBid()
         this.httpResponse.next(response['status'])
       })
-  }
-
-  fetchShiftTimes() {
-    return this.http.get(shiftTimesUrl).subscribe(times => {
-      this.shiftTimes.next(times)
-    })
   }
 
   // TODO: Create a service for this

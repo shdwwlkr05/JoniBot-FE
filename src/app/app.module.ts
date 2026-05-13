@@ -25,7 +25,6 @@ import { OpenTimeComponent } from './open-time/open-time.component';
 import { DragDropModule } from '@angular/cdk/drag-drop';
 import { ChangePwComponent } from './auth/change-pw/change-pw.component';
 import { AdminChangePwComponent } from './auth/admin-change-pw/admin-change-pw.component';
-import { ReliefBidComponent } from './relief-bid/relief-bid.component';
 import { MyCalendarComponent } from './my-calendar/my-calendar.component';
 import { AllLinesViewComponent } from './all-lines-view/all-lines-view.component';
 import { LineBidComponent } from './line-bid/line-bid.component';
@@ -35,7 +34,6 @@ import { HomeComponent } from './home/home.component';
 import { AdminOpenTimeComponent } from './admin/admin-open-time/admin-open-time.component';
 import {MatSnackBar, MatSnackBarModule} from "@angular/material/snack-bar";
 import { AppConfigComponent } from './admin/app-config/app-config.component';
-import { ReliefBidDayComponent } from './relief-bid/relief-bid-day/relief-bid-day.component';
 
 
 @NgModule({
@@ -55,7 +53,6 @@ import { ReliefBidDayComponent } from './relief-bid/relief-bid-day/relief-bid-da
     OpenTimeComponent,
     ChangePwComponent,
     AdminChangePwComponent,
-    ReliefBidComponent,
     MyCalendarComponent,
     AllLinesViewComponent,
     LineBidComponent,
@@ -64,7 +61,6 @@ import { ReliefBidDayComponent } from './relief-bid/relief-bid-day/relief-bid-da
     HomeComponent,
     AdminOpenTimeComponent,
     AppConfigComponent,
-    ReliefBidDayComponent,
 
   ],
   imports: [

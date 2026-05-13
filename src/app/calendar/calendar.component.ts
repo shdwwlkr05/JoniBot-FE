@@ -139,22 +139,22 @@ export class CalendarComponent implements OnInit, OnDestroy {
     // console.log(date);
   }
 
-  // eventTimesChanged({
-  //                     event,
-  //                     newStart,
-  //                     newEnd,
-  //                   }: CalendarEventTimesChangedEvent): void {
-  //   this.events = this.events.map((iEvent) => {
-  //     if (iEvent === event) {
-  //       return {
-  //         ...event,
-  //         start: newStart,
-  //         end: newEnd,
-  //       };
-  //     }
-  //     return iEvent;
-  //   });
-  // }
+  eventTimesChanged({
+                      event,
+                      newStart,
+                      newEnd,
+                    }: CalendarEventTimesChangedEvent): void {
+    this.events = this.events.map((iEvent) => {
+      if (iEvent === event) {
+        return {
+          ...event,
+          start: newStart,
+          end: newEnd,
+        };
+      }
+      return iEvent;
+    });
+  }
 
 
   onStartClick(event: CalendarEvent): void {
@@ -174,10 +174,10 @@ export class CalendarComponent implements OnInit, OnDestroy {
       this.workgroup = workgroup
       switch (true) {
         case (workgroup == 'ssom'):
-          this.max_off_per_day = 1
+          this.max_off_per_day = 2
           break
         case (workgroup == 'som'):
-          this.max_off_per_day = 6
+          this.max_off_per_day = 7
           break
         case (workgroup == 'sfsd'):
           this.max_off_per_day = 1
@@ -186,7 +186,7 @@ export class CalendarComponent implements OnInit, OnDestroy {
           this.max_off_per_day = 1
           break
         default:
-          this.max_off_per_day = 25
+          this.max_off_per_day = 30
       }
     })
     let eventList = []

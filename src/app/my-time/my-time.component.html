@@ -54,26 +54,26 @@
   </div>
 </div>
 <hr>
-<div class="row">
-  <div class="col-xs-12">
-    <b>Adjustment Hours</b>
-    <div class="col-xs-12">
-      {{balances['adjustment_days']}} hours remaining <br>
-      I want to use a max of
-      <input
-        name="maxAdj"
-        type="text"
-        maxlength="3"
-        size="3"
-        [(ngModel)]="maxUsage.adj"
-        #adjInput="ngModel"
-      >
-      adjustment hours during Round 7. <br>
-      <div class="alert alert-danger" *ngIf="adjInput.dirty">You have unsaved changes</div>
-    </div>
-  </div>
-</div>
-<hr>
+<!--<div class="row">-->
+<!--  <div class="col-xs-12">-->
+<!--    <b>Adjustment Hours</b>-->
+<!--    <div class="col-xs-12">-->
+<!--      {{balances['adjustment_days']}} hours remaining <br>-->
+<!--      I want to use a max of-->
+<!--      <input-->
+<!--        name="maxAdj"-->
+<!--        type="text"-->
+<!--        maxlength="3"-->
+<!--        size="3"-->
+<!--        [(ngModel)]="maxUsage.adj"-->
+<!--        #adjInput="ngModel"-->
+<!--      >-->
+<!--      adjustment hours during Round 7. <br>-->
+<!--      <div class="alert alert-danger" *ngIf="adjInput.dirty">You have unsaved changes</div>-->
+<!--    </div>-->
+<!--  </div>-->
+<!--</div>-->
+<!--<hr>-->
 <div class="row">
   <b>Holidays</b>
   <p>Use the checkboxes to select if you want to use a holiday during round 7</p>
@@ -134,7 +134,8 @@
     </form>
   </div>
 </div>
-<div *ngIf="currHols.dirty || nextHols.dirty|| vacInput.dirty || pptInput.dirty || adjInput.dirty">
+<div *ngIf="currHols.dirty || nextHols.dirty|| vacInput.dirty || pptInput.dirty">
+<!--<div *ngIf="currHols.dirty || nextHols.dirty|| vacInput.dirty || pptInput.dirty || adjInput.dirty">-->
   <button
     class="btn btn-primary"
     type="button"

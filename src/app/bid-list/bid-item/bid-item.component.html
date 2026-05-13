@@ -7,7 +7,7 @@
     <span *ngIf="bid.bid_start_date == bid.bid_end_date">
       {{bid.bid_start_date | date:'MMM dd, yyyy'}}
     </span></span>
-  <ul (click)="onClick(bid)" style="cursor: pointer">Type - {{vacType}} / Award - {{awardOpt}}{{useHol}}</ul>
+  <ul *ngIf="bid.round !== 8" (click)="onClick(bid)" style="cursor: pointer">Type - {{vacType}} / Award - {{awardOpt}}{{useHol}}</ul>
   <ul>
     <fa-icon [icon]="faArrowCircleUp"
              style="cursor: pointer;

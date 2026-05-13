@@ -1,0 +1,151 @@
+.calendar-grid {
+  width: 100%;
+}
+
+.month-label {
+  text-align: center;
+  font-weight: 600;
+  font-size: 0.85rem;
+  padding: 4px 0;
+}
+
+.month-label.clickable {
+  cursor: pointer;
+  color: #1976d2;
+}
+
+.month-label.clickable:hover {
+  text-decoration: underline;
+}
+
+.header-row, .week-row {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 2px;
+}
+
+.header-cell {
+  text-align: center;
+  font-weight: 600;
+  font-size: 0.8rem;
+  padding: 4px 0;
+  color: #555;
+}
+
+.day-cell {
+  min-height: 60px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  padding: 4px;
+  cursor: pointer;
+  position: relative;
+  background: #fff;
+  transition: background 0.15s;
+}
+
+.day-cell.empty {
+  border-color: transparent;
+  cursor: default;
+  background: transparent;
+}
+
+.day-cell.disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  background: #f5f5f5;
+}
+
+.day-cell.has-workday {
+  background: #fffde7;
+  border: 2px solid #333;
+}
+
+.day-cell.in-range {
+  background: #bbdefb !important;
+}
+
+.day-cell.range-start {
+  background: #1976d2 !important;
+  color: #fff;
+}
+
+.day-cell.range-end {
+  background: #1976d2 !important;
+  color: #fff;
+}
+
+.day-cell.range-start .day-number,
+.day-cell.range-end .day-number {
+  color: #fff;
+}
+
+.day-cell.range-start .workday-badge,
+.day-cell.range-end .workday-badge {
+  color: #fff;
+}
+
+.day-cell:hover:not(.empty):not(.disabled) {
+  border-color: #1976d2;
+}
+
+.day-number {
+  font-weight: 600;
+  font-size: 0.85rem;
+}
+
+.award-badge {
+  display: inline-block;
+  padding: 1px 5px;
+  border-radius: 8px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  margin-top: 2px;
+  color: #fff;
+}
+
+.award-badge.award-green  { background: #4caf50; }
+.award-badge.award-yellow { background: #fbc02d; color: #333; }
+.award-badge.award-orange { background: #ff9800; }
+.award-badge.award-red    { background: #f44336; }
+
+.workday-badge {
+  display: block;
+  font-size: 0.65rem;
+  font-weight: 600;
+  background: #333;
+  color: #fff;
+  padding: 1px 4px;
+  border-radius: 3px;
+  margin-top: 2px;
+  width: fit-content;
+}
+
+/* Compact mode overrides */
+.compact .header-cell {
+  font-size: 0.65rem;
+  padding: 2px 0;
+}
+
+.compact .day-cell {
+  min-height: 24px;
+  padding: 2px;
+  text-align: center;
+}
+
+.compact-day {
+  font-size: 0.7rem;
+}
+
+.compact-dot {
+  display: inline-block;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  margin-left: 1px;
+  vertical-align: middle;
+}
+
+.compact-dot.award-green  { background: #4caf50; }
+.compact-dot.award-yellow { background: #fbc02d; }
+.compact-dot.award-orange { background: #ff9800; }
+.compact-dot.award-red    { background: #f44336; }

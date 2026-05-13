@@ -47,13 +47,13 @@
              routerLinkActive="active"
              [routerLinkActiveOptions]="{exact: true}">My Awards</a>
         </li>
-        <li class="nav-item" *ngIf="isAuthenticated && links?.open_time && user.username != 'FLTCTRLSKED'">
-          <a class="nav-link"
-             aria-current="page"
-             routerLink="openTime"
-             routerLinkActive="active"
-             [routerLinkActiveOptions]="{exact: true}">Open Time</a>
-        </li>
+<!--        <li class="nav-item" *ngIf="isAuthenticated && links?.open_time && user.username != 'FLTCTRLSKED'">-->
+<!--          <a class="nav-link"-->
+<!--             aria-current="page"-->
+<!--             routerLink="openTime"-->
+<!--             routerLinkActive="active"-->
+<!--             [routerLinkActiveOptions]="{exact: true}">Open Time</a>-->
+<!--        </li>-->
         <li class="nav-item" *ngIf="isAuthenticated && links?.open_time && user.username == 'FLTCTRLSKED'">
           <a class="nav-link"
              aria-current="page"
@@ -68,7 +68,7 @@
              routerLinkActive="active"
              [routerLinkActiveOptions]="{exact: true}">Shift Bid</a>
         </li>
-        <li class="nav-item" *ngIf="user.username == 'FLTCTRLSKED' && links?.line_bid">
+        <li class="nav-item" *ngIf="isAuthenticated && user.username == 'FLTCTRLSKED' && links?.line_bid">
           <a class="nav-link"
              aria-current="page"
              routerLink="adminLineBid"
@@ -81,28 +81,50 @@
              routerLinkActive="active"
              [routerLinkActiveOptions]="{exact: true}">Shift Bid Awards</a>
         </li>
-        <li class="nav-item" *ngIf="isAuthenticated && isTester(user.username)">
+        <li class="nav-item" *ngIf="isAuthenticated && links?.open_time && user.username != 'FLTCTRLSKED'">
+          <a class="nav-link"
+             aria-current="page"
+             routerLink="openTime2"
+             routerLinkActive="active"
+             [routerLinkActiveOptions]="{exact: true}">Open Time 2.0</a>
+        </li>
+        <li class="nav-item" *ngIf="isAuthenticated && links?.relief_bid && isReliefBidder && user.username != 'FLTCTRLSKED'">
           <a class="nav-link"
              aria-current="page"
              routerLink="relief"
              routerLinkActive="active"
-             [routerLinkActiveOptions]="{exact: true}">Relief</a>
+             [routerLinkActiveOptions]="{exact: false}">Relief</a>
+        </li>
+        <li class="nav-item" *ngIf="isAuthenticated && links?.vac_bid && user.username != 'FLTCTRLSKED'">
+          <a class="nav-link"
+             aria-current="page"
+             routerLink="vacBidV2"
+             routerLinkActive="active"
+             [routerLinkActiveOptions]="{exact: true}">Vac Bid 2.0</a>
+        </li>
+        <li class="nav-item" *ngIf="isAuthenticated && links?.relief_bid && user.username == 'FLTCTRLSKED'">
+          <a class="nav-link"
+             aria-current="page"
+             routerLink="relief/scheduler"
+             routerLinkActive="active"
+             [routerLinkActiveOptions]="{exact: false}">Relief</a>
         </li>
       </ul>
       <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
-        <li class="nav-item" *ngIf="!isAuthenticated">
+        <li class="nav-item" style="margin-right: 10px" *ngIf="!isAuthenticated">
           <a class="nav-link"
              aria-current="page"
              routerLink="auth"
              routerLinkActive="active"
              [routerLinkActiveOptions]="{exact: true}">Login</a>
         </li>
-        <li class="nav-item dropdown" *ngIf="isAuthenticated">
+        <li class="nav-item dropdown" style="margin-right: 10px" *ngIf="isAuthenticated">
           <a class="nav-link dropdown-toggle" id="navbarDropdownMenuLink" role="button" data-bs-toggle="dropdown"
              aria-expanded="false">
             {{user.username}}
           </a>
           <ul class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
+            <li><p class="dropdown-item-text">v.20260407</p></li>
             <li *ngIf="user.username != 'FLTCTRLSKED'">
               <a class="dropdown-item"
                  aria-current="page"

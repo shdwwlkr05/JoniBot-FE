@@ -1,0 +1,49 @@
+.vac-bidder {
+  padding: 20px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.legend {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+  font-size: 0.85rem;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.swatch {
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  border-radius: 3px;
+}
+
+.swatch.award-green  { background: #4caf50; }
+.swatch.award-yellow { background: #fbc02d; }
+.swatch.award-orange { background: #ff9800; }
+.swatch.award-red    { background: #f44336; }
+.swatch.workday-swatch { background: #fffde7; border: 1px solid #ccc; }
+
+.year-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+}
+
+@media (max-width: 768px) {
+  .year-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 480px) {
+  .year-grid {
+    grid-template-columns: 1fr;
+  }
+}

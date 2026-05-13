@@ -1,0 +1,2621 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Relief SOM Bid System</title>
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'IBM Plex Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #1a202c;
+        }
+        
+        .app-container {
+            min-height: 100vh;
+            padding: 20px;
+            transform: scale(0.9);
+            transform-origin: top left;
+            width: 111.11%; /* Compensate for scale (100/0.9) */
+        }
+        
+        .header {
+            background: white;
+            padding: 30px;
+            border-radius: 16px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            margin-bottom: 24px;
+            border: 3px solid #667eea;
+        }
+        
+        .header h1 {
+            font-size: 32px;
+            font-weight: 700;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 8px;
+        }
+        
+        .header-subtitle {
+            color: #718096;
+            font-size: 15px;
+        }
+        
+        .mode-selector {
+            display: flex;
+            gap: 12px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+        
+        .mode-btn {
+            padding: 12px 24px;
+            border: 3px solid #e2e8f0;
+            background: white;
+            color: #4a5568;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 15px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            font-family: 'IBM Plex Sans', sans-serif;
+        }
+        
+        .mode-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+            border-color: #667eea;
+        }
+        
+        .mode-btn.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-color: #667eea;
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+        }
+        
+        .main-content {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            border: 3px solid #667eea;
+            overflow: hidden;
+        }
+        
+        /* Scheduler Interface Styles */
+        .scheduler-interface {
+            padding: 30px;
+        }
+        
+        .section-title {
+            font-size: 24px;
+            font-weight: 700;
+            color: #2d3748;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .section-subtitle {
+            color: #718096;
+            margin-bottom: 24px;
+            font-size: 14px;
+        }
+        
+        .upload-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .upload-card {
+            background: #f7fafc;
+            border: 2px dashed #cbd5e0;
+            border-radius: 12px;
+            padding: 24px;
+            transition: all 0.3s;
+        }
+        
+        .upload-card:hover {
+            border-color: #667eea;
+            background: #edf2f7;
+        }
+        
+        .upload-card h3 {
+            font-size: 16px;
+            font-weight: 600;
+            color: #2d3748;
+            margin-bottom: 12px;
+        }
+        
+        .file-input-wrapper {
+            position: relative;
+            margin-bottom: 12px;
+        }
+        
+        .file-input-wrapper input[type="file"] {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 13px;
+            cursor: pointer;
+            font-family: 'IBM Plex Sans', sans-serif;
+            background: white;
+        }
+        
+        .file-input-wrapper input[type="file"]:hover {
+            border-color: #667eea;
+        }
+        
+        .file-status {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 8px;
+            font-size: 13px;
+            font-weight: 500;
+            color: #38a169;
+        }
+        
+        .file-list {
+            margin-top: 12px;
+            font-size: 13px;
+        }
+        
+        .file-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 12px;
+            background: white;
+            border-radius: 6px;
+            margin-bottom: 6px;
+            border: 1px solid #e2e8f0;
+        }
+        
+        .file-item-name {
+            color: #4a5568;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 12px;
+        }
+        
+        .file-item-remove {
+            background: #fc8181;
+            color: white;
+            border: none;
+            padding: 4px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 11px;
+            font-weight: 600;
+        }
+        
+        .workers-management {
+            background: #f7fafc;
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 20px;
+        }
+        
+        .workers-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 16px;
+            font-size: 13px;
+        }
+        
+        .workers-table th {
+            background: #edf2f7;
+            padding: 12px;
+            text-align: left;
+            font-weight: 600;
+            color: #2d3748;
+            border-bottom: 2px solid #cbd5e0;
+        }
+        
+        .workers-table td {
+            padding: 10px 12px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        
+        .workers-table tr:hover {
+            background: #f7fafc;
+        }
+        
+        .checkbox-cell {
+            text-align: center;
+        }
+        
+        .checkbox-cell input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+        }
+        
+        .add-worker-form {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 12px;
+            margin-bottom: 16px;
+            padding: 16px;
+            background: white;
+            border-radius: 8px;
+        }
+        
+        .add-worker-form input {
+            padding: 10px 12px;
+            border: 2px solid #e2e8f0;
+            border-radius: 6px;
+            font-size: 13px;
+            font-family: 'IBM Plex Sans', sans-serif;
+        }
+        
+        .add-worker-form input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 14px;
+            transition: all 0.3s;
+            font-family: 'IBM Plex Sans', sans-serif;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+        }
+        
+        .btn-success {
+            background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
+            color: white;
+            box-shadow: 0 4px 12px rgba(72, 187, 120, 0.3);
+        }
+        
+        .btn-success:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(72, 187, 120, 0.4);
+        }
+        
+        .btn-secondary {
+            background: #718096;
+            color: white;
+        }
+        
+        .btn-secondary:hover {
+            background: #4a5568;
+        }
+        
+        .alert {
+            padding: 16px 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            font-weight: 500;
+            font-size: 14px;
+        }
+        
+        .alert-success {
+            background: #c6f6d5;
+            color: #22543d;
+            border: 2px solid #9ae6b4;
+        }
+        
+        .alert-info {
+            background: #bee3f8;
+            color: #2c5282;
+            border: 2px solid #90cdf4;
+        }
+        
+        .alert-warning {
+            background: #fef5e7;
+            color: #744210;
+            border: 2px solid #f6e05e;
+        }
+        
+        /* Bidder Interface Styles */
+        .bidder-interface {
+            display: grid;
+            grid-template-columns: 300px 1fr 340px;
+            height: calc(100vh - 200px);
+            min-height: 600px;
+        }
+        
+        .bid-controls {
+            padding: 24px;
+            background: #f7fafc;
+            border-right: 3px solid #e2e8f0;
+            overflow-y: auto;
+        }
+        
+        .control-group {
+            margin-bottom: 20px;
+        }
+        
+        .control-label {
+            display: block;
+            font-weight: 600;
+            color: #2d3748;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+        
+        .control-select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 14px;
+            background: white;
+            cursor: pointer;
+            font-family: 'IBM Plex Sans', sans-serif;
+            font-weight: 500;
+        }
+        
+        .control-select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        .checkbox-control {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+        }
+        
+        .checkbox-control:hover {
+            opacity: 0.8;
+        }
+        
+        .checkbox-control input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+        }
+        
+        .checkbox-control label {
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            color: #4a5568;
+            white-space: nowrap;
+        }
+        
+        .legend-section {
+            margin-top: 24px;
+            padding: 16px;
+            background: white;
+            border-radius: 8px;
+            border: 2px solid #e2e8f0;
+        }
+        
+        .legend-title {
+            font-weight: 600;
+            color: #2d3748;
+            margin-bottom: 12px;
+            font-size: 14px;
+        }
+        
+        .legend-items {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 13px;
+        }
+        
+        .legend-color {
+            width: 20px;
+            height: 20px;
+            border-radius: 4px;
+            border: 2px solid #cbd5e0;
+        }
+        
+        .bid-calendar {
+            padding: 24px;
+            overflow-y: auto;
+            background: white;
+        }
+        
+        .calendar-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .calendar-title {
+            font-size: 22px;
+            font-weight: 700;
+            color: #2d3748;
+        }
+        
+        .calendar-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 0;
+        }
+        
+        .calendar-grid-simple {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+            gap: 12px;
+        }
+        
+        .calendar-week-header {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+        
+        .calendar-day-name {
+            text-align: center;
+            font-weight: 700;
+            font-size: 13px;
+            color: #4a5568;
+            padding: 8px;
+            background: #e2e8f0;
+            border-radius: 6px;
+        }
+        
+        .calendar-week {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+        
+        .day-placeholder {
+            min-height: 140px;
+        }
+        
+        .day-card {
+            background: #f7fafc;
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            padding: 12px;
+            min-height: 140px;
+            cursor: pointer;
+            transition: all 0.3s;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .day-card.work-day {
+            background: #fef3c7;
+            border-color: #fbbf24;
+        }
+        
+        .day-card.off-day {
+            background: #d1fae5;
+            border-color: #6ee7b7;
+        }
+        
+        .day-card.hidden {
+            display: none;
+        }
+        
+        .day-card:hover:not(.no-shifts) {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+        }
+        
+        .day-card.no-shifts {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+        
+        .day-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 12px;
+        }
+        
+        .day-date {
+            font-weight: 700;
+            color: #1a202c;
+            font-size: 12px;
+        }
+        
+        .day-dow {
+            font-size: 9px;
+            color: #718096;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+        
+        .day-counts {
+            display: flex;
+            align-items: center;
+            gap: 2px;
+            font-size: 9px;
+            font-weight: 700;
+        }
+        
+        .count-open {
+            color: #667eea;
+        }
+        
+        .count-relief {
+            color: #667eea;
+        }
+        
+        .count-separator {
+            color: #a0aec0;
+        }
+        
+        .count-extra {
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-weight: 700;
+        }
+        
+        .count-extra.positive {
+            background: #48bb78;
+            color: white;
+        }
+        
+        .count-extra.negative {
+            background: #f56565;
+            color: white;
+        }
+        
+        .day-badge {
+            background: #667eea;
+            color: white;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 700;
+        }
+        
+        .shifts-list {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+        
+        .shift-tag {
+            background: white;
+            border: 2px solid #cbd5e0;
+            border-radius: 4px;
+            padding: 4px 8px;
+            font-size: 12px;
+            font-weight: 600;
+            text-align: center;
+            color: #2d3748;
+            transition: all 0.2s;
+        }
+        
+        /* Day shifts (06-12 start) - Fleet desks - Magenta */
+        .shift-tag.shift-day { background: #FFCCFF; color: black; border-color: #FFCCFF; }
+        
+        /* Overnight shifts (18 start) - Dark Blue */
+        .shift-tag.shift-night { background: #0070C0; color: white; border-color: #0070C0; }
+        
+        /* Terminal (C, D, E) - Light Blue */
+        .shift-tag.desk-C { background: #00FFFF; color: black; border-color: #00FFFF; }
+        .shift-tag.desk-D { background: #00FFFF; color: black; border-color: #00FFFF; }
+        .shift-tag.desk-E { background: #00FFFF; color: black; border-color: #00FFFF; }
+        
+        /* Airborne (F, G, H) - Blue */
+        .shift-tag.desk-F { background: #00B0F0; color: black; border-color: #00B0F0; }
+        .shift-tag.desk-G { background: #00B0F0; color: black; border-color: #00B0F0; }
+        .shift-tag.desk-H { background: #00B0F0; color: black; border-color: #00B0F0; }
+        
+        /* Regional (J, K) - Red */
+        .shift-tag.desk-J { background: #FF0000; color: white; border-color: #FF0000; }
+        .shift-tag.desk-K { background: #FF0000; color: white; border-color: #FF0000; }
+        
+        /* XXX - Light Gray */
+        .shift-tag.desk-XXX { background: #E2E8F0; color: #718096; border-color: #CBD5E0; }
+        
+        .shift-tag:hover {
+            opacity: 0.85;
+            transform: scale(1.05);
+        }
+        
+        .shift-tag.selected {
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.4);
+            transform: scale(1.05);
+        }
+        
+        .day-info {
+            display: flex;
+            justify-content: space-between;
+            margin-top: auto;
+            padding-top: 8px;
+            border-top: 1px solid #e2e8f0;
+            font-size: 11px;
+            color: #718096;
+        }
+        
+        .bid-panel {
+            padding: 24px;
+            background: #f7fafc;
+            border-left: 3px solid #e2e8f0;
+            overflow-y: auto;
+        }
+        
+        .panel-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .panel-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: #2d3748;
+        }
+        
+        .btn-clear-all {
+            background: #f56565;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .btn-clear-all:hover {
+            background: #e53e3e;
+            transform: translateY(-1px);
+            box-shadow: 0 2px 8px rgba(245, 101, 101, 0.3);
+        }
+        
+        .btn-clear-day {
+            background: #f56565;
+            color: white;
+            border: none;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            font-size: 14px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            line-height: 1;
+            padding: 0;
+        }
+        
+        .btn-clear-day:hover {
+            background: #e53e3e;
+            transform: scale(1.1);
+            box-shadow: 0 2px 8px rgba(245, 101, 101, 0.4);
+        }
+        
+        .bid-count {
+            background: #667eea;
+            color: white;
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-weight: 700;
+            font-size: 14px;
+        }
+        
+        .bid-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0;
+            min-height: 300px;
+        }
+        
+        .bid-date-group {
+            margin-bottom: 20px;
+        }
+        
+        .bid-date-header {
+            font-weight: 700;
+            font-size: 15px;
+            color: #2d3748;
+            padding: 12px 16px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 8px 8px 0 0;
+            margin-bottom: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .bid-date-count {
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-weight: 700;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+        
+        .bid-date-count.incomplete {
+            background: #fc8181;
+            color: white;
+        }
+        
+        .bid-date-count.exact {
+            background: #ecc94b;
+            color: #2d3748;
+        }
+        
+        .bid-date-count.complete {
+            background: #48bb78;
+            color: white;
+        }
+        
+        .bid-item {
+            background: white;
+            border: 2px solid #cbd5e0;
+            border-radius: 0;
+            padding: 14px;
+            cursor: move;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 2px;
+        }
+        
+        .bid-date-group .bid-item:first-of-type {
+            border-radius: 0 0 0 0;
+        }
+        
+        .bid-date-group .bid-item:last-of-type {
+            border-radius: 0 0 8px 8px;
+            margin-bottom: 0;
+        }
+        
+        .bid-date-group .bid-item:only-of-type {
+            border-radius: 0 0 8px 8px;
+        }
+        
+        .bid-item:hover {
+            border-color: #667eea;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.2);
+        }
+        
+        .bid-item.dragging {
+            opacity: 0.5;
+            transform: scale(0.95);
+        }
+        
+        .bid-item.drag-over {
+            border-color: #764ba2;
+            border-style: dashed;
+        }
+        
+        .bid-rank {
+            width: 36px;
+            height: 36px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 16px;
+            flex-shrink: 0;
+        }
+        
+        .bid-details {
+            flex: 1;
+        }
+        
+        .bid-date {
+            font-weight: 700;
+            color: #2d3748;
+            font-size: 15px;
+        }
+        
+        .bid-shift {
+            font-size: 13px;
+            font-weight: 600;
+            padding: 6px 12px;
+            border-radius: 6px;
+            display: inline-block;
+            border: 2px solid transparent;
+        }
+        
+        /* Apply same colors as calendar shifts */
+        .bid-shift.shift-day { background: #FFCCFF; color: black; border-color: #FFCCFF; }
+        .bid-shift.shift-night { background: #0070C0; color: white; border-color: #0070C0; }
+        .bid-shift.desk-C { background: #00FFFF; color: black; border-color: #00FFFF; }
+        .bid-shift.desk-D { background: #00FFFF; color: black; border-color: #00FFFF; }
+        .bid-shift.desk-E { background: #00FFFF; color: black; border-color: #00FFFF; }
+        .bid-shift.desk-F { background: #00B0F0; color: black; border-color: #00B0F0; }
+        .bid-shift.desk-G { background: #00B0F0; color: black; border-color: #00B0F0; }
+        .bid-shift.desk-H { background: #00B0F0; color: black; border-color: #00B0F0; }
+        .bid-shift.desk-J { background: #FF0000; color: white; border-color: #FF0000; }
+        .bid-shift.desk-K { background: #FF0000; color: white; border-color: #FF0000; }
+        .bid-shift.desk-XXX { background: #E2E8F0; color: #718096; border-color: #CBD5E0; }
+        
+        .bid-remove {
+            background: #fc8181;
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 12px;
+            flex-shrink: 0;
+        }
+        
+        .bid-remove:hover {
+            background: #f56565;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+        
+        .stat-card {
+            background: white;
+            padding: 16px;
+            border-radius: 10px;
+            text-align: center;
+            border: 2px solid #e2e8f0;
+        }
+        
+        .stat-value {
+            font-size: 28px;
+            font-weight: 700;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .stat-label {
+            font-size: 11px;
+            color: #718096;
+            text-transform: uppercase;
+            font-weight: 600;
+            margin-top: 4px;
+        }
+        
+        .submit-section {
+            margin-top: 20px;
+            padding: 20px;
+            background: white;
+            border-radius: 10px;
+            border: 2px solid #e2e8f0;
+        }
+        
+        .notes-section {
+            margin-bottom: 20px;
+        }
+        
+        .notes-label {
+            display: block;
+            font-weight: 600;
+            color: #2d3748;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+        
+        .notes-textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-family: inherit;
+            font-size: 14px;
+            resize: vertical;
+            transition: border-color 0.2s;
+        }
+        
+        .notes-textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        .preview-label {
+            font-weight: 600;
+            color: #2d3748;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+        
+        .submit-preview {
+            background: #f7fafc;
+            padding: 16px;
+            border-radius: 8px;
+            margin-bottom: 16px;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            max-height: 300px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+            border: 2px solid #e2e8f0;
+        }
+        
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #a0aec0;
+        }
+        
+        .empty-state-icon {
+            font-size: 48px;
+            margin-bottom: 16px;
+            opacity: 0.3;
+        }
+        
+        .empty-state-text {
+            font-size: 14px;
+            font-weight: 500;
+        }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect, useMemo } = React;
+
+        // Color mapping for desk codes
+        const DESK_COLORS = {
+            'N': '#fca5a5', 'O': '#93c5fd', 'Q': '#c4b5fd', 'R': '#fde68a',
+            'S': '#bfdbfe', 'U': '#ddd6fe', 'V': '#fef3c7', 'W': '#e9d5ff',
+            'X': '#fde047', 'Y': '#d8b4fe', 'C': '#7dd3fc', 'D': '#93c5fd',
+            'E': '#a5f3fc', 'F': '#fef08a', 'G': '#d4d4d8', 'H': '#fde047',
+            'I': '#fca5a5', 'K': '#f87171',
+            'TERMINAL': '#67e8f9', 'ROUTES': '#60a5fa', 'ENROUTE': '#818cf8',
+            'SURFACE': '#fbbf24', 'REGIONAL': '#f87171'
+        };
+
+        function ReliefSOMBiddingApp() {
+            const [mode, setMode] = useState('bidder');
+            const [workers, setWorkers] = useState([]);
+            const [scheduleFiles, setScheduleFiles] = useState([]);
+            const [shiftFiles, setShiftFiles] = useState([]);
+            const [workersFile, setWorkersFile] = useState(null);
+            const [schedule, setSchedule] = useState({});
+            const [openShifts, setOpenShifts] = useState({});
+            const [selectedMonth, setSelectedMonth] = useState('');
+            
+            // Calculate available months from uploaded schedules
+            const availableMonths = useMemo(() => {
+                const monthsSet = new Set();
+                const monthMap = {
+                    1: 'January', 2: 'February', 3: 'March', 4: 'April', 5: 'May', 6: 'June',
+                    7: 'July', 8: 'August', 9: 'September', 10: 'October', 11: 'November', 12: 'December'
+                };
+                
+                // Only extract months from SCHEDULE data (not open shifts)
+                const allDates = new Set();
+                Object.values(schedule).forEach(workerSchedule => {
+                    Object.keys(workerSchedule).forEach(date => allDates.add(date));
+                });
+                
+                // Parse month numbers from dates (format: M/D)
+                allDates.forEach(date => {
+                    const [month] = date.split('/').map(n => parseInt(n));
+                    if (month && monthMap[month]) {
+                        monthsSet.add(month);
+                    }
+                });
+                
+                // Convert to sorted array of {number, name}
+                return Array.from(monthsSet)
+                    .sort((a, b) => a - b)
+                    .map(monthNum => ({
+                        number: monthNum,
+                        name: monthMap[monthNum]
+                    }));
+            }, [schedule]);
+            const [selectedWorker, setSelectedWorker] = useState('');
+            const [myBids, setMyBids] = useState([]);
+            const [bidNotes, setBidNotes] = useState('');
+            const [importedBids, setImportedBids] = useState([]);
+            const [showAllDays, setShowAllDays] = useState(true);
+            const [draggedIndex, setDraggedIndex] = useState(null);
+            const [dragOverIndex, setDragOverIndex] = useState(null);
+            const [newWorker, setNewWorker] = useState({
+                name: '', initial: '', schedName: '', bidOrder: ''
+            });
+
+            // Auto-save bids and notes to localStorage
+            React.useEffect(() => {
+                if (selectedWorker && selectedMonth) {
+                    const saveKey = `bid_${selectedWorker}_${selectedMonth}`;
+                    const saveData = {
+                        bids: myBids,
+                        notes: bidNotes,
+                        timestamp: new Date().toISOString()
+                    };
+                    localStorage.setItem(saveKey, JSON.stringify(saveData));
+                }
+            }, [myBids, bidNotes, selectedWorker, selectedMonth]);
+
+            // Auto-load saved bids when worker/month changes
+            React.useEffect(() => {
+                if (selectedWorker && selectedMonth) {
+                    const saveKey = `bid_${selectedWorker}_${selectedMonth}`;
+                    const saved = localStorage.getItem(saveKey);
+                    if (saved) {
+                        try {
+                            const saveData = JSON.parse(saved);
+                            setMyBids(saveData.bids || []);
+                            setBidNotes(saveData.notes || '');
+                        } catch (e) {
+                            console.error('Error loading saved bid:', e);
+                        }
+                    } else {
+                        // Clear bids when switching to worker/month with no saved data
+                        setMyBids([]);
+                        setBidNotes('');
+                    }
+                }
+            }, [selectedWorker, selectedMonth]);
+
+            // Workers will be loaded from CSV file upload
+
+            // Parse workers list CSV
+            const parseWorkersList = (csvContent) => {
+                return new Promise((resolve) => {
+                    Papa.parse(csvContent, {
+                        header: true, // CSV has header row
+                        skipEmptyLines: true,
+                        complete: (results) => {
+                            const workersList = [];
+                            
+                            results.data.forEach((row, index) => {
+                                // CSV columns: SOM_ID, Full_Name, Sched_Name, Initials, Abbrev_Name, Bid_Order, Alpha_Order, Active
+                                if (!row['Full_Name']) return;
+                                
+                                const worker = {
+                                    somId: (row['SOM_ID'] || '').trim(),
+                                    name: (row['Full_Name'] || '').trim(),
+                                    schedName: (row['Sched_Name'] || '').trim(),
+                                    initial: (row['Initials'] || '').trim(),
+                                    abv: (row['Abbrev_Name'] || '').trim(),
+                                    bidOrder: parseInt(row['Bid_Order']) || 999,
+                                    alphaOrder: parseInt(row['Alpha_Order']) || index + 1,
+                                    isRelief: row['Active'] === 'TRUE' || row['Active'] === '1' || row['Active'] === true
+                                };
+                                
+                                workersList.push(worker);
+                            });
+                            
+                            resolve(workersList);
+                        }
+                    });
+                });
+            };
+
+            // Handle workers list upload
+            const handleWorkersUpload = async (event) => {
+                const file = event.target.files[0];
+                if (!file) return;
+                
+                setWorkersFile(file);
+                const content = await file.text();
+                const workersList = await parseWorkersList(content);
+                
+                // Sort by alpha order for dropdown display
+                setWorkers(workersList.sort((a, b) => a.alphaOrder - b.alphaOrder));
+            };
+            const parseSchedule = (csvContent, filename) => {
+                return new Promise((resolve) => {
+                    Papa.parse(csvContent, {
+                        header: false,
+                        skipEmptyLines: false,
+                        complete: (results) => {
+                            const rows = results.data;
+                            const scheduleData = {};
+                            
+                            if (rows.length < 3) {
+                                resolve({ scheduleData: {}, month: '' });
+                                return;
+                            }
+                            
+                            // Row 0: Header with dates (01-Mar, 02-Mar, etc.)
+                            const dateHeader = rows[0];
+                            const rawDates = dateHeader.slice(1);
+                            
+                            // Convert dates to M/D format
+                            const dates = rawDates.map(dateStr => {
+                                if (!dateStr || !dateStr.trim()) return '';
+                                
+                                const match = dateStr.match(/^(\d{1,2})-(\w{3})$/);
+                                if (!match) return dateStr;
+                                
+                                const day = parseInt(match[1]);
+                                const monthMap = {
+                                    'Jan': 1, 'Feb': 2, 'Mar': 3, 'Apr': 4, 'May': 5, 'Jun': 6,
+                                    'Jul': 7, 'Aug': 8, 'Sep': 9, 'Oct': 10, 'Nov': 11, 'Dec': 12
+                                };
+                                const month = monthMap[match[2]];
+                                
+                                return month ? `${month}/${day}` : dateStr;
+                            });
+                            
+                            // Extract month name
+                            let monthName = '';
+                            if (rawDates.length > 0 && rawDates[0]) {
+                                const dateMatch = rawDates[0].match(/\-?(\w+)$/);
+                                if (dateMatch) monthName = dateMatch[1];
+                            }
+                            
+                            // Process ALL rows (not just every 2nd row)
+                            // Check each row for a name in column 0 and "Relief" values
+                            for (let i = 2; i < rows.length; i++) {
+                                const row = rows[i];
+                                if (!row || !row[0] || !row[0].trim()) continue;
+                                
+                                // Check if this row has any "Relief" entries
+                                const hasRelief = row.slice(1).some(cell => 
+                                    (cell || '').trim().toLowerCase() === 'relief'
+                                );
+                                
+                                if (!hasRelief) continue;
+                                
+                                // Parse worker name - this is the Schd_Name format
+                                // IMPORTANT: Trim whitespace to avoid matching issues
+                                let fullName = row[0].trim().replace(/^"|"$/g, '').trim();
+                                
+                                // Store using full CSV name as key
+                                if (!scheduleData[fullName]) scheduleData[fullName] = {};
+                                
+                                // Check each date column for "Relief"
+                                for (let j = 1; j < row.length && j - 1 < dates.length; j++) {
+                                    const cellValue = (row[j] || '').trim().toLowerCase();
+                                    if (cellValue === 'relief' && dates[j - 1]) {
+                                        scheduleData[fullName][dates[j - 1]] = true;
+                                    }
+                                }
+                            }
+                            
+                            resolve({ scheduleData, month: monthName });
+                        }
+                    });
+                });
+            };
+
+            // Parse open shifts CSV
+            const parseOpenShifts = (csvContent) => {
+                return new Promise((resolve) => {
+                    Papa.parse(csvContent, {
+                        header: true,
+                        complete: (results) => {
+                            const shiftsData = {};
+                            
+                            results.data.forEach(row => {
+                                if (!row.Date || !row['Shift Time'] || !row.Location) return;
+                                
+                                const dateStr = row.Date.trim();
+                                const shiftTime = row['Shift Time'].trim();
+                                const location = row.Location.trim();
+                                
+                                // Parse date: "04-FEB-26" format
+                                const dateMatch = dateStr.match(/^(\d{1,2})-(\w{3})-/);
+                                if (!dateMatch) return;
+                                
+                                const day = parseInt(dateMatch[1]);
+                                const monthMap = {
+                                    'JAN': 1, 'FEB': 2, 'MAR': 3, 'APR': 4, 'MAY': 5, 'JUN': 6,
+                                    'JUL': 7, 'AUG': 8, 'SEP': 9, 'OCT': 10, 'NOV': 11, 'DEC': 12
+                                };
+                                const month = monthMap[dateMatch[2].toUpperCase()];
+                                if (!month) return;
+                                
+                                const displayDate = `${month}/${day}`;
+                                
+                                // Extract first 2 digits of shift time
+                                const timeMatch = shiftTime.match(/^(\d{2})/);
+                                if (!timeMatch) return;
+                                
+                                const shiftCode = timeMatch[1] + location;
+                                
+                                if (!shiftsData[displayDate]) {
+                                    shiftsData[displayDate] = [];
+                                }
+                                shiftsData[displayDate].push(shiftCode);
+                            });
+                            
+                            resolve(shiftsData);
+                        }
+                    });
+                });
+            };
+
+            // Handle schedule file upload
+            const handleScheduleUpload = async (event) => {
+                const files = Array.from(event.target.files);
+                setScheduleFiles([...scheduleFiles, ...files]);
+                
+                const newSchedule = { ...schedule };
+                
+                for (const file of files) {
+                    const content = await file.text();
+                    const { scheduleData, month } = await parseSchedule(content, file.name);
+                    
+                    // Merge scheduleData into newSchedule (combine dates for each worker)
+                    Object.keys(scheduleData).forEach(workerName => {
+                        if (!newSchedule[workerName]) {
+                            newSchedule[workerName] = {};
+                        }
+                        // Merge this worker's dates with existing dates
+                        Object.assign(newSchedule[workerName], scheduleData[workerName]);
+                    });
+                    
+                    if (month && !selectedMonth) setSelectedMonth(month);
+                }
+                
+                setSchedule(newSchedule);
+            };
+
+            // Handle shift file upload
+            const handleShiftUpload = async (event) => {
+                const files = Array.from(event.target.files);
+                setShiftFiles([...shiftFiles, ...files]);
+                
+                let combinedShifts = { ...openShifts };
+                
+                for (const file of files) {
+                    const content = await file.text();
+                    const shiftsData = await parseOpenShifts(content);
+                    
+                    // Merge shifts
+                    Object.keys(shiftsData).forEach(date => {
+                        if (!combinedShifts[date]) {
+                            combinedShifts[date] = [];
+                        }
+                        combinedShifts[date] = [...new Set([...combinedShifts[date], ...shiftsData[date]])];
+                    });
+                }
+                
+                // Add XXX for days with no shifts in the schedule
+                Object.keys(schedule).forEach(worker => {
+                    Object.keys(schedule[worker]).forEach(date => {
+                        if (!combinedShifts[date]) {
+                            combinedShifts[date] = ['XXX'];
+                        }
+                    });
+                });
+                
+                setOpenShifts(combinedShifts);
+            };
+
+            // Remove file
+            const removeFile = async (filename, type) => {
+                if (type === 'schedule') {
+                    const newFiles = scheduleFiles.filter(f => f.name !== filename);
+                    setScheduleFiles(newFiles);
+                    
+                    // Rebuild schedule from remaining files
+                    const newSchedule = {};
+                    for (const file of newFiles) {
+                        const content = await file.text();
+                        const { scheduleData } = await parseSchedule(content, file.name);
+                        
+                        // Merge scheduleData into newSchedule (combine dates for each worker)
+                        Object.keys(scheduleData).forEach(workerName => {
+                            if (!newSchedule[workerName]) {
+                                newSchedule[workerName] = {};
+                            }
+                            // Merge this worker's dates with existing dates
+                            Object.assign(newSchedule[workerName], scheduleData[workerName]);
+                        });
+                    }
+                    setSchedule(newSchedule);
+                } else {
+                    const newFiles = shiftFiles.filter(f => f.name !== filename);
+                    setShiftFiles(newFiles);
+                    
+                    // Rebuild shifts from remaining files
+                    const combinedShifts = {};
+                    for (const file of newFiles) {
+                        const content = await file.text();
+                        const shiftsData = await parseOpenShifts(content);
+                        Object.keys(shiftsData).forEach(date => {
+                            if (!combinedShifts[date]) combinedShifts[date] = [];
+                            combinedShifts[date] = [...combinedShifts[date], ...shiftsData[date]];
+                        });
+                    }
+                    setOpenShifts(combinedShifts);
+                }
+            };
+            
+            // Clear all data
+            const clearAllData = () => {
+                if (confirm('Are you sure you want to clear all uploaded data?')) {
+                    setScheduleFiles([]);
+                    setShiftFiles([]);
+                    setSchedule({});
+                    setOpenShifts({});
+                    setSelectedMonth('');
+                }
+            };
+
+            // Add worker
+            const addWorker = () => {
+                if (!newWorker.name || !newWorker.initial || !newWorker.schedName) return;
+                
+                const worker = {
+                    ...newWorker,
+                    bidOrder: parseInt(newWorker.bidOrder) || workers.length + 1,
+                    isRelief: true
+                };
+                
+                setWorkers([...workers, worker].sort((a, b) => a.bidOrder - b.bidOrder));
+                setNewWorker({ name: '', initial: '', schedName: '', bidOrder: '' });
+            };
+
+            // Toggle relief status
+            const toggleReliefStatus = (index) => {
+                const newWorkers = [...workers];
+                newWorkers[index].isRelief = !newWorkers[index].isRelief;
+                setWorkers(newWorkers);
+            };
+
+            // Remove worker
+            const removeWorker = (index) => {
+                setWorkers(workers.filter((_, i) => i !== index));
+            };
+
+            // Get calendar days
+            const calendarDays = useMemo(() => {
+                if (!selectedMonth) return [];
+                
+                // selectedMonth is now a number (1-12)
+                const selectedMonthNum = parseInt(selectedMonth);
+                
+                const days = [];
+                const allDates = new Set();
+                
+                // Collect all dates from schedule and shifts
+                Object.values(schedule).forEach(workerSchedule => {
+                    Object.keys(workerSchedule).forEach(date => allDates.add(date));
+                });
+                Object.keys(openShifts).forEach(date => allDates.add(date));
+                
+                // Convert to array, filter by month, and sort
+                const sortedDates = Array.from(allDates)
+                    .filter(date => {
+                        const [month] = date.split('/').map(n => parseInt(n));
+                        return month === selectedMonthNum;
+                    })
+                    .sort((a, b) => {
+                        const [monthA, dayA] = a.split('/').map(n => parseInt(n) || 0);
+                        const [monthB, dayB] = b.split('/').map(n => parseInt(n) || 0);
+                        
+                        if (monthA !== monthB) return monthA - monthB;
+                        return dayA - dayB;
+                    });
+                
+                const worker = workers.find(w => w.name === selectedWorker);
+                
+                sortedDates.forEach(date => {
+                    let shifts = [...(openShifts[date] || [])];
+                    const isWorkDay = worker && schedule[worker.schedName] && schedule[worker.schedName][date];
+                    
+                    // Count relief SOMs working this day, sorted by bid order
+                    const reliefWorking = workers
+                        .filter(w => w.isRelief && schedule[w.schedName] && schedule[w.schedName][date])
+                        .sort((a, b) => a.bidOrder - b.bidOrder)
+                        .map(w => ({ name: w.name, order: w.bidOrder, initial: w.initial }));
+                    
+                    // XXX shift logic:
+                    // If relief workers exceed shifts by 2 or more, add ONE XXX
+                    if (reliefWorking.length >= shifts.length + 2) {
+                        shifts.push('XXX');
+                    }
+                    // If no shifts at all, add one XXX
+                    else if (shifts.length === 0) {
+                        shifts = ['XXX'];
+                    }
+                    
+                    // Sort shifts alphabetically, XXX goes last
+                    shifts.sort((a, b) => {
+                        if (a === 'XXX') return 1;
+                        if (b === 'XXX') return -1;
+                        return a.localeCompare(b);
+                    });
+                    
+                    // Calculate day of week
+                    const [month, day] = date.split('/').map(n => parseInt(n));
+                    const year = 2026;
+                    const dateObj = new Date(year, month - 1, day);
+                    const dayOfWeek = dateObj.getDay(); // 0 = Sunday, 6 = Saturday
+                    
+                    days.push({
+                        date,
+                        displayDate: date,
+                        shifts,
+                        isWorkDay,
+                        reliefCount: reliefWorking.length,
+                        reliefWorking,
+                        dayOfWeek
+                    });
+                });
+                
+                return days;
+            }, [selectedMonth, schedule, openShifts, workers, selectedWorker]);
+
+            // Organize days into calendar weeks
+            const calendarWeeks = useMemo(() => {
+                const daysToShow = showAllDays || !selectedWorker ? calendarDays : calendarDays.filter(day => day.isWorkDay);
+                
+                if (daysToShow.length === 0) return [];
+                
+                const weeks = [];
+                let currentWeek = new Array(7).fill(null);
+                
+                daysToShow.forEach(day => {
+                    currentWeek[day.dayOfWeek] = day;
+                    
+                    // If Saturday or last day, finish the week
+                    if (day.dayOfWeek === 6 || day === daysToShow[daysToShow.length - 1]) {
+                        weeks.push([...currentWeek]);
+                        currentWeek = new Array(7).fill(null);
+                    }
+                });
+                
+                return weeks;
+            }, [calendarDays, showAllDays, selectedWorker]);
+
+            // Filter calendar days based on showAllDays (keeping for backwards compatibility)
+            const visibleDays = useMemo(() => {
+                if (showAllDays || !selectedWorker) return calendarDays;
+                return calendarDays.filter(day => day.isWorkDay);
+            }, [calendarDays, showAllDays, selectedWorker]);
+
+            // Add shift to bid
+            const addShiftToBid = (day, shiftCode) => {
+                const bidKey = `${day.date}-${shiftCode}`;
+                if (myBids.some(bid => bid.key === bidKey)) return;
+                
+                setMyBids([...myBids, {
+                    key: bidKey,
+                    date: day.date,
+                    displayDate: day.displayDate,
+                    shift: shiftCode,
+                    order: myBids.length + 1
+                }]);
+            };
+
+            // Remove bid
+            const removeBid = (index) => {
+                const newBids = myBids.filter((_, i) => i !== index);
+                newBids.forEach((bid, i) => bid.order = i + 1);
+                setMyBids(newBids);
+            };
+
+            // Drag and drop handlers
+            // Generate email
+            const generateEmail = () => {
+                if (!selectedWorker || myBids.length === 0) return '';
+                
+                const worker = workers.find(w => w.name === selectedWorker);
+                const monthName = availableMonths.find(m => m.number == selectedMonth)?.name || selectedMonth;
+                
+                // Calculate relief bid order (position among relief workers)
+                const reliefWorkers = workers.filter(w => w.isRelief).sort((a, b) => a.bidOrder - b.bidOrder);
+                const reliefBidOrder = reliefWorkers.findIndex(w => w.name === selectedWorker) + 1;
+                
+                let email = `SOM Relief Bid - ${monthName}\n`;
+                email += `Name: ${selectedWorker}\n`;
+                email += `Bid Order: ${reliefBidOrder || 'N/A'}\n\n`;
+                
+                // Group bids by date
+                const bidsByDate = myBids.reduce((groups, bid) => {
+                    if (!groups[bid.date]) groups[bid.date] = [];
+                    groups[bid.date].push(bid);
+                    return groups;
+                }, {});
+                
+                // Sort dates
+                const sortedDates = Object.keys(bidsByDate).sort((a, b) => {
+                    const [monthA, dayA] = a.split('/').map(n => parseInt(n));
+                    const [monthB, dayB] = b.split('/').map(n => parseInt(n));
+                    if (monthA !== monthB) return monthA - monthB;
+                    return dayA - dayB;
+                });
+                
+                // Find max number of bids for any single day
+                const maxBids = Math.max(...Object.values(bidsByDate).map(bids => bids.length));
+                
+                // Create header row with tabs
+                email += `Date`;
+                for (let i = 1; i <= maxBids; i++) {
+                    email += `\t${i}${i === 1 ? 'st' : i === 2 ? 'nd' : i === 3 ? 'rd' : 'th'}`;
+                }
+                email += `\n`;
+                
+                // Create data rows with tabs
+                sortedDates.forEach(date => {
+                    const bids = bidsByDate[date];
+                    email += `${bids[0].displayDate}`;
+                    bids.forEach(bid => {
+                        email += `\t${bid.shift}`;
+                    });
+                    email += `\n`;
+                });
+                
+                // Add notes if present
+                if (bidNotes.trim()) {
+                    email += `\nNotes:\n${bidNotes}\n`;
+                }
+                
+                return email;
+            };
+
+            // Copy to clipboard
+            // Validate bid - check every work day has at least 1 shift
+            const validateBid = () => {
+                const workDays = calendarDays.filter(day => day.isWorkDay);
+                const missingDays = [];
+                
+                workDays.forEach(day => {
+                    const hasBid = myBids.some(bid => bid.date === day.date);
+                    if (!hasBid) {
+                        missingDays.push(day.displayDate);
+                    }
+                });
+                
+                return { isValid: missingDays.length === 0, missingDays };
+            };
+
+            // Submit bid
+            const submitBid = () => {
+                const validation = validateBid();
+                
+                if (!validation.isValid) {
+                    const proceed = confirm(
+                        `Missing bids for the following days:\n${validation.missingDays.join(', ')}\n\n` +
+                        `Click OK to submit anyway, or Cancel to return to your bid.`
+                    );
+                    if (!proceed) return;
+                }
+                
+                // Copy to clipboard
+                const bidText = generateEmail();
+                navigator.clipboard.writeText(bidText).then(() => {
+                    // Download .bid file
+                    const worker = workers.find(w => w.name === selectedWorker);
+                    const reliefWorkers = workers.filter(w => w.isRelief).sort((a, b) => a.bidOrder - b.bidOrder);
+                    const reliefBidOrder = reliefWorkers.findIndex(w => w.name === selectedWorker) + 1;
+                    const monthName = availableMonths.find(m => m.number == selectedMonth)?.name || selectedMonth;
+                    
+                    const bidData = {
+                        workerName: selectedWorker,
+                        workerInitial: worker?.initial || '',
+                        bidOrder: reliefBidOrder,
+                        month: selectedMonth,
+                        monthName: monthName,
+                        bids: myBids,
+                        notes: bidNotes,
+                        bidText: bidText,
+                        timestamp: new Date().toISOString()
+                    };
+                    
+                    const blob = new Blob([JSON.stringify(bidData, null, 2)], { type: 'application/json' });
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    const lastName = selectedWorker.split(',')[0].replace(/[^a-zA-Z0-9]/g, '_');
+                    const firstName = selectedWorker.split(',')[1]?.trim().replace(/[^a-zA-Z0-9]/g, '_') || '';
+                    a.download = `${reliefBidOrder}_${lastName}_${firstName}_${monthName}.bid`;
+                    a.click();
+                    URL.revokeObjectURL(url);
+                    
+                    // Show success message with clickable email
+                    const emailAddress = 'SectorMgrsVac.ATL033@delta.com';
+                    const message = `✓ Bid Submitted Successfully!\n\n` +
+                        `Your bid has been copied to clipboard and downloaded.\n\n` +
+                        `Please email both to: ${emailAddress}\n\n` +
+                        `1. Attach: ${a.download}\n` +
+                        `2. Paste: Your bid text from clipboard\n\n` +
+                        `Click OK to open your email app.`;
+                    
+                    if (confirm(message)) {
+                        window.location.href = `mailto:${emailAddress}?subject=Relief SOM Bid - ${monthName} - ${selectedWorker}`;
+                    }
+                }).catch(err => {
+                    alert('Error copying to clipboard. Please try again.');
+                    console.error(err);
+                });
+            };
+
+            // Download bid as text file (for personal backup)
+            const downloadBid = () => {
+                const email = generateEmail();
+                const blob = new Blob([email], { type: 'text/plain' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `Relief_SOM_Bid_${selectedWorker.replace(/[^a-zA-Z0-9]/g, '_')}_${selectedMonth}.txt`;
+                a.click();
+                URL.revokeObjectURL(url);
+            };
+
+            // Import bid files (scheduler function)
+            const handleImportBids = async (event) => {
+                const files = Array.from(event.target.files);
+                const newBids = [];
+                
+                for (const file of files) {
+                    try {
+                        const content = await file.text();
+                        const bidData = JSON.parse(content);
+                        newBids.push(bidData);
+                    } catch (e) {
+                        console.error(`Error reading ${file.name}:`, e);
+                        alert(`Error reading ${file.name}. Make sure it's a valid .bid file.`);
+                    }
+                }
+                
+                setImportedBids([...importedBids, ...newBids].sort((a, b) => a.bidOrder - b.bidOrder));
+            };
+            
+            // Remove imported bid
+            const removeImportedBid = (index) => {
+                setImportedBids(importedBids.filter((_, i) => i !== index));
+            };
+            
+            // Compile all bids to Excel
+            const compileToExcel = async () => {
+                if (importedBids.length === 0) {
+                    alert('No bids imported yet. Please import .bid files first.');
+                    return;
+                }
+                
+                // We'll use SheetJS (xlsx) library loaded from CDN
+                const XLSX = window.XLSX;
+                if (!XLSX) {
+                    alert('Excel library not loaded. Please refresh the page.');
+                    return;
+                }
+                
+                const workbook = XLSX.utils.book_new();
+                
+                // Create a sheet for each bidder
+                importedBids.forEach(bid => {
+                    const sheetName = `${bid.bidOrder}. ${bid.workerName.split(',')[0].substring(0,3)}, ${bid.workerInitials || bid.workerName.split(',')[1]?.trim().charAt(0) || ''}`;
+                    
+                    // Convert bid text to array of arrays (split by newlines and tabs)
+                    const rows = bid.bidText.split('\n').map(line => line.split('\t'));
+                    
+                    const worksheet = XLSX.utils.aoa_to_sheet(rows);
+                    XLSX.utils.book_append_sheet(workbook, worksheet, sheetName.substring(0, 31)); // Excel sheet name limit
+                });
+                
+                // Generate Excel file
+                const monthName = importedBids[0]?.monthName || 'Unknown';
+                XLSX.writeFile(workbook, `Relief_SOM_Bids_${monthName}.xlsx`);
+            };
+
+            // Calculate stats
+            return (
+                <div className="app-container">
+                    <div className="header">
+                        <h1>✈️ Relief SOM Bid System</h1>
+                        <p className="header-subtitle">Streamlined shift bidding for System Operations Managers</p>
+                        <div className="mode-selector">
+                            <button 
+                                className={`mode-btn ${mode === 'scheduler' ? 'active' : ''}`}
+                                onClick={() => setMode('scheduler')}
+                            >
+                                📤 Scheduler Dashboard
+                            </button>
+                            <button 
+                                className={`mode-btn ${mode === 'bidder' ? 'active' : ''}`}
+                                onClick={() => setMode('bidder')}
+                            >
+                                ✋ Submit My Bid
+                            </button>
+                        </div>
+                    </div>
+
+                    <div className="main-content">
+                        {mode === 'scheduler' ? (
+                            <div className="scheduler-interface">
+                                <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px'}}>
+                                    <div>
+                                        <div className="section-title">
+                                            📋 Scheduler Dashboard
+                                        </div>
+                                        <p className="section-subtitle">
+                                            Upload schedules, open shifts, and manage the Relief SOM roster
+                                        </p>
+                                    </div>
+                                    {(scheduleFiles.length > 0 || shiftFiles.length > 0) && (
+                                        <button 
+                                            onClick={clearAllData}
+                                            style={{
+                                                padding: '10px 20px',
+                                                background: '#f56565',
+                                                color: 'white',
+                                                border: 'none',
+                                                borderRadius: '6px',
+                                                fontWeight: '600',
+                                                cursor: 'pointer',
+                                                fontSize: '14px'
+                                            }}
+                                        >
+                                            🗑️ Clear All Data
+                                        </button>
+                                    )}
+                                </div>
+
+                                <div className="upload-grid">
+                                    <div className="upload-card">
+                                        <h3>👥 Workers List</h3>
+                                        <div className="file-input-wrapper">
+                                            <input 
+                                                type="file" 
+                                                accept=".csv" 
+                                                onChange={handleWorkersUpload}
+                                            />
+                                        </div>
+                                        {workersFile && (
+                                            <div className="file-status">
+                                                ✓ {workersFile.name} ({workers.length} workers loaded)
+                                            </div>
+                                        )}
+                                    </div>
+
+                                    <div className="upload-card">
+                                        <h3>📅 Schedule Files</h3>
+                                        <div className="file-input-wrapper">
+                                            <input 
+                                                type="file" 
+                                                accept=".csv" 
+                                                multiple
+                                                onChange={handleScheduleUpload}
+                                            />
+                                        </div>
+                                        {scheduleFiles.length > 0 && (
+                                            <div className="file-list">
+                                                {scheduleFiles.map((file, i) => (
+                                                    <div key={i} className="file-item">
+                                                        <span className="file-item-name">{file.name}</span>
+                                                        <button 
+                                                            className="file-item-remove"
+                                                            onClick={() => removeFile(file.name, 'schedule')}
+                                                        >
+                                                            Remove
+                                                        </button>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        )}
+                                    </div>
+
+                                    <div className="upload-card">
+                                        <h3>📊 Open Shift Files</h3>
+                                        <div className="file-input-wrapper">
+                                            <input 
+                                                type="file" 
+                                                accept=".csv" 
+                                                multiple
+                                                onChange={handleShiftUpload}
+                                            />
+                                        </div>
+                                        {shiftFiles.length > 0 && (
+                                            <div className="file-list">
+                                                {shiftFiles.map((file, i) => (
+                                                    <div key={i} className="file-item">
+                                                        <span className="file-item-name">{file.name}</span>
+                                                        <button 
+                                                            className="file-item-remove"
+                                                            onClick={() => removeFile(file.name, 'shift')}
+                                                        >
+                                                            Remove
+                                                        </button>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        )}
+                                    </div>
+                                </div>
+
+                                {scheduleFiles.length > 0 && shiftFiles.length > 0 && (
+                                    <div className="alert alert-success">
+                                        ✓ Files uploaded successfully! Bidders can now access the system.
+                                    </div>
+                                )}
+
+                                <div className="workers-management">
+                                    <div className="section-title">
+                                        👥 Relief SOM Roster
+                                    </div>
+                                    <p className="section-subtitle">
+                                        Manage the list of System Operations Managers and their relief status
+                                    </p>
+
+                                    <div className="add-worker-form">
+                                        <input 
+                                            type="text" 
+                                            placeholder="Display Name (e.g., Hamilton, Adam)"
+                                            value={newWorker.name}
+                                            onChange={(e) => setNewWorker({...newWorker, name: e.target.value})}
+                                        />
+                                        <input 
+                                            type="text" 
+                                            placeholder="Initials (e.g., AH)"
+                                            value={newWorker.initial}
+                                            onChange={(e) => setNewWorker({...newWorker, initial: e.target.value})}
+                                        />
+                                        <input 
+                                            type="text" 
+                                            placeholder="Schedule Name (e.g., Hamilton, Adam Wayne)"
+                                            value={newWorker.schedName}
+                                            onChange={(e) => setNewWorker({...newWorker, schedName: e.target.value})}
+                                        />
+                                        <input 
+                                            type="number" 
+                                            placeholder="Bid Order"
+                                            value={newWorker.bidOrder}
+                                            onChange={(e) => setNewWorker({...newWorker, bidOrder: e.target.value})}
+                                        />
+                                        <button className="btn btn-primary" onClick={addWorker}>
+                                            Add SOM
+                                        </button>
+                                    </div>
+
+                                    <table className="workers-table">
+                                        <thead>
+                                            <tr>
+                                                <th>Bid Order</th>
+                                                <th>Initials</th>
+                                                <th>Display Name</th>
+                                                <th>Schedule Name (CSV)</th>
+                                                <th>Relief Status</th>
+                                                <th>Action</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {workers.map((worker, index) => (
+                                                <tr key={index}>
+                                                    <td>
+                                                        <input 
+                                                            type="number"
+                                                            value={worker.bidOrder}
+                                                            onChange={(e) => {
+                                                                const updated = [...workers];
+                                                                updated[index].bidOrder = parseInt(e.target.value) || 0;
+                                                                setWorkers(updated);
+                                                            }}
+                                                            style={{width: '60px', padding: '4px'}}
+                                                        />
+                                                    </td>
+                                                    <td>
+                                                        <input 
+                                                            type="text"
+                                                            value={worker.initial}
+                                                            onChange={(e) => {
+                                                                const updated = [...workers];
+                                                                updated[index].initial = e.target.value;
+                                                                setWorkers(updated);
+                                                            }}
+                                                            style={{width: '60px', padding: '4px', fontWeight: 'bold'}}
+                                                        />
+                                                    </td>
+                                                    <td>
+                                                        <input 
+                                                            type="text"
+                                                            value={worker.name}
+                                                            onChange={(e) => {
+                                                                const updated = [...workers];
+                                                                updated[index].name = e.target.value;
+                                                                setWorkers(updated);
+                                                            }}
+                                                            style={{width: '180px', padding: '4px'}}
+                                                        />
+                                                    </td>
+                                                    <td>
+                                                        <input 
+                                                            type="text"
+                                                            value={worker.schedName}
+                                                            onChange={(e) => {
+                                                                const updated = [...workers];
+                                                                updated[index].schedName = e.target.value;
+                                                                setWorkers(updated);
+                                                            }}
+                                                            style={{width: '200px', padding: '4px', fontFamily: 'JetBrains Mono, monospace', fontSize: '12px'}}
+                                                        />
+                                                    </td>
+                                                    <td className="checkbox-cell">
+                                                        <input 
+                                                            type="checkbox" 
+                                                            checked={worker.isRelief}
+                                                            onChange={() => toggleReliefStatus(index)}
+                                                        />
+                                                    </td>
+                                                    <td>
+                                                        <button 
+                                                            className="file-item-remove"
+                                                            onClick={() => removeWorker(index)}
+                                                        >
+                                                            Remove
+                                                        </button>
+                                                    </td>
+                                                </tr>
+                                            ))}
+                                        </tbody>
+                                    </table>
+                                </div>
+                                
+                                {/* Bid Compilation Section */}
+                                <div className="upload-section" style={{marginTop: '40px'}}>
+                                    <h2>📊 Compile Submitted Bids</h2>
+                                    <p style={{color: '#718096', marginBottom: '20px'}}>
+                                        Import .bid files from bidders and compile them into one Excel file
+                                    </p>
+                                    
+                                    <div className="upload-card">
+                                        <h3>📥 Import Bid Files</h3>
+                                        <div className="file-input-wrapper">
+                                            <input 
+                                                type="file" 
+                                                accept=".bid" 
+                                                multiple
+                                                onChange={handleImportBids}
+                                            />
+                                        </div>
+                                        <p style={{fontSize: '12px', color: '#a0aec0', marginTop: '8px'}}>
+                                            Select multiple .bid files at once
+                                        </p>
+                                    </div>
+                                    
+                                    {importedBids.length > 0 && (
+                                        <div style={{marginTop: '20px'}}>
+                                            <h3 style={{marginBottom: '12px'}}>Imported Bids ({importedBids.length})</h3>
+                                            <div className="file-list">
+                                                {importedBids.map((bid, index) => (
+                                                    <div key={index} className="file-item">
+                                                        <span className="file-item-name">
+                                                            {bid.bidOrder}. {bid.workerName} - {bid.monthName}
+                                                        </span>
+                                                        <button 
+                                                            className="file-item-remove"
+                                                            onClick={() => removeImportedBid(index)}
+                                                        >
+                                                            Remove
+                                                        </button>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                            
+                                            <button 
+                                                className="btn btn-primary"
+                                                onClick={compileToExcel}
+                                                style={{marginTop: '16px', width: '100%', padding: '14px'}}
+                                            >
+                                                📊 Download Compiled Excel File
+                                            </button>
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+                        ) : (
+                            <>
+                                {!workersFile || scheduleFiles.length === 0 || shiftFiles.length === 0 ? (
+                                    <div style={{padding: '40px', textAlign: 'center'}}>
+                                        <div className="alert alert-warning">
+                                            ⚠️ Waiting for scheduler to upload all files. Missing: 
+                                            {!workersFile && ' Workers List'}
+                                            {scheduleFiles.length === 0 && ' Schedule'}
+                                            {shiftFiles.length === 0 && ' Open Shifts'}
+                                        </div>
+                                    </div>
+                                ) : (
+                                    <div className="bidder-interface">
+                                        {/* Left Panel - Legends Only */}
+                                        <div className="bid-controls">
+                                            <div className="legend-section">
+                                                <div className="legend-title">Day Status</div>
+                                                <div className="legend-items">
+                                                    <div className="legend-item">
+                                                        <div className="legend-color" style={{background: '#fef3c7'}}></div>
+                                                        <span>Work Day</span>
+                                                    </div>
+                                                    <div className="legend-item">
+                                                        <div className="legend-color" style={{background: '#d1fae5'}}></div>
+                                                        <span>Off Day</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <div className="legend-section">
+                                                <div className="legend-title">Shift Colors</div>
+                                                <div className="legend-items">
+                                                    <div className="legend-item">
+                                                        <div className="legend-color" style={{background: '#FFCCFF'}}></div>
+                                                        <span>Day Fleet</span>
+                                                    </div>
+                                                    <div className="legend-item">
+                                                        <div className="legend-color" style={{background: '#0070C0'}}></div>
+                                                        <span>Night Fleet</span>
+                                                    </div>
+                                                    <div className="legend-item">
+                                                        <div className="legend-color" style={{background: '#00FFFF'}}></div>
+                                                        <span>Terminal (C,D,E)</span>
+                                                    </div>
+                                                    <div className="legend-item">
+                                                        <div className="legend-color" style={{background: '#00B0F0'}}></div>
+                                                        <span>Airborne (F,G,H)</span>
+                                                    </div>
+                                                    <div className="legend-item">
+                                                        <div className="legend-color" style={{background: '#FF0000'}}></div>
+                                                        <span>Regional (J,K)</span>
+                                                    </div>
+                                                    <div className="legend-item">
+                                                        <div className="legend-color" style={{background: '#E2E8F0'}}></div>
+                                                        <span>XXX (Extra)</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <div className="legend-section">
+                                                <div className="legend-title">Fleet Desks</div>
+                                                <div className="legend-items" style={{display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '4px'}}>
+                                                    <div className="legend-item" style={{fontSize: '11px'}}>
+                                                        <strong>N</strong> A321NEO
+                                                    </div>
+                                                    <div className="legend-item" style={{fontSize: '11px'}}>
+                                                        <strong>O</strong> 717
+                                                    </div>
+                                                    <div className="legend-item" style={{fontSize: '11px'}}>
+                                                        <strong>Q</strong> B738/B73R/B73J
+                                                    </div>
+                                                    <div className="legend-item" style={{fontSize: '11px'}}>
+                                                        <strong>R</strong> A220
+                                                    </div>
+                                                    <div className="legend-item" style={{fontSize: '11px'}}>
+                                                        <strong>S</strong> B739
+                                                    </div>
+                                                    <div className="legend-item" style={{fontSize: '11px'}}>
+                                                        <strong>U</strong> B763/764
+                                                    </div>
+                                                    <div className="legend-item" style={{fontSize: '11px'}}>
+                                                        <strong>V</strong> A321
+                                                    </div>
+                                                    <div className="legend-item" style={{fontSize: '11px'}}>
+                                                        <strong>W</strong> B757
+                                                    </div>
+                                                    <div className="legend-item" style={{fontSize: '11px'}}>
+                                                        <strong>X</strong> A319/A320
+                                                    </div>
+                                                    <div className="legend-item" style={{fontSize: '11px'}}>
+                                                        <strong>Y</strong> A330/A350
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <div className="legend-section">
+                                                <div className="legend-title">Count Format</div>
+                                                <div className="legend-items">
+                                                    <div className="legend-item" style={{flexDirection: 'column', alignItems: 'flex-start', gap: '4px'}}>
+                                                        <div style={{fontSize: '12px', fontWeight: '700'}}>
+                                                            <span style={{color: '#667eea'}}>Open</span>
+                                                            <span style={{color: '#a0aec0'}}> / </span>
+                                                            <span style={{color: '#667eea'}}>Relief</span>
+                                                            <span style={{color: '#a0aec0'}}> / </span>
+                                                            <span style={{background: '#48bb78', color: 'white', padding: '2px 4px', borderRadius: '3px'}}>Extra</span>
+                                                        </div>
+                                                        <span style={{fontSize: '10px', color: '#718096'}}>
+                                                            Extra: <span style={{background: '#48bb78', color: 'white', padding: '1px 3px', borderRadius: '2px', fontSize: '9px'}}>Green</span> if ≥1, 
+                                                            <span style={{background: '#f56565', color: 'white', padding: '1px 3px', borderRadius: '2px', fontSize: '9px', marginLeft: '4px'}}>Red</span> if ≤0
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <div className="legend-section">
+                                                <div className="legend-title">Bid Order</div>
+                                                <div className="legend-items">
+                                                    {workers
+                                                        .filter(w => w.isRelief)
+                                                        .sort((a, b) => a.bidOrder - b.bidOrder)
+                                                        .map((worker, index) => (
+                                                            <div key={worker.initial} className="legend-item">
+                                                                <strong>{index + 1}.</strong>
+                                                                <span>{worker.initial} - {worker.name.split(',')[0]}</span>
+                                                            </div>
+                                                        ))}
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        {/* Middle Panel - Calendar */}
+                                        <div className="bid-calendar">
+                                            <div className="calendar-header">
+                                                <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '12px', flexWrap: 'wrap'}}>
+                                                    <div className="calendar-title">
+                                                        {selectedMonth ? 
+                                                            `${availableMonths.find(m => m.number == selectedMonth)?.name || selectedMonth} Schedule` 
+                                                            : 'Select a Month'}
+                                                    </div>
+                                                    
+                                                    {/* Controls aligned with header */}
+                                                    <div style={{display: 'flex', gap: '12px', alignItems: 'center'}}>
+                                                        <select 
+                                                            className="control-select"
+                                                            value={selectedMonth}
+                                                            onChange={(e) => setSelectedMonth(e.target.value)}
+                                                            style={{minWidth: '150px'}}
+                                                        >
+                                                            <option value="">-- Choose Month --</option>
+                                                            {availableMonths.map(month => (
+                                                                <option key={month.number} value={month.number}>
+                                                                    {month.name}
+                                                                </option>
+                                                            ))}
+                                                        </select>
+                                                        
+                                                        <select 
+                                                            className="control-select"
+                                                            value={selectedWorker}
+                                                            onChange={(e) => setSelectedWorker(e.target.value)}
+                                                            style={{minWidth: '200px'}}
+                                                        >
+                                                            <option value="">-- Select Your Name --</option>
+                                                            {workers.filter(w => w.isRelief).map(worker => (
+                                                                <option key={worker.name} value={worker.name}>
+                                                                    {worker.name}
+                                                                </option>
+                                                            ))}
+                                                        </select>
+                                                        
+                                                        <div className="checkbox-control">
+                                                            <input 
+                                                                type="checkbox" 
+                                                                id="showAll"
+                                                                checked={showAllDays}
+                                                                onChange={(e) => setShowAllDays(e.target.checked)}
+                                                            />
+                                                            <label htmlFor="showAll">Show All</label>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            {!selectedWorker || !selectedMonth ? (
+                                                <div className="empty-state">
+                                                    <div className="empty-state-icon">📅</div>
+                                                    <div className="empty-state-text">
+                                                        Select your name and month to view available shifts
+                                                    </div>
+                                                </div>
+                                            ) : (
+                                                <div className={showAllDays ? "calendar-grid" : "calendar-grid-simple"}>
+                                                    {/* Day of week headers - only show when viewing all days */}
+                                                    {showAllDays && (
+                                                        <div className="calendar-week-header">
+                                                            <div className="calendar-day-name">Sun</div>
+                                                            <div className="calendar-day-name">Mon</div>
+                                                            <div className="calendar-day-name">Tue</div>
+                                                            <div className="calendar-day-name">Wed</div>
+                                                            <div className="calendar-day-name">Thu</div>
+                                                            <div className="calendar-day-name">Fri</div>
+                                                            <div className="calendar-day-name">Sat</div>
+                                                        </div>
+                                                    )}
+                                                    
+                                                    {/* Calendar weeks or simple list based on showAllDays */}
+                                                    {showAllDays ? (
+                                                        // Week grid view
+                                                        calendarWeeks.map((week, weekIndex) => (
+                                                            <div key={weekIndex} className="calendar-week">
+                                                                {week.map((day, dayIndex) => {
+                                                                    if (!day) {
+                                                                        return <div key={dayIndex} className="day-placeholder"></div>;
+                                                                    }
+                                                                    
+                                                                    const hasShifts = day.shifts.length > 0;
+                                                                    
+                                                                    return (
+                                                                    <div 
+                                                                        key={dayIndex}
+                                                                        className={`day-card ${
+                                                                            day.isWorkDay ? 'work-day' : 'off-day'
+                                                                        } ${!hasShifts ? 'no-shifts' : ''}`}
+                                                                    >
+                                                                <div className="day-header">
+                                                                    <div>
+                                                                        <div className="day-date">{day.displayDate}</div>
+                                                                    </div>
+                                                                    <div className="day-counts">
+                                                                        <span className="count-open">{day.shifts.filter(s => s !== 'XXX').length}</span>
+                                                                        <span className="count-separator">/</span>
+                                                                        <span className="count-relief">{day.reliefCount}</span>
+                                                                        <span className="count-separator">/</span>
+                                                                        <span className={`count-extra ${day.reliefCount - day.shifts.filter(s => s !== 'XXX').length >= 1 ? 'positive' : 'negative'}`}>
+                                                                            {day.reliefCount - day.shifts.filter(s => s !== 'XXX').length}
+                                                                        </span>
+                                                                    </div>
+                                                                </div>
+
+                                                                <div className="shifts-list">
+                                                                    {hasShifts ? (
+                                                                        day.shifts.map((shift, i) => {
+                                                                            const isSelected = myBids.some(
+                                                                                bid => bid.key === `${day.date}-${shift}`
+                                                                            );
+                                                                            
+                                                                            // Extract shift time (first 2 digits) and desk code (last letter)
+                                                                            const shiftTime = shift === 'XXX' ? null : parseInt(shift.substring(0, 2));
+                                                                            const deskCode = shift === 'XXX' ? 'XXX' : shift.slice(-1);
+                                                                            
+                                                                            // Determine shift class
+                                                                            let shiftClass = '';
+                                                                            if (shift === 'XXX') {
+                                                                                shiftClass = 'desk-XXX';
+                                                                            } else if (['C', 'D', 'E', 'F', 'G', 'H', 'J', 'K'].includes(deskCode)) {
+                                                                                // Terminal, Airborne, Regional - use desk code
+                                                                                shiftClass = `desk-${deskCode}`;
+                                                                            } else if (shiftTime >= 18) {
+                                                                                // Overnight shifts (18+)
+                                                                                shiftClass = 'shift-night';
+                                                                            } else if (shiftTime >= 6 && shiftTime <= 12) {
+                                                                                // Day shifts (06-12) - Fleet desks
+                                                                                shiftClass = 'shift-day';
+                                                                            } else {
+                                                                                // Default for other times
+                                                                                shiftClass = 'shift-day';
+                                                                            }
+                                                                            
+                                                                            return (
+                                                                                <div 
+                                                                                    key={i}
+                                                                                    className={`shift-tag ${shiftClass} ${isSelected ? 'selected' : ''}`}
+                                                                                    onClick={() => !isSelected && addShiftToBid(day, shift)}
+                                                                                >
+                                                                                    {shift}
+                                                                                </div>
+                                                                            );
+                                                                        })
+                                                                    ) : (
+                                                                        <div style={{fontSize: '12px', color: '#a0aec0', textAlign: 'center'}}>
+                                                                            No shifts
+                                                                        </div>
+                                                                    )}
+                                                                </div>
+
+                                                                {day.reliefCount > 0 && (
+                                                                    <div className="day-info">
+                                                                        {day.reliefWorking.map(w => w.initial).join(', ')}
+                                                                    </div>
+                                                                )}
+                                                            </div>
+                                                        );
+                                                    })}
+                                                        </div>
+                                                    ))
+                                                    ) : (
+                                                        // Simple list view - just work days in date order
+                                                        calendarDays
+                                                            .filter(day => day.isWorkDay)
+                                                            .map((day, index) => {
+                                                                const hasShifts = day.shifts.length > 0;
+                                                                
+                                                                return (
+                                                                    <div 
+                                                                        key={index}
+                                                                        className={`day-card ${
+                                                                            day.isWorkDay ? 'work-day' : 'off-day'
+                                                                        } ${!hasShifts ? 'no-shifts' : ''}`}
+                                                                    >
+                                                                        <div className="day-header">
+                                                                            <div>
+                                                                                <div className="day-date">{day.displayDate}</div>
+                                                                            </div>
+                                                                            <div className="day-counts">
+                                                                                <span className="count-open">{day.shifts.filter(s => s !== 'XXX').length}</span>
+                                                                                <span className="count-separator">/</span>
+                                                                                <span className="count-relief">{day.reliefCount}</span>
+                                                                                <span className="count-separator">/</span>
+                                                                                <span className={`count-extra ${day.reliefCount - day.shifts.filter(s => s !== 'XXX').length >= 1 ? 'positive' : 'negative'}`}>
+                                                                                    {day.reliefCount - day.shifts.filter(s => s !== 'XXX').length}
+                                                                                </span>
+                                                                            </div>
+                                                                        </div>
+
+                                                                        <div className="shifts-list">
+                                                                            {hasShifts ? (
+                                                                                day.shifts.map((shift, i) => {
+                                                                                    const isSelected = myBids.some(
+                                                                                        bid => bid.key === `${day.date}-${shift}`
+                                                                                    );
+                                                                                    
+                                                                                    // Extract shift time (first 2 digits) and desk code (last letter)
+                                                                                    const shiftTime = shift === 'XXX' ? null : parseInt(shift.substring(0, 2));
+                                                                                    const deskCode = shift === 'XXX' ? 'XXX' : shift.slice(-1);
+                                                                                    
+                                                                                    // Determine shift class
+                                                                                    let shiftClass = '';
+                                                                                    if (shift === 'XXX') {
+                                                                                        shiftClass = 'desk-XXX';
+                                                                                    } else if (['C', 'D', 'E', 'F', 'G', 'H', 'J', 'K'].includes(deskCode)) {
+                                                                                        shiftClass = `desk-${deskCode}`;
+                                                                                    } else if (shiftTime >= 18) {
+                                                                                        shiftClass = 'shift-night';
+                                                                                    } else if (shiftTime >= 6 && shiftTime <= 12) {
+                                                                                        shiftClass = 'shift-day';
+                                                                                    } else {
+                                                                                        shiftClass = 'shift-day';
+                                                                                    }
+                                                                                    
+                                                                                    return (
+                                                                                        <div 
+                                                                                            key={i}
+                                                                                            className={`shift-tag ${shiftClass} ${isSelected ? 'selected' : ''}`}
+                                                                                            onClick={() => !isSelected && addShiftToBid(day, shift)}
+                                                                                        >
+                                                                                            {shift}
+                                                                                        </div>
+                                                                                    );
+                                                                                })
+                                                                            ) : (
+                                                                                <div style={{fontSize: '12px', color: '#a0aec0', textAlign: 'center'}}>
+                                                                                    No shifts
+                                                                                </div>
+                                                                            )}
+                                                                        </div>
+
+                                                                        {day.reliefCount > 0 && (
+                                                                            <div className="day-info">
+                                                                                {day.reliefWorking.map(w => w.initial).join(', ')}
+                                                                            </div>
+                                                                        )}
+                                                                    </div>
+                                                                );
+                                                            })
+                                                    )}
+                                                </div>
+                                            )}
+                                        </div>
+
+                                        {/* Right Panel - My Bid */}
+                                        <div className="bid-panel">
+                                            <div className="panel-header">
+                                                <div className="panel-title">My Bid</div>
+                                                {myBids.length > 0 && (
+                                                    <button 
+                                                        className="btn-clear-all"
+                                                        onClick={() => {
+                                                            if (confirm('Clear all bids?')) {
+                                                                setMyBids([]);
+                                                            }
+                                                        }}
+                                                        title="Clear all bids"
+                                                    >
+                                                        Clear Bid
+                                                    </button>
+                                                )}
+                                            </div>
+
+                                            {myBids.length === 0 ? (
+                                                <div className="empty-state">
+                                                    <div className="empty-state-icon">👈</div>
+                                                    <div className="empty-state-text">
+                                                        Click shifts to add them to your bid
+                                                    </div>
+                                                </div>
+                                            ) : (
+                                                <>
+                                                    <div className="bid-list">
+                                                        {/* Group bids by date */}
+                                                        {Object.entries(
+                                                            myBids.reduce((groups, bid) => {
+                                                                const date = bid.date;
+                                                                if (!groups[date]) groups[date] = [];
+                                                                groups[date].push(bid);
+                                                                return groups;
+                                                            }, {})
+                                                        )
+                                                        .sort((a, b) => {
+                                                            // Sort by date
+                                                            const [monthA, dayA] = a[0].split('/').map(n => parseInt(n));
+                                                            const [monthB, dayB] = b[0].split('/').map(n => parseInt(n));
+                                                            if (monthA !== monthB) return monthA - monthB;
+                                                            return dayA - dayB;
+                                                        })
+                                                        .map(([date, bids]) => {
+                                                            // Find worker's bid order for this date
+                                                            const worker = workers.find(w => w.name === selectedWorker);
+                                                            const dayData = calendarDays.find(d => d.date === date);
+                                                            const bidOrder = dayData ? 
+                                                                dayData.reliefWorking.findIndex(w => w.initial === worker?.initial) + 1 
+                                                                : 0;
+                                                            
+                                                            return (
+                                                            <div key={date} className="bid-date-group">
+                                                                <div className="bid-date-header">
+                                                                    <span>{bids[0].displayDate} - Bid Order {bidOrder}</span>
+                                                                    <div style={{display: 'flex', alignItems: 'center', gap: '8px'}}>
+                                                                        <span className={`bid-date-count ${
+                                                                            bids.length < bidOrder ? 'incomplete' : 
+                                                                            bids.length === bidOrder ? 'exact' : 
+                                                                            'complete'
+                                                                        }`}>
+                                                                            {bids.length}
+                                                                        </span>
+                                                                        <button 
+                                                                            className="btn-clear-day"
+                                                                            onClick={() => {
+                                                                                if (confirm(`Clear all bids for ${bids[0].displayDate}?`)) {
+                                                                                    setMyBids(myBids.filter(b => b.date !== date));
+                                                                                }
+                                                                            }}
+                                                                            title={`Clear all bids for ${bids[0].displayDate}`}
+                                                                        >
+                                                                            ✕
+                                                                        </button>
+                                                                    </div>
+                                                                </div>
+                                                                {bids.map((bid, index) => (
+                                                                    <div 
+                                                                        key={`${date}-${index}`}
+                                                                        className={`bid-item ${draggedIndex === `${date}-${index}` ? 'dragging' : ''}`}
+                                                                        draggable
+                                                                        onDragStart={() => setDraggedIndex(`${date}-${index}`)}
+                                                                        onDragOver={(e) => {
+                                                                            e.preventDefault();
+                                                                            setDragOverIndex(`${date}-${index}`);
+                                                                        }}
+                                                                        onDrop={(e) => {
+                                                                            e.preventDefault();
+                                                                            const draggedKey = draggedIndex;
+                                                                            const targetKey = `${date}-${index}`;
+                                                                            
+                                                                            // Only allow reordering within same date
+                                                                            if (draggedKey && draggedKey.startsWith(date) && targetKey.startsWith(date)) {
+                                                                                const draggedBidIndex = myBids.findIndex(b => `${b.date}-${myBids.filter(x => x.date === b.date).indexOf(b)}` === draggedKey);
+                                                                                const targetBidIndex = myBids.findIndex(b => `${b.date}-${myBids.filter(x => x.date === b.date).indexOf(b)}` === targetKey);
+                                                                                
+                                                                                if (draggedBidIndex !== -1 && targetBidIndex !== -1) {
+                                                                                    const newBids = [...myBids];
+                                                                                    const [removed] = newBids.splice(draggedBidIndex, 1);
+                                                                                    newBids.splice(targetBidIndex, 0, removed);
+                                                                                    setMyBids(newBids);
+                                                                                }
+                                                                            }
+                                                                            setDraggedIndex(null);
+                                                                            setDragOverIndex(null);
+                                                                        }}
+                                                                        onDragEnd={() => {
+                                                                            setDraggedIndex(null);
+                                                                            setDragOverIndex(null);
+                                                                        }}
+                                                                    >
+                                                                        <div className="bid-rank">{index + 1}</div>
+                                                                        <div className="bid-details">
+                                                                            <div className={`bid-shift ${(() => {
+                                                                                const shift = bid.shift;
+                                                                                if (shift === 'XXX') return 'desk-XXX';
+                                                                                
+                                                                                const shiftTime = parseInt(shift.substring(0, 2));
+                                                                                const deskCode = shift.slice(-1);
+                                                                                
+                                                                                if (['C', 'D', 'E', 'F', 'G', 'H', 'J', 'K'].includes(deskCode)) {
+                                                                                    return `desk-${deskCode}`;
+                                                                                } else if (shiftTime >= 18) {
+                                                                                    return 'shift-night';
+                                                                                } else if (shiftTime >= 6 && shiftTime <= 12) {
+                                                                                    return 'shift-day';
+                                                                                } else {
+                                                                                    return 'shift-day';
+                                                                                }
+                                                                            })()}`}>
+                                                                                {bid.shift}
+                                                                            </div>
+                                                                        </div>
+                                                                        <button 
+                                                                            className="bid-remove"
+                                                                            onClick={() => {
+                                                                                const bidIndex = myBids.findIndex(b => b.key === bid.key);
+                                                                                if (bidIndex !== -1) {
+                                                                                    setMyBids(myBids.filter((_, i) => i !== bidIndex));
+                                                                                }
+                                                                            }}
+                                                                        >
+                                                                            ✕
+                                                                        </button>
+                                                                    </div>
+                                                                ))}
+                                                            </div>
+                                                        );
+                                                        })}
+                                                    </div>
+
+                                                    <div className="submit-section">
+                                                        <div className="notes-section">
+                                                            <label className="notes-label">Notes to Scheduler:</label>
+                                                            <textarea
+                                                                className="notes-textarea"
+                                                                value={bidNotes}
+                                                                onChange={(e) => setBidNotes(e.target.value)}
+                                                                placeholder="Add any notes or special requests for the scheduler..."
+                                                                rows="3"
+                                                            />
+                                                        </div>
+                                                        
+                                                        <div className="preview-label">Bid Preview:</div>
+                                                        <div className="submit-preview">
+                                                            {generateEmail()}
+                                                        </div>
+                                                        <div className="action-buttons">
+                                                            <button className="btn btn-success" onClick={submitBid}>
+                                                                ✉️ Submit Bid
+                                                            </button>
+                                                            <button className="btn btn-secondary" onClick={downloadBid}>
+                                                                💾 Download Backup
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                </>
+                                            )}
+                                        </div>
+                                    </div>
+                                )}
+                            </>
+                        )}
+                    </div>
+                </div>
+            );
+        }
+
+        ReactDOM.render(<ReliefSOMBiddingApp />, document.getElementById('root'));
+    </script>
+</body>
+</html>

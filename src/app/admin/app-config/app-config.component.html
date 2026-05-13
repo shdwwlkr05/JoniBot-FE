@@ -13,6 +13,9 @@
       <label for="openTime">Open Time</label>
       <input style= "margin-left: 10px" type="checkbox" id="openTime" [(ngModel)]="openTime">
       <br>
+      <label for="reliefBid">Relief Bid</label>
+      <input style= "margin-left: 10px" type="checkbox" id="reliefBid" [(ngModel)]="reliefBid">
+      <br>
       <button (click)="setLinks()" style="margin-bottom: 15px">Save</button>
       <br>
     </div>
@@ -31,9 +34,125 @@
       <label for="sptQual" style="margin-left: 10px">SPT</label>
       <input style= "margin-left: 10px" type="checkbox" id="sptQual" [(ngModel)]="sptQual">
       <br>
-      <button (click)="setQuals()">Save</button>
+      <button (click)="setQuals()" style="margin-bottom: 15px">Save</button>
       {{httpResponse}}
+    </div>
+    <hr>
+    <hr>
+    <div class="col-xs-12">
+      <h6>Line Bid Parameters</h6>
+      <label for="domBlock">Number of domestic lines to block:</label>
+      <input style= "margin-left: 10px" type="number" id="domBlock" [(ngModel)]="domBlock">
+      <button (click)="setBlockLines()" style="margin-bottom: 15px">Set Number</button>
+      {{message}}
+      <br>
+    </div>
+    <hr>
+    <hr>
+    <div class="col-xs-12">
+      <h6>Vac Bid Dates</h6>
+      <label for="start_of_bid">Start of Bid: </label>
+      <input style= "margin-left: 10px" type="date" id="start_of_bid" [(ngModel)]="start_of_bid">
+      <br>
+      <label for="end_of_bid">End of Bid: </label>
+      <input style= "margin-left: 17px" type="date" id="end_of_bid" [(ngModel)]="end_of_bid">
+      <br>
+      <label for="round1_display">Show Round 1 Due Date?</label>
+      <input style= "margin-left: 10px" type="checkbox" id="round1_display" [(ngModel)]="round1_display">
+      <br>
+      <label for="round2_display">Show Round 2 Due Date?</label>
+      <input style= "margin-left: 10px" type="checkbox" id="round2_display" [(ngModel)]="round2_display">
+      <br>
+      <label for="round3_due_date">Round 3 Due:</label>
+      <input style= "margin-left: 10px" type="datetime-local" id="round3_due_date" [(ngModel)]="round3_due_local">
+      <label for="round3_display" style= "margin-left: 10px">Show?</label>
+      <input style= "margin-left: 10px" type="checkbox" id="round3_display" [(ngModel)]="round3_display">
+      <br>
+      <label for="round4_due_date">Round 4 Due:</label>
+      <input style= "margin-left: 10px" type="datetime-local" id="round4_due_date" [(ngModel)]="round4_due_local">
+      <label for="round4_display" style= "margin-left: 10px">Show?</label>
+      <input style= "margin-left: 10px" type="checkbox" id="round4_display" [(ngModel)]="round4_display">
+      <br>
+      <label for="round3_due_date">Round 5 Due:</label>
+      <input style= "margin-left: 10px" type="datetime-local" id="round5_due_date" [(ngModel)]="round5_due_local">
+      <label for="round5_display" style= "margin-left: 10px">Show?</label>
+      <input style= "margin-left: 10px" type="checkbox" id="round5_display" [(ngModel)]="round5_display">
+      <br>
+      <label for="round6_due_date">Round 6 Due:</label>
+      <input style= "margin-left: 10px" type="datetime-local" id="round6_due_date" [(ngModel)]="round6_due_local">
+      <label for="round6_display" style= "margin-left: 10px">Show?</label>
+      <input style= "margin-left: 10px" type="checkbox" id="round6_display" [(ngModel)]="round6_display">
+      <br>
+      <label for="round7_due_date">Round 7 Due:</label>
+      <input style= "margin-left: 10px" type="datetime-local" id="round7_due_date" [(ngModel)]="round7_due_local">
+      <label for="round7_display" style= "margin-left: 10px">Show?</label>
+      <input style= "margin-left: 10px" type="checkbox" id="round7_display" [(ngModel)]="round7_display">
+      <br>
+      <label for="round8_due_date">Round 8 Due:</label>
+      <input style= "margin-left: 10px" type="datetime-local" id="round8_due_date" [(ngModel)]="round8_due_local">
+      <label for="round8_display" style= "margin-left: 10px">Show?</label>
+      <input style= "margin-left: 10px" type="checkbox" id="round8_display" [(ngModel)]="round8_display">
+      <br>
+      <button (click)="setBidDates()" style= "margin-right: 10px; margin-bottom: 15px">Save</button>
+      {{httpResponse}}
+    </div>
+    <hr>
+    <hr>
+    <div>
+      <h6>Used Holidays</h6>
+      <label for="dbIDhol">User DB ID</label>
+      <input style= "margin-left: 10px" type="text" id="dbIDhol" [(ngModel)]="dbIDhol">
+      <button (click)="getUsedHols()">Get Used Holidays</button>
+      <br>
+      {{messageHols + httpResponse}}
+      <br>
+      <table class="table table-sm table-bordered">
+        <tr>
+          <th>Year</th>
+          <th>Holiday</th>
+          <th>Date Used</th>
+          <th>Add/Remove</th>
+        </tr>
+        <tr>
+          <td>
+            <select type="text" [(ngModel)]="addHolYear" (ngModelChange)="onHolYearChange()">
+              <option>{{currYear}}</option>
+              <option>{{nextYear}}</option>
+            </select>
+          </td>
+          <td>
+            <select type="text" [(ngModel)]="addHolID">
+              <option *ngFor="let hol of holidays" [value]="hol">{{ hol }}</option>
+            </select>
+          </td>
+          <td>
+            <input type="date" [(ngModel)]="addHolDate">
+          </td>
+          <td>
+            <fa-icon [icon]="faPlusCircle"
+                     style="cursor: pointer;
+                     color: #0d6efd;"
+                     size="lg"
+                     (click)="onAdd()"
+            >
+            </fa-icon>
+          </td>
+        </tr>
+        <tr *ngFor="let hol of usedHolidays">
+          <td>{{ hol.year }}</td>
+          <td>{{ hol.hol_used }}</td>
+          <td>{{ hol.date_used | date:'MM/dd/yy' }}</td>
+          <td>
+            <fa-icon [icon]="faTrash"
+                     style="cursor: pointer;
+                     color: #0d6efd;"
+                     size="lg"
+                     (click)="onDelete(hol)"
+            >
+            </fa-icon>
+          </td>
+        </tr>
+      </table>
     </div>
   </div>
 </div>
-

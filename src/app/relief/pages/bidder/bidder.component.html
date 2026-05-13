@@ -1,0 +1,224 @@
+<div class="bidder">
+  <div class="toolbar">
+    <a href="javascript:void(0)" (click)="showLegend = !showLegend">Legend</a>
+    <a href="javascript:void(0)" (click)="showBidOrder = !showBidOrder">Bid Order</a>
+    <a href="javascript:void(0)" (click)="showFilters = !showFilters">Filters</a>
+  </div>
+
+  <div class="filter-panel" *ngIf="showFilters">
+    <div class="filter-group">
+      <label class="filter-checkbox">
+        <input type="checkbox" [(ngModel)]="workdaysOnly"> Only show my workdays
+      </label>
+    </div>
+    <div class="filter-group">
+      <span class="filter-group-label">Time</span>
+      <label class="filter-checkbox"><input type="checkbox" [(ngModel)]="filterAm"> AM</label>
+      <label class="filter-checkbox"><input type="checkbox" [(ngModel)]="filterPm"> PM</label>
+      <label class="filter-checkbox"><input type="checkbox" [(ngModel)]="filterMid"> Mid</label>
+    </div>
+    <div class="filter-group" *ngIf="(workgroup$ | async) !== 'som'">
+      <span class="filter-group-label">Region</span>
+      <label class="filter-checkbox"><input type="checkbox" [(ngModel)]="filterDom"> Dom</label>
+      <label class="filter-checkbox" *ngIf="isIntlQualified$ | async"><input type="checkbox" [(ngModel)]="filterIntl"> Intl</label>
+    </div>
+    <div class="filter-group" *ngIf="(workgroup$ | async) === 'som'">
+      <span class="filter-group-label">Type</span>
+      <label class="filter-checkbox"><input type="checkbox" [(ngModel)]="filterFleet"> Fleet</label>
+      <label class="filter-checkbox"><input type="checkbox" [(ngModel)]="filterSpt"> SPT</label>
+    </div>
+  </div>
+
+  <div class="legend-panel" *ngIf="showLegend">
+    <div class="legend-section">
+      <div class="legend-title">Day Status</div>
+      <div class="legend-items">
+        <div class="legend-item">
+          <div class="legend-color" style="background: #fef3c7; border-color: #fbbf24;"></div>
+          <span>Work Day</span>
+        </div>
+        <div class="legend-item">
+          <div class="legend-color" style="background: #f7fafc; border-color: #e2e8f0;"></div>
+          <span>Off Day</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- SOM Shift Colors -->
+    <ng-container *ngIf="(workgroup$ | async) === 'som'">
+      <div class="legend-section">
+        <div class="legend-title">Shift Colors</div>
+        <div class="legend-items">
+          <div class="legend-item">
+            <div class="legend-color" style="background: #FFCCFF;"></div>
+            <span>Day Fleet</span>
+          </div>
+          <div class="legend-item">
+            <div class="legend-color" style="background: #0070C0;"></div>
+            <span>Night Fleet</span>
+          </div>
+          <div class="legend-item">
+            <div class="legend-color" style="background: #00FFFF;"></div>
+            <span>Terminal (C, D, E)</span>
+          </div>
+          <div class="legend-item">
+            <div class="legend-color" style="background: #00B0F0;"></div>
+            <span>Airborne (F-Tactical, G-Enroute, H-Surface)</span>
+          </div>
+          <div class="legend-item">
+            <div class="legend-color" style="background: #FF0000;"></div>
+            <span>Regional (J, K)</span>
+          </div>
+          <div class="legend-item">
+            <div class="legend-color" style="background: #E2E8F0;"></div>
+            <span>XX (Extra)</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="legend-section">
+        <div class="legend-title">Fleet Desks</div>
+        <div class="legend-items fleet-desks">
+          <div class="legend-item"><strong>N</strong> A321NEO</div>
+          <div class="legend-item"><strong>O</strong> 717</div>
+          <div class="legend-item"><strong>Q</strong> B738/B73R/B73J</div>
+          <div class="legend-item"><strong>R</strong> A220</div>
+          <div class="legend-item"><strong>S</strong> B739</div>
+          <div class="legend-item"><strong>U</strong> B763/764</div>
+          <div class="legend-item"><strong>V</strong> A321</div>
+          <div class="legend-item"><strong>W</strong> B757</div>
+          <div class="legend-item"><strong>X</strong> A319/A320</div>
+          <div class="legend-item"><strong>Y</strong> A330/A350</div>
+        </div>
+      </div>
+    </ng-container>
+
+    <!-- FS Shift Colors (default) -->
+    <ng-container *ngIf="(workgroup$ | async) !== 'som'">
+      <div class="legend-section">
+        <div class="legend-title">Shift Colors</div>
+        <div class="legend-items">
+          <div class="legend-item">
+            <div class="legend-color" style="background: #F7C9FC;"></div>
+            <span>Dom AM</span>
+          </div>
+          <div class="legend-item">
+            <div class="legend-color" style="background: #B48CB9;"></div>
+            <span>Dom PM</span>
+          </div>
+          <div class="legend-item">
+            <div class="legend-color" style="background: #7D5881;"></div>
+            <span>Dom Mid</span>
+          </div>
+          <div class="legend-item">
+            <div class="legend-color" style="background: #F8BA2F;"></div>
+            <span>LAT</span>
+          </div>
+          <div class="legend-item">
+            <div class="legend-color" style="background: #39A5E9;"></div>
+            <span>NAT</span>
+          </div>
+          <div class="legend-item">
+            <div class="legend-color" style="background: #FFFD3E;"></div>
+            <span>PAC</span>
+          </div>
+          <div class="legend-item">
+            <div class="legend-color" style="background: #E2E8F0;"></div>
+            <span>XX (Extra)</span>
+          </div>
+        </div>
+      </div>
+
+    </ng-container>
+
+    <div class="legend-section">
+      <div class="legend-title">Count Format</div>
+      <div class="legend-items">
+        <div class="legend-item" style="flex-direction: column; align-items: flex-start; gap: 4px;">
+          <div style="font-weight: 700; font-size: 12px;">
+            <span style="color: #0d6efd;">Open</span>
+            <span style="color: #a0aec0;"> / </span>
+            <span style="color: #0d6efd;">Relief</span>
+            <span style="color: #a0aec0;"> / </span>
+            <span style="background: #48bb78; color: white; padding: 2px 4px; border-radius: 3px;">Extra</span>
+          </div>
+          <span style="font-size: 10px; color: #718096;">
+            Extra:
+            <span style="background: #48bb78; color: white; padding: 1px 4px; border-radius: 3px;">Green</span> if &gt;= 1,
+            <span style="background: #f56565; color: white; padding: 1px 4px; border-radius: 3px;">Red</span> if &lt;= 0
+          </span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="bid-order-panel" *ngIf="showBidOrder">
+    <div class="legend-section">
+      <div class="legend-title">Bid Order</div>
+      <div class="legend-items">
+        <div class="legend-item" *ngFor="let worker of (bidOrder$ | async); let i = index"
+             [class.current-user]="worker.isCurrentUser">
+          <strong>{{ i + 1 }}.</strong>
+          <span>{{ worker.shortname }}</span>
+        </div>
+        <div *ngIf="(bidOrder$ | async)?.length === 0" style="color: #718096; font-size: 13px;">
+          No bid order data available.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <app-shift-grid
+    [weeks]="(weeks$ | async) || []"
+    [selectedShiftKeys]="(selectedShiftKeys$ | async) || emptySet"
+    [rlfDays]="(rlfDays$ | async) || emptyNumSet"
+    [workdaysOnly]="workdaysOnly"
+    [filterAm]="filterAm"
+    [filterPm]="filterPm"
+    [filterMid]="filterMid"
+    [filterDom]="filterDom"
+    [filterIntl]="filterIntl"
+    [filterFleet]="filterFleet"
+    [filterSpt]="filterSpt"
+    [isIntlQualified]="(isIntlQualified$ | async) || false"
+    (shiftClicked)="onShiftClicked($event)">
+  </app-shift-grid>
+
+  <h3>My Bid</h3>
+  <div class="bid-groups" *ngIf="(picksGrouped$ | async) as groups">
+    <div class="day-group" *ngFor="let group of groups" [class.complete]="group.isComplete">
+      <div class="day-group-header">
+        <span>{{ group.label }}</span>
+        <button type="button" class="clear-day-btn" title="Clear day" (click)="clearDay(group.day, group.label)">&#10005;</button>
+      </div>
+      <div cdkDropList
+           class="day-group-list"
+           (cdkDropListDropped)="dropInDay(group.day, $event)">
+        <div class="pick" *ngFor="let pick of group.picks; let i = index" cdkDrag>
+          <span class="pick-rank">{{ i + 1 }}.</span>
+          <span class="pick-label">{{ pick.shift }}</span>
+          <button type="button" class="pick-remove" (click)="removePickByShiftId(pick.shiftId)">&#10005;</button>
+        </div>
+      </div>
+    </div>
+    <div *ngIf="groups.length === 0" class="no-picks">
+      Click shifts in the calendar to add them to your bid.
+    </div>
+  </div>
+
+  <div class="note-section">
+    <label class="note-label" for="schedulerNote">Note for Scheduler</label>
+    <textarea id="schedulerNote"
+              class="note-input"
+              rows="3"
+              placeholder="Leave a note for the scheduler (optional)"
+              [ngModel]="note$ | async"
+              (ngModelChange)="onNoteChange($event)"></textarea>
+  </div>
+
+  <div class="action-bar">
+    <button type="button" class="btn-save" [disabled]="!(canSubmit$ | async)" (click)="submit()">
+      Submit Bid
+    </button>
+  </div>
+</div>
