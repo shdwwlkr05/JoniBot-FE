@@ -45,7 +45,8 @@ const appRoutes: Routes = [
   {path: 'lineAwards', component: LineAwardsComponent, canActivate: [AuthGuard]},
   { path: 'relief', loadChildren: () => import('./relief/relief.module').then(m => m.ReliefModule) },
   { path: 'openTime2', loadChildren: () => import('./open-time-v2/open-time-v2.module').then(m => m.OpenTimeV2Module) },
-  { path: 'vacBidV2', loadChildren: () => import('./vac-bid-v2/vac-bid-v2.module').then(m => m.VacBidV2Module) }
+  { path: 'vacBidV2', loadChildren: () => import('./vac-bid-v2/vac-bid-v2.module').then(m => m.VacBidV2Module) },
+  { path: 'ptd', loadChildren: () => import('./ptd/ptd.module').then(m => m.PtdModule) }
 ]
 
 @NgModule({

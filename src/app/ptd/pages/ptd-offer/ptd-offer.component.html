@@ -1,0 +1,121 @@
+<div class="ptd-offer container-fluid">
+  <h3 class="mb-3">PTD Offer — Offer Your Workdays as Paid Trade Days</h3>
+
+  <!-- Header / actions -->
+  <div class="card mb-3">
+    <div class="card-body">
+      <div class="row g-3 align-items-end">
+        <div class="col-auto">
+          <label class="form-label fw-bold d-block">Selected</label>
+          <span class="counter">
+            {{ (selectedShifts$ | async)?.length || 0 }} / {{ ptdLimit$ | async }}
+          </span>
+        </div>
+        <div class="col-auto">
+          <button type="button" class="btn btn-sm btn-outline-secondary me-2"
+                  (click)="onClear()">Clear all</button>
+          <button type="button" class="btn btn-sm btn-outline-secondary me-2"
+                  (click)="onRevert()">Revert</button>
+          <button type="button" class="btn btn-sm btn-primary"
+                  [disabled]="!(canSubmit$ | async)"
+                  (click)="onSave()">Save Offer</button>
+        </div>
+        <div class="col">
+          <span class="status-indicator" *ngIf="response$ | async as status"
+                [class.unsaved]="status === 'unsaved'"
+                [class.saved]="status === 'saved'"
+                [class.error]="status?.startsWith('error') || status?.startsWith('XX') || status?.startsWith('RLF') || status?.includes('limit')">
+            <ng-container [ngSwitch]="status">
+              <ng-container *ngSwitchCase="'none'"></ng-container>
+              <ng-container *ngSwitchCase="'unsaved'">Unsaved changes</ng-container>
+              <ng-container *ngSwitchCase="'saved'">Saved</ng-container>
+              <ng-container *ngSwitchDefault>{{ status }}</ng-container>
+            </ng-container>
+          </span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- View controls -->
+  <div class="d-flex align-items-center mb-3 gap-2" *ngIf="viewMode$ | async as vm">
+    <div class="btn-group btn-group-sm">
+      <button class="btn"
+              [class.btn-primary]="vm === 'month'"
+              [class.btn-outline-primary]="vm !== 'month'"
+              (click)="onViewToggle('month')">Month</button>
+      <button class="btn"
+              [class.btn-primary]="vm === 'year'"
+              [class.btn-outline-primary]="vm !== 'year'"
+              (click)="onViewToggle('year')">Year</button>
+    </div>
+    <ng-container *ngIf="vm === 'month'">
+      <button class="btn btn-sm btn-outline-secondary" (click)="onPrev()">&laquo; Prev</button>
+      <span *ngIf="month$ | async as m" class="fw-bold">{{ m.label }}</span>
+      <button class="btn btn-sm btn-outline-secondary" (click)="onNext()">Next &raquo;</button>
+    </ng-container>
+  </div>
+
+  <!-- Legend -->
+  <div class="legend mb-3">
+    <span class="legend-item">
+      <span class="swatch workday-swatch"></span> Workday (clickable)
+    </span>
+    <span class="legend-item">
+      <span class="swatch selected-swatch"></span> Selected for PTD
+    </span>
+  </div>
+
+  <!-- Month view -->
+  <ng-container *ngIf="(viewMode$ | async) === 'month'">
+    <app-ptd-offer-calendar-grid
+      *ngIf="month$ | async as m"
+      [monthVm]="m"
+      [compact]="false"
+      (dayClicked)="onDayClicked($event)">
+    </app-ptd-offer-calendar-grid>
+  </ng-container>
+
+  <!-- Year view -->
+  <ng-container *ngIf="(viewMode$ | async) === 'year'">
+    <div class="year-grid" *ngIf="year$ | async as months">
+      <app-ptd-offer-mini-month
+        *ngFor="let m of months"
+        [monthVm]="m"
+        (dayClicked)="onDayClicked($event)"
+        (zoomToMonth)="onZoomToMonth($event)">
+      </app-ptd-offer-mini-month>
+    </div>
+  </ng-container>
+
+  <!-- Selected list -->
+  <div class="selected-list mt-4">
+    <h5>Your Offered Shifts</h5>
+    <ng-container *ngIf="selectedShifts$ | async as picks">
+      <p *ngIf="picks.length === 0" class="text-muted">
+        Click a workday on the calendar to offer it as a PTD.
+      </p>
+      <table *ngIf="picks.length > 0" class="table table-sm table-bordered">
+        <thead>
+          <tr>
+            <th style="width: 30%">Date</th>
+            <th style="width: 25%">Shift</th>
+            <th style="width: 25%">Start</th>
+            <th style="width: 20%"></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let s of picks">
+            <td>{{ s.shift_date }}</td>
+            <td class="shift-cell">{{ s.shift }}</td>
+            <td>{{ s.start_time }}</td>
+            <td>
+              <button type="button" class="btn btn-sm btn-outline-danger"
+                      (click)="onRemove(s.shift_date)">Remove</button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </ng-container>
+  </div>
+</div>

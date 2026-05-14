@@ -1,0 +1,193 @@
+<div class="ptd-bid">
+  <div class="ptd-header">
+    <h2>PTD Bid — Bid on Available Paid Trade Day Shifts</h2>
+  </div>
+
+  <div class="toolbar">
+    <a href="javascript:void(0)" (click)="showLegend = !showLegend">Legend</a>
+    <a href="javascript:void(0)" (click)="showFilters = !showFilters">Filters</a>
+  </div>
+
+  <!-- Filter panel -->
+  <div class="filter-panel" *ngIf="showFilters">
+    <div class="filter-group">
+      <label class="filter-checkbox">
+        <input type="checkbox" [(ngModel)]="hideWorkdays"> Hide my workdays
+      </label>
+    </div>
+    <div class="filter-group">
+      <span class="filter-group-label">Time</span>
+      <label class="filter-checkbox"><input type="checkbox" [(ngModel)]="filterAm"> AM</label>
+      <label class="filter-checkbox"><input type="checkbox" [(ngModel)]="filterPm"> PM</label>
+      <label class="filter-checkbox"><input type="checkbox" [(ngModel)]="filterMid"> Mid</label>
+    </div>
+    <div class="filter-group" *ngIf="(workgroup$ | async) !== 'som'">
+      <span class="filter-group-label">Region</span>
+      <label class="filter-checkbox"><input type="checkbox" [(ngModel)]="filterDom"> Dom</label>
+      <label class="filter-checkbox" *ngIf="isIntlQualified$ | async">
+        <input type="checkbox" [(ngModel)]="filterIntl"> Intl
+      </label>
+    </div>
+    <div class="filter-group" *ngIf="(workgroup$ | async) !== 'som'">
+      <span class="filter-group-label">Length</span>
+      <label class="filter-checkbox"><input type="checkbox" [(ngModel)]="filterNine"> 9 hr</label>
+      <label class="filter-checkbox"><input type="checkbox" [(ngModel)]="filterTen"> 10 hr</label>
+    </div>
+    <div class="filter-group" *ngIf="(workgroup$ | async) === 'som'">
+      <span class="filter-group-label">Type</span>
+      <label class="filter-checkbox"><input type="checkbox" [(ngModel)]="filterFleet"> Fleet</label>
+      <label class="filter-checkbox" *ngIf="isSptQualified$ | async">
+        <input type="checkbox" [(ngModel)]="filterSpt"> SPT
+      </label>
+    </div>
+  </div>
+
+  <!-- Legend panel -->
+  <div class="legend-panel" *ngIf="showLegend">
+    <div class="legend-section">
+      <div class="legend-title">Day Status</div>
+      <div class="legend-items">
+        <div class="legend-item">
+          <div class="legend-color" style="background: #fef3c7; border-color: #fbbf24;"></div>
+          <span>Work Day</span>
+        </div>
+        <div class="legend-item">
+          <div class="legend-color" style="background: #f7fafc; border-color: #e2e8f0;"></div>
+          <span>Off Day</span>
+        </div>
+      </div>
+    </div>
+
+    <ng-container *ngIf="(workgroup$ | async) === 'som'">
+      <div class="legend-section">
+        <div class="legend-title">Shift Colors (SOM)</div>
+        <div class="legend-items">
+          <div class="legend-item"><div class="legend-color" style="background: #FFCCFF;"></div><span>Day Fleet</span></div>
+          <div class="legend-item"><div class="legend-color" style="background: #0070C0;"></div><span>Night Fleet</span></div>
+          <div class="legend-item"><div class="legend-color" style="background: #00FFFF;"></div><span>Terminal (C, D, E)</span></div>
+          <div class="legend-item"><div class="legend-color" style="background: #00B0F0;"></div><span>Airborne (F, G, H)</span></div>
+          <div class="legend-item"><div class="legend-color" style="background: #FF0000;"></div><span>Regional (J, K)</span></div>
+        </div>
+      </div>
+    </ng-container>
+
+    <ng-container *ngIf="(workgroup$ | async) !== 'som'">
+      <div class="legend-section">
+        <div class="legend-title">Shift Colors (FS)</div>
+        <div class="legend-items">
+          <div class="legend-item"><div class="legend-color" style="background: #F7C9FC;"></div><span>Dom AM</span></div>
+          <div class="legend-item"><div class="legend-color" style="background: #B48CB9;"></div><span>Dom PM</span></div>
+          <div class="legend-item"><div class="legend-color" style="background: #7D5881;"></div><span>Dom Mid</span></div>
+          <div class="legend-item"><div class="legend-color" style="background: #F8BA2F;"></div><span>LAT</span></div>
+          <div class="legend-item"><div class="legend-color" style="background: #39A5E9;"></div><span>NAT</span></div>
+          <div class="legend-item"><div class="legend-color" style="background: #FFFD3E;"></div><span>PAC</span></div>
+        </div>
+      </div>
+    </ng-container>
+  </div>
+
+  <!-- View toggle / month nav -->
+  <div class="d-flex align-items-center mb-3 gap-2" *ngIf="viewMode$ | async as vm">
+    <div class="btn-group btn-group-sm">
+      <button class="btn"
+              [class.btn-primary]="vm === 'month'"
+              [class.btn-outline-primary]="vm !== 'month'"
+              (click)="onViewToggle('month')">Month</button>
+      <button class="btn"
+              [class.btn-primary]="vm === 'year'"
+              [class.btn-outline-primary]="vm !== 'year'"
+              (click)="onViewToggle('year')">Year</button>
+    </div>
+    <ng-container *ngIf="vm === 'month'">
+      <button class="btn btn-sm btn-outline-secondary" (click)="onPrev()">&laquo; Prev</button>
+      <span *ngIf="month$ | async as m" class="fw-bold">{{ m.label }}</span>
+      <button class="btn btn-sm btn-outline-secondary" (click)="onNext()">Next &raquo;</button>
+    </ng-container>
+  </div>
+
+  <!-- Month view -->
+  <ng-container *ngIf="(viewMode$ | async) === 'month'">
+    <app-ptd-shift-grid
+      *ngIf="month$ | async as m"
+      [monthVm]="m"
+      [selectedShiftIds]="(selectedShiftIds$ | async) || emptyIds"
+      [workdaysMap]="(workdaysMap$ | async) || emptyMap"
+      [offeredDates]="(offeredDates$ | async) || emptyDates"
+      [hideWorkdays]="hideWorkdays"
+      [filterAm]="filterAm"
+      [filterPm]="filterPm"
+      [filterMid]="filterMid"
+      [filterDom]="filterDom"
+      [filterIntl]="filterIntl"
+      [filterFleet]="filterFleet"
+      [filterSpt]="filterSpt"
+      [filterNine]="filterNine"
+      [filterTen]="filterTen"
+      [isIntlQualified]="(isIntlQualified$ | async) || false"
+      [isSptQualified]="(isSptQualified$ | async) || false"
+      (shiftClicked)="onShiftClicked($event)">
+    </app-ptd-shift-grid>
+  </ng-container>
+
+  <!-- Year view -->
+  <ng-container *ngIf="(viewMode$ | async) === 'year'">
+    <div class="year-grid" *ngIf="year$ | async as months">
+      <app-ptd-shift-mini-month
+        *ngFor="let m of months"
+        [monthVm]="m"
+        [workdaysMap]="(workdaysMap$ | async) || emptyMap"
+        [offeredDates]="(offeredDates$ | async) || emptyDates"
+        (zoomToMonth)="onZoomToMonth($event)">
+      </app-ptd-shift-mini-month>
+    </div>
+  </ng-container>
+
+  <!-- My Bid section -->
+  <h3>My Bid</h3>
+
+  <div class="bid-table-wrapper" *ngIf="picks$ | async as picks">
+    <div *ngIf="picks.length === 0" class="no-picks">
+      Click shifts in the calendar to add them to your bid. Drag rows to reorder.
+    </div>
+
+    <table class="bid-table" *ngIf="picks.length > 0" cdkDropList (cdkDropListDropped)="onDrop($event)">
+      <thead>
+        <tr>
+          <th class="col-choice">#</th>
+          <th class="col-date">Date</th>
+          <th class="col-shift">Shift</th>
+          <th class="col-start" *ngIf="(workgroup$ | async) !== 'som'">Start</th>
+          <th class="col-action"></th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let pick of picks; let i = index" cdkDrag>
+          <td class="col-choice">{{ i + 1 }}</td>
+          <td class="col-date">{{ pick.shift_date }}</td>
+          <td class="col-shift pick-label">{{ pick.shift }}</td>
+          <td class="col-start" *ngIf="(workgroup$ | async) !== 'som'">{{ pick.start_time }}</td>
+          <td class="col-action">
+            <button type="button" class="pick-remove" (click)="removePick(i)">&#10005;</button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Action bar -->
+  <div class="action-bar">
+    <button type="button" class="btn-save" (click)="save()">Save</button>
+    <button type="button" class="btn-revert" (click)="revert()">Revert</button>
+    <span class="status-indicator" *ngIf="response$ | async as status"
+          [class.unsaved]="status === 'unsaved'"
+          [class.saved]="status === 'saved'"
+          [class.error]="status === 'error'">
+      <ng-container [ngSwitch]="status">
+        <ng-container *ngSwitchCase="'none'"></ng-container>
+        <ng-container *ngSwitchCase="'unsaved'">Unsaved changes</ng-container>
+        <ng-container *ngSwitchCase="'error'">Save failed</ng-container>
+        <ng-container *ngSwitchCase="'saved'">Saved</ng-container>
+      </ng-container>
+    </span>
+  </div>
+</div>

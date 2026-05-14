@@ -1,0 +1,271 @@
+.ptd-bid {
+  padding: 16px;
+}
+
+.ptd-header h2 {
+  font-size: 18px;
+  font-weight: 700;
+  color: #2d3748;
+  margin: 0 0 16px;
+}
+
+.toolbar {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.toolbar a {
+  font-weight: 600;
+  font-size: 14px;
+  color: #0d6efd;
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.toolbar a:hover {
+  text-decoration: underline;
+}
+
+.filter-panel {
+  display: flex;
+  gap: 24px;
+  align-items: center;
+  flex-wrap: wrap;
+  background: #f7fafc;
+  border: 2px solid #e2e8f0;
+  border-radius: 10px;
+  padding: 10px 16px;
+  margin-bottom: 16px;
+}
+
+.filter-group {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.filter-group-label {
+  font-weight: 600;
+  font-size: 13px;
+  color: #4a5568;
+}
+
+.filter-checkbox {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 13px;
+  cursor: pointer;
+  user-select: none;
+}
+
+.filter-checkbox input {
+  cursor: pointer;
+}
+
+.legend-panel {
+  background: #f7fafc;
+  border: 2px solid #e2e8f0;
+  border-radius: 10px;
+  padding: 16px;
+  margin-bottom: 16px;
+}
+
+.legend-section {
+  margin-bottom: 16px;
+}
+
+.legend-section:last-child {
+  margin-bottom: 0;
+}
+
+.legend-title {
+  font-weight: 600;
+  color: #2d3748;
+  margin-bottom: 8px;
+  font-size: 14px;
+}
+
+.legend-items {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+}
+
+.legend-color {
+  width: 20px;
+  height: 20px;
+  border-radius: 4px;
+  border: 2px solid #cbd5e0;
+  flex-shrink: 0;
+}
+
+.year-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+@media (max-width: 768px) {
+  .year-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 480px) {
+  .year-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+h3 {
+  font-size: 16px;
+  font-weight: 700;
+  color: #2d3748;
+  margin: 20px 0 10px;
+}
+
+.bid-table-wrapper {
+  margin-bottom: 16px;
+}
+
+.no-picks {
+  color: #a0aec0;
+  font-size: 13px;
+  padding: 12px 0;
+}
+
+.bid-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+.bid-table thead {
+  background: #edf2f7;
+}
+
+.bid-table th {
+  text-align: left;
+  padding: 6px 8px;
+  font-weight: 600;
+  color: #4a5568;
+  font-size: 12px;
+}
+
+.bid-table tbody tr {
+  border-bottom: 1px solid #f0f0f0;
+  cursor: grab;
+  transition: background 0.15s;
+}
+
+.bid-table tbody tr:hover {
+  background: #f7fafc;
+}
+
+.col-choice { width: 40px; }
+.col-date { width: 120px; }
+.col-shift { width: 80px; }
+.col-start { width: 80px; }
+.col-action { width: 30px; }
+
+.bid-table td {
+  padding: 4px 8px;
+}
+
+.pick-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-weight: 600;
+}
+
+.pick-remove {
+  background: none;
+  border: none;
+  color: #e53e3e;
+  cursor: pointer;
+  font-size: 12px;
+  padding: 1px 3px;
+  border-radius: 3px;
+  line-height: 1;
+}
+
+.pick-remove:hover {
+  background: #fed7d7;
+}
+
+.action-bar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.btn-save, .btn-revert {
+  padding: 8px 20px;
+  border-radius: 6px;
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+  border: none;
+}
+
+.btn-save {
+  background: #0d6efd;
+  color: white;
+}
+
+.btn-save:hover {
+  background: #0b5ed7;
+}
+
+.btn-revert {
+  background: #e2e8f0;
+  color: #4a5568;
+}
+
+.btn-revert:hover {
+  background: #cbd5e0;
+}
+
+.status-indicator {
+  font-size: 13px;
+  font-weight: 600;
+  padding: 4px 10px;
+  border-radius: 4px;
+}
+
+.status-indicator.unsaved {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.status-indicator.saved {
+  background: #d1fae5;
+  color: #065f46;
+}
+
+.status-indicator.error {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+.cdk-drag-preview {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  border-radius: 4px;
+}
+
+.cdk-drag-placeholder {
+  opacity: 0.4;
+}
+
+.cdk-drag-animating {
+  transition: transform 200ms ease;
+}

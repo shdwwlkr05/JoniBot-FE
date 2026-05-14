@@ -20,7 +20,7 @@ export interface AuthResponseData {
 export class AuthService {
   user = new BehaviorSubject<User>(null);
   authMessage = new BehaviorSubject<any>('');
-  private static TESTERS = ['DAL110', 'DAL545'];
+  private static TESTERS = ['DAL110', 'DAL545', 'DAL256'];
   private readonly isReliefSubject = new BehaviorSubject<boolean>(false);
   readonly isRelief$ = this.isReliefSubject.asObservable();
 

@@ -102,6 +102,20 @@
              routerLinkActive="active"
              [routerLinkActiveOptions]="{exact: true}">Vac Bid 2.0</a>
         </li>
+        <li class="nav-item" *ngIf="isAuthenticated && isTester(user?.username)">
+          <a class="nav-link"
+             aria-current="page"
+             routerLink="ptd/offer"
+             routerLinkActive="active"
+             [routerLinkActiveOptions]="{exact: true}">PTD Offer</a>
+        </li>
+        <li class="nav-item" *ngIf="isAuthenticated && isTester(user?.username)">
+          <a class="nav-link"
+             aria-current="page"
+             routerLink="ptd/bid"
+             routerLinkActive="active"
+             [routerLinkActiveOptions]="{exact: true}">PTD Bid</a>
+        </li>
         <li class="nav-item" *ngIf="isAuthenticated && links?.relief_bid && user.username == 'FLTCTRLSKED'">
           <a class="nav-link"
              aria-current="page"
